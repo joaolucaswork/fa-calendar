@@ -1,0 +1,88 @@
+<template>
+  <!-- Teams Link Generation Section (only for online meetings) -->
+  <template if:true={isOnlineMeeting}>
+    <div class="section-container">
+      <div class="section-header">
+        <h3 class="section-title">
+          <lightning-icon
+            icon-name="utility:link"
+            size="x-small"
+            class="slds-m-right_x-small"
+          ></lightning-icon>
+          Link da Reunião
+        </h3>
+
+        <!-- Teams integration status indicator -->
+        <template if:true={isGeneratingTeamsLink}>
+          <div class="teams-status-indicator">
+            <lightning-spinner
+              size="x-small"
+              variant="brand"
+              alternative-text="Gerando link do Teams..."
+            ></lightning-spinner>
+            <span class="teams-status-text"
+              >Gerando link do Microsoft Teams...</span
+            >
+          </div>
+        </template>
+      </div>
+
+      <div class="slds-p-around_medium">
+        <lightning-input
+          label="Link da Reunião"
+          value={linkReuniao}
+          name="linkReuniao"
+          placeholder="Link será gerado automaticamente para reuniões online..."
+          disabled={isGeneratingTeamsLink}
+          readonly
+        ></lightning-input>
+
+        <!-- Teams link generation info -->
+        <template if:true={linkReuniao}>
+          <div class="teams-link-info">
+            <template if:true={isTeamsLink}>
+              <div class="teams-link-card">
+                <lightning-icon
+                  icon-name="utility:success"
+                  size="x-small"
+                  class="teams-success-icon"
+                ></lightning-icon>
+                <span class="teams-link-text"
+                  >Link do Microsoft Teams gerado automaticamente</span
+                >
+                <button
+                  class="slds-button slds-button_icon teams-test-button"
+                  onclick={handleTestTeamsLink}
+                  title="Testar link do Teams"
+                >
+                  <lightning-icon
+                    icon-name="utility:new_window"
+                    size="x-small"
+                  ></lightning-icon>
+                </button>
+              </div>
+            </template>
+          </div>
+        </template>
+
+        <!-- Manual regeneration button -->
+        <template if:false={isGeneratingTeamsLink}>
+          <div class="teams-actions">
+            <button
+              class="slds-button slds-button_outline-brand teams-regenerate-button"
+              onclick={handleRegenerateTeamsLink}
+              disabled={isLoading}
+            >
+              <lightning-icon
+                icon-name="utility:refresh"
+                size="x-small"
+                class="slds-button__icon slds-button__icon_left"
+              ></lightning-icon>
+              Gerar Novo Link do Teams
+            </button>
+          </div>
+        </template>
+      </div>
+    </div>
+  </template>
+</template>

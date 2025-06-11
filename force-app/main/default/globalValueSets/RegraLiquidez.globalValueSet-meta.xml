@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Apenas no vencimento</fullName>
+        <default>true</default>
+        <label>Apenas no vencimento</label>
+    </customValue>
+    <customValue>
+        <fullName>Dias úteis após a solicitação</fullName>
+        <default>false</default>
+        <label>Dias úteis após a solicitação</label>
+    </customValue>
+    <customValue>
+        <fullName>Dias corridos após a solicitação</fullName>
+        <default>false</default>
+        <label>Dias corridos após a solicitação</label>
+    </customValue>
+    <customValue>
+        <fullName>Dias úteis a partir da data</fullName>
+        <default>false</default>
+        <label>Dias úteis a partir da data</label>
+    </customValue>
+    <customValue>
+        <fullName>Dias corridos a partir da data</fullName>
+        <default>false</default>
+        <label>Dias corridos a partir da data</label>
+    </customValue>
+    <masterLabel>Regra de Liquidez</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

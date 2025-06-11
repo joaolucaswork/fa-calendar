@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <isExposed>true</isExposed>
+    <description
+  >Reusable component to display "Acontecendo Agora" (Happening Now) indicator for events currently in progress</description>
+    <masterLabel>Happening Now Indicator</masterLabel>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig
+      targets="lightning__AppPage,lightning__HomePage,lightning__RecordPage"
+    >
+            <property
+        name="startDateTime"
+        type="String"
+        label="Start Date/Time"
+        description="Event start date and time (ISO format)"
+      />
+            <property
+        name="endDateTime"
+        type="String"
+        label="End Date/Time"
+        description="Event end date and time (ISO format)"
+      />
+            <property
+        name="customText"
+        type="String"
+        label="Custom Text"
+        description="Custom text to display (default: Acontecendo Agora)"
+        default="Acontecendo Agora"
+      />
+            <property
+        name="size"
+        type="String"
+        label="Size"
+        description="Size variant: small, medium, large"
+        default="medium"
+      />
+            <property
+        name="showAnimation"
+        type="Boolean"
+        label="Show Animation"
+        description="Whether to show pulse animation (default: true)"
+      />
+            <property
+        name="useServerValidation"
+        type="Boolean"
+        label="Use Server Validation"
+        description="Whether to use server-side validation for timezone accuracy"
+        default="false"
+      />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

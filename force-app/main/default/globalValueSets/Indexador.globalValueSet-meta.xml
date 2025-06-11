@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>CDI</fullName>
+        <default>true</default>
+        <label>CDI</label>
+    </customValue>
+    <customValue>
+        <fullName>SELIC</fullName>
+        <default>false</default>
+        <label>SELIC</label>
+    </customValue>
+    <customValue>
+        <fullName>Pré-fixada</fullName>
+        <default>false</default>
+        <label>Pré-fixada</label>
+    </customValue>
+    <customValue>
+        <fullName>IPCA</fullName>
+        <default>false</default>
+        <label>IPCA</label>
+    </customValue>
+    <customValue>
+        <fullName>IPCA B3</fullName>
+        <default>false</default>
+        <label>IPCA B3</label>
+    </customValue>
+    <customValue>
+        <fullName>IGP-M</fullName>
+        <default>false</default>
+        <label>IGP-M</label>
+    </customValue>
+    <customValue>
+        <fullName>IGP-M B3</fullName>
+        <default>false</default>
+        <label>IGP-M B3</label>
+    </customValue>
+    <masterLabel>Indexador</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

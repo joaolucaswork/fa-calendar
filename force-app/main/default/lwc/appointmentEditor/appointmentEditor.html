@@ -1,0 +1,1005 @@
+<template>
+  <!-- Modal para edição/criação de compromissos -->
+  <template if:true={showModal}>
+    <div class="modal-container">
+      <section
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="appointment-modal-heading"
+        aria-modal="true"
+        aria-describedby="appointment-modal-content"
+        class="slds-modal slds-fade-in-open"
+      >
+        <div class="slds-modal__container">
+          <!-- Modal Header -->
+          <header class="slds-modal__header">
+            <button
+              class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+              title="Fechar"
+              onclick={closeModal}
+            >
+              <lightning-icon
+                icon-name="utility:close"
+                alternative-text="Fechar"
+                size="small"
+              ></lightning-icon>
+              <span class="slds-assistive-text">Fechar</span>
+            </button>
+            <h2
+              id="appointment-modal-heading"
+              class="slds-modal__title slds-hyphenate"
+            >
+              <lightning-icon
+                icon-name="standard:event"
+                size="small"
+                class="slds-m-right_small"
+              ></lightning-icon>
+              {modalTitle}
+            </h2>
+            <p class="slds-m-top_x-small">{modalSubtitle}</p>
+          </header>
+
+          <!-- Modal Body -->
+          <div
+            class="slds-modal__content slds-p-around_medium"
+            id="appointment-modal-content"
+          >
+            <template if:true={isLoading}>
+              <div class="slds-is-relative slds-p-around_large">
+                <lightning-spinner
+                  variant="brand"
+                  alternative-text="Carregando"
+                  size="medium"
+                ></lightning-spinner>
+              </div>
+            </template>
+
+            <template if:false={isLoading}>
+              <template if:true={error}>
+                <div
+                  class="slds-notify slds-notify_alert slds-alert_error"
+                  role="alert"
+                >
+                  <lightning-icon
+                    icon-name="utility:error"
+                    size="small"
+                    class="slds-m-right_small"
+                  ></lightning-icon>
+                  <h2>{error}</h2>
+                </div>
+              </template>
+
+              <!-- Detalhes do Compromisso -->
+              <div class="section-container">
+                <div class="section-header">
+                  <h3 class="section-title">
+                    <lightning-icon
+                      icon-name="standard:event"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    Detalhes do Compromisso
+                  </h3>
+                </div>
+
+                <div class="slds-p-around_medium">
+                  <div class="slds-form">
+                    <div class="slds-grid slds-wrap">
+                      <!-- Assunto do Compromisso - Read-only, auto-generated -->
+                      <div
+                        class="slds-col slds-size_1-of-1 slds-p-horizontal_small slds-p-bottom_small"
+                      >
+                        <div class="subject-card">
+                          <div class="subject-label">
+                            <lightning-icon
+                              icon-name="utility:text"
+                              size="x-small"
+                              class="slds-m-right_x-small"
+                            ></lightning-icon>
+                            Assunto (Gerado Automaticamente)
+                          </div>
+                          <div class="subject-value">{eventData.subject}</div>
+                        </div>
+                      </div>
+
+                      <!-- Fase do Evento -->
+                      <div
+                        class="slds-col slds-size_1-of-2 slds-p-horizontal_small slds-p-bottom_small"
+                      >
+                        <lightning-combobox
+                          label="Fase do Evento"
+                          value={eventData.faseEvento}
+                          options={faseEventoOptions}
+                          name="faseEvento"
+                          onchange={handleFieldChange}
+                          placeholder="Selecione a fase..."
+                          variant="standard"
+                        >
+                        </lightning-combobox>
+                      </div>
+
+                      <!-- Produto do Evento -->
+                      <div
+                        class="slds-col slds-size_1-of-2 slds-p-horizontal_small slds-p-bottom_small"
+                      >
+                        <lightning-combobox
+                          label="Produto do Evento"
+                          value={eventData.produtoEvento}
+                          options={produtoEventoOptions}
+                          name="produtoEvento"
+                          onchange={handleFieldChange}
+                          placeholder="Selecione o produto..."
+                          variant="standard"
+                        >
+                        </lightning-combobox>
+                      </div>
+
+                      <!-- Tipo de Compromisso - Moved to appear right after Subject -->
+                      <div
+                        class="slds-col slds-size_1-of-1 slds-p-horizontal_small slds-p-bottom_medium"
+                      >
+                        <div class="slds-form-element">
+                          <label
+                            class="slds-form-element__label"
+                            for="appointment-type"
+                            >Tipo de Compromisso</label
+                          >
+                          <div class="slds-form-element__control">
+                            <div class="cards-carousel-container">
+                              <div class="cards-carousel">
+                                <!-- Card Reunião Presencial -->
+                                <div
+                                  class={reuniaoPresencialClass}
+                                  data-type="Reunião Presencial"
+                                  onclick={handleTypeCardClick}
+                                >
+                                  <div class="card-header">
+                                    <lightning-icon
+                                      icon-name="standard:location"
+                                      size="small"
+                                      class="slds-m-bottom_x-small"
+                                    ></lightning-icon>
+                                  </div>
+                                  <div class="card-title">Presencial</div>
+                                </div>
+
+                                <!-- Card Reunião Online -->
+                                <div
+                                  class={reuniaoOnlineClass}
+                                  data-type="Reunião Online"
+                                  onclick={handleTypeCardClick}
+                                >
+                                  <div class="card-header">
+                                    <lightning-icon
+                                      icon-name="standard:video"
+                                      size="small"
+                                      class="slds-m-bottom_x-small"
+                                    ></lightning-icon>
+                                  </div>
+                                  <div class="card-title">Reunião Online</div>
+                                </div>
+
+                                <!-- Card Ligação Telefônica -->
+                                <div
+                                  class={ligacaoTelefonicaClass}
+                                  data-type="Ligação Telefônica"
+                                  onclick={handleTypeCardClick}
+                                >
+                                  <div class="card-header">
+                                    <lightning-icon
+                                      icon-name="standard:call"
+                                      size="small"
+                                      class="slds-m-bottom_x-small"
+                                    ></lightning-icon>
+                                  </div>
+                                  <div class="card-title">Por Telefone</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- WhoId and WhatId Lookup Fields - Always visible for new events -->
+                      <template if:true={showLookupFields}>
+                        <!-- Contact (WhoId) Lookup -->
+                        <div
+                          class="slds-col slds-size_1-of-2 slds-p-horizontal_small slds-p-bottom_small"
+                        >
+                          <div class="slds-form-element">
+                            <label class="slds-form-element__label">
+                              <abbr class="slds-required" title="obrigatório"
+                                >*</abbr
+                              >
+                              {contactFieldLabel}
+                            </label>
+                            <div
+                              class="slds-form-element__control slds-combobox_container"
+                            >
+                              <div
+                                class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click"
+                              >
+                                <lightning-input
+                                  type="search"
+                                  label={contactFieldLabel}
+                                  variant="label-hidden"
+                                  placeholder={contactFieldPlaceholder}
+                                  value={selectedContactName}
+                                  onchange={handleContactSearch}
+                                  onclick={handleContactSearch}
+                                  data-field="WhoId"
+                                  class="slds-combobox__input"
+                                ></lightning-input>
+
+                                <!-- Contact Search Results Dropdown -->
+                                <template if:true={showContactDropdown}>
+                                  <div
+                                    class="lookup-dropdown slds-dropdown slds-dropdown_fluid"
+                                  >
+                                    <ul
+                                      class="lookup-dropdown-list slds-listbox slds-listbox_vertical"
+                                    >
+                                      <template if:true={isSearchingContacts}>
+                                        <li
+                                          class="lookup-dropdown-item slds-listbox__item lookup-loading-item"
+                                        >
+                                          <div
+                                            class="slds-media slds-listbox__option"
+                                          >
+                                            <div
+                                              class="slds-media__figure slds-listbox__option-icon"
+                                            >
+                                              <lightning-spinner
+                                                size="small"
+                                                variant="brand"
+                                                alternative-text="Carregando"
+                                              ></lightning-spinner>
+                                            </div>
+                                            <div class="slds-media__body">
+                                              <span class="slds-truncate"
+                                                >Buscando...</span
+                                              >
+                                            </div>
+                                          </div>
+                                        </li>
+                                      </template>
+                                      <template
+                                        for:each={contactSearchResults}
+                                        for:item="contact"
+                                      >
+                                        <li
+                                          key={contact.Id}
+                                          class="lookup-dropdown-item slds-listbox__item"
+                                        >
+                                          <div
+                                            class="lookup-dropdown-item-content slds-media slds-listbox__option slds-listbox__option_plain"
+                                            data-id={contact.Id}
+                                            data-name={contact.DisplayName}
+                                            onclick={handleContactSelect}
+                                          >
+                                            <lightning-icon
+                                              icon-name={contact.IconName}
+                                              size="x-small"
+                                              class="slds-m-right_x-small"
+                                            ></lightning-icon>
+                                            <div class="slds-media__body">
+                                              <div
+                                                class="lookup-dropdown-item-title"
+                                              >
+                                                {contact.DisplayName}
+                                              </div>
+                                              <div
+                                                class="lookup-dropdown-item-subtitle"
+                                              >
+                                                {contact.Type} • {contact.Email}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </li>
+                                      </template>
+                                      <template if:false={isSearchingContacts}>
+                                        <template
+                                          if:true={contactSearchResults.length}
+                                        >
+                                          <li
+                                            class="lookup-dropdown-footer slds-listbox__item"
+                                          >
+                                            <div class="slds-text-body_small">
+                                              {contactSearchResults.length}
+                                              resultados encontrados
+                                            </div>
+                                          </li>
+                                        </template>
+                                        <template
+                                          if:false={contactSearchResults.length}
+                                        >
+                                          <li
+                                            class="lookup-dropdown-item slds-listbox__item lookup-empty-item"
+                                          >
+                                            <div
+                                              class="slds-media slds-listbox__option"
+                                            >
+                                              <div
+                                                class="slds-media__body slds-text-align_center"
+                                              >
+                                                <span class="slds-truncate"
+                                                  >Nenhum resultado
+                                                  encontrado</span
+                                                >
+                                              </div>
+                                            </div>
+                                          </li>
+                                        </template>
+                                      </template>
+                                    </ul>
+                                  </div>
+                                </template>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Opportunity/Account (WhatId) Lookup -->
+                        <div
+                          class="slds-col slds-size_1-of-2 slds-p-horizontal_small slds-p-bottom_small"
+                        >
+                          <div class="slds-form-element">
+                            <label class="slds-form-element__label">
+                              Oportunidade/Conta
+                            </label>
+                            <div
+                              class="slds-form-element__control slds-combobox_container"
+                            >
+                              <div
+                                class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click"
+                              >
+                                <lightning-input
+                                  type="search"
+                                  label="Oportunidade/Conta"
+                                  variant="label-hidden"
+                                  placeholder="Buscar oportunidade ou conta..."
+                                  value={selectedOpportunityName}
+                                  onchange={handleOpportunitySearch}
+                                  onclick={handleOpportunitySearch}
+                                  data-field="WhatId"
+                                  class="slds-combobox__input"
+                                ></lightning-input>
+
+                                <!-- Opportunity Search Results Dropdown -->
+                                <template if:true={showOpportunityDropdown}>
+                                  <div
+                                    class="lookup-dropdown slds-dropdown slds-dropdown_fluid"
+                                  >
+                                    <ul
+                                      class="lookup-dropdown-list slds-listbox slds-listbox_vertical"
+                                    >
+                                      <template
+                                        if:true={isSearchingOpportunities}
+                                      >
+                                        <li
+                                          class="lookup-dropdown-item slds-listbox__item lookup-loading-item"
+                                        >
+                                          <div
+                                            class="slds-media slds-listbox__option"
+                                          >
+                                            <div
+                                              class="slds-media__figure slds-listbox__option-icon"
+                                            >
+                                              <lightning-spinner
+                                                size="small"
+                                                variant="brand"
+                                                alternative-text="Carregando"
+                                              ></lightning-spinner>
+                                            </div>
+                                            <div class="slds-media__body">
+                                              <span class="slds-truncate"
+                                                >Buscando...</span
+                                              >
+                                            </div>
+                                          </div>
+                                        </li>
+                                      </template>
+                                      <template
+                                        for:each={opportunitySearchResults}
+                                        for:item="opportunity"
+                                      >
+                                        <li
+                                          key={opportunity.Id}
+                                          class="lookup-dropdown-item slds-listbox__item"
+                                        >
+                                          <div
+                                            class="lookup-dropdown-item-content slds-media slds-listbox__option slds-listbox__option_plain"
+                                            data-id={opportunity.Id}
+                                            data-name={opportunity.DisplayName}
+                                            onclick={handleOpportunitySelect}
+                                          >
+                                            <lightning-icon
+                                              icon-name="standard:opportunity"
+                                              size="x-small"
+                                              class="slds-m-right_x-small"
+                                            ></lightning-icon>
+                                            <div class="slds-media__body">
+                                              <div
+                                                class="lookup-dropdown-item-title"
+                                              >
+                                                {opportunity.DisplayName}
+                                              </div>
+                                              <div
+                                                class="lookup-dropdown-item-subtitle"
+                                              >
+                                                {opportunity.Type} •
+                                                {opportunity.StageName}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </li>
+                                      </template>
+                                      <template
+                                        if:false={isSearchingOpportunities}
+                                      >
+                                        <template
+                                          if:true={opportunitySearchResults.length}
+                                        >
+                                          <li
+                                            class="lookup-dropdown-footer slds-listbox__item"
+                                          >
+                                            <div class="slds-text-body_small">
+                                              {opportunitySearchResults.length}
+                                              resultados encontrados
+                                            </div>
+                                          </li>
+                                        </template>
+                                        <template
+                                          if:false={opportunitySearchResults.length}
+                                        >
+                                          <li
+                                            class="lookup-dropdown-item slds-listbox__item lookup-empty-item"
+                                          >
+                                            <div
+                                              class="slds-media slds-listbox__option"
+                                            >
+                                              <div
+                                                class="slds-media__body slds-text-align_center"
+                                              >
+                                                <span class="slds-truncate"
+                                                  >Nenhum resultado
+                                                  encontrado</span
+                                                >
+                                              </div>
+                                            </div>
+                                          </li>
+                                        </template>
+                                      </template>
+                                    </ul>
+                                  </div>
+                                </template>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+
+                      <!-- Contact and Opportunity Information Cards - Dynamic Layout -->
+                      <template if:true={showContactOrOpportunityInfo}>
+                        <div class="contact-opportunity-info-section">
+                          <div class={contactOpportunityLayoutClass}>
+                            <!-- Contact Information Card -->
+                            <template if:true={hasContactInfo}>
+                              <div class={contactCardClass}>
+                                <div class="info-card-header">
+                                  <h4 class="info-card-title">
+                                    <lightning-icon
+                                      icon-name="standard:contact"
+                                      size="x-small"
+                                      class="slds-m-right_x-small"
+                                    ></lightning-icon>
+                                    Contato
+                                  </h4>
+                                  <button
+                                    class="slds-button info-card-action-link"
+                                    onclick={navigateToContact}
+                                  >
+                                    <lightning-icon
+                                      icon-name="utility:user"
+                                      size="x-small"
+                                      class="slds-button__icon slds-button__icon_left"
+                                    ></lightning-icon>
+                                    Detalhes
+                                  </button>
+                                </div>
+                                <div class="info-card-content">
+                                  <div class="info-field-row">
+                                    <div class="info-field">
+                                      <div class="info-field-label">Nome:</div>
+                                      <div class="info-field-value">
+                                        {contactName}
+                                      </div>
+                                    </div>
+                                    <div class="info-field">
+                                      <div class="info-field-label">Cargo:</div>
+                                      <div class="info-field-value">
+                                        {contactTitle}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="info-field-row">
+                                    <div class="info-field">
+                                      <div class="info-field-label">Email:</div>
+                                      <div class="info-field-value">
+                                        {contactEmail}
+                                      </div>
+                                    </div>
+                                    <div class="info-field">
+                                      <div class="info-field-label">
+                                        Telefone:
+                                      </div>
+                                      <div class="info-field-value">
+                                        {contactPhone}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <template if:true={contactCompany}>
+                                    <div class="info-field-row">
+                                      <div class="info-field">
+                                        <div class="info-field-label">
+                                          Empresa:
+                                        </div>
+                                        <div class="info-field-value">
+                                          {contactCompany}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </template>
+                                </div>
+                              </div>
+                            </template>
+
+                            <!-- Opportunity Information Card -->
+                            <template if:true={hasOpportunityInfo}>
+                              <div class={opportunityCardClass}>
+                                <div class="info-card-header">
+                                  <h4 class="info-card-title">
+                                    <lightning-icon
+                                      icon-name="standard:opportunity"
+                                      size="x-small"
+                                      class="slds-m-right_x-small"
+                                    ></lightning-icon>
+                                    Oportunidade
+                                  </h4>
+                                  <button
+                                    class="slds-button info-card-action-link"
+                                    onclick={navigateToOpportunity}
+                                  >
+                                    <lightning-icon
+                                      icon-name="utility:preview"
+                                      size="x-small"
+                                      class="slds-button__icon slds-button__icon_left"
+                                    ></lightning-icon>
+                                    Detalhes
+                                  </button>
+                                </div>
+                                <div class="info-card-content">
+                                  <div class="info-field-row">
+                                    <div class="info-field">
+                                      <div class="info-field-label">Nome:</div>
+                                      <div class="info-field-value">
+                                        {opportunityName}
+                                      </div>
+                                    </div>
+                                    <div class="info-field">
+                                      <div class="info-field-label">Valor:</div>
+                                      <div class="info-field-value">
+                                        {opportunityAmount}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="info-field-row">
+                                    <div class="info-field">
+                                      <div class="info-field-label">Tipo:</div>
+                                      <div class="info-field-value">
+                                        {opportunityType}
+                                      </div>
+                                    </div>
+                                    <div class="info-field">
+                                      <div class="info-field-label">
+                                        Estágio:
+                                      </div>
+                                      <div class="info-field-value">
+                                        {opportunityStage}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="info-field-row">
+                                    <div class="info-field">
+                                      <div class="info-field-label">
+                                        Probabilidade:
+                                      </div>
+                                      <div class="info-field-value">
+                                        <span class={probabilityColorClass}>
+                                          {opportunityProbability}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div class="info-field">
+                                      <div class="info-field-label">
+                                        Data de Fechamento:
+                                      </div>
+                                      <div class="info-field-value">
+                                        {opportunityCloseDate}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </template>
+                          </div>
+                        </div>
+                      </template>
+
+                      <!-- Sala de Reunião (sempre visível) -->
+                      <div class="section-container">
+                        <div class="section-header">
+                          <h3 class="section-title">
+                            <lightning-icon
+                              icon-name="standard:location"
+                              size="x-small"
+                              class="slds-m-right_x-small"
+                            ></lightning-icon>
+                            Sala de Reunião
+                          </h3>
+                        </div>
+
+                        <div class="slds-p-around_medium">
+                          <div class="slds-form-element">
+                            <div class="slds-form-element__control">
+                              <div class="cards-carousel-container">
+                                <div class="cards-carousel">
+                                  <!-- Card Sala Principal -->
+                                  <div
+                                    class={salaPrincipalCardClass}
+                                    data-value="salaPrincipal"
+                                    onclick={handleSalaSelect}
+                                  >
+                                    <div class="card-row">
+                                      <span
+                                        class="color-dot color-dot-green"
+                                      ></span>
+                                      <div class="card-title">
+                                        Sala Principal
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Card Sala do Gabriel -->
+                                  <div
+                                    class={salaGabrielCardClass}
+                                    data-value="salaGabriel"
+                                    onclick={handleSalaSelect}
+                                  >
+                                    <div class="card-row">
+                                      <span
+                                        class="color-dot color-dot-blue"
+                                      ></span>
+                                      <div class="card-title">
+                                        Sala do Gabriel
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Card Outra Localização -->
+                                  <div
+                                    class={outraSalaCardClass}
+                                    data-value="Outra"
+                                    onclick={handleSalaSelect}
+                                  >
+                                    <div class="card-row">
+                                      <span
+                                        class="color-dot color-dot-orange"
+                                      ></span>
+                                      <div class="card-title">Outra</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Teams Link Generator Component (apenas para reuniões online) -->
+                          <template if:true={isOnlineMeeting}>
+                            <c-teams-link-generator
+                              subject={eventData.subject}
+                              start-date-time={eventData.startDateTime}
+                              end-date-time={eventData.endDateTime}
+                              participants={selectedParticipants}
+                              organizer={currentUserInfo}
+                              appointment-type={appointmentType}
+                              link-reuniao={linkReuniao}
+                              onlinkgenerated={handleTeamsLinkGenerated}
+                              onlinkcleared={handleTeamsLinkCleared}
+                            ></c-teams-link-generator>
+                          </template>
+
+                          <!-- Localização (apenas quando "Outra" sala é selecionada) -->
+                          <template if:true={isOutraSala}>
+                            <div class="slds-m-top_medium">
+                              <lightning-input
+                                label="Localização"
+                                value={eventData.location}
+                                name="location"
+                                onchange={handleFieldChange}
+                                required
+                                placeholder="Endereço completo"
+                              ></lightning-input>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+
+                      <!-- Date/Time fields - Show only after appointment type is selected -->
+                      <template if:true={showDateTimeFields}>
+                        <!-- Data e Hora de Início -->
+                        <div
+                          class="slds-col slds-size_1-of-2 slds-p-horizontal_small slds-p-bottom_small"
+                        >
+                          <lightning-input
+                            type="datetime"
+                            label="Início"
+                            value={eventData.startDateTime}
+                            name="startDateTime"
+                            onchange={handleFieldChange}
+                            required
+                          >
+                          </lightning-input>
+                        </div>
+
+                        <!-- Data e Hora de Término -->
+                        <div
+                          class="slds-col slds-size_1-of-2 slds-p-horizontal_small slds-p-bottom_small"
+                        >
+                          <lightning-input
+                            type="datetime"
+                            label="Término"
+                            value={eventData.endDateTime}
+                            name="endDateTime"
+                            onchange={handleFieldChange}
+                            required
+                          >
+                          </lightning-input>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Participantes Obrigatórios -->
+              <div class="section-container">
+                <div class="section-header">
+                  <h3 class="section-title">
+                    <lightning-icon
+                      icon-name="utility:groups"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    Participantes
+                  </h3>
+                </div>
+
+                <div class="slds-p-around_medium">
+                  <div class="participants-container">
+                    <!-- Gestor Dropdown -->
+                    <div class={gestorDropdownClass}>
+                      <div class="dropdown-label-container">
+                        <lightning-icon
+                          icon-name="utility:user"
+                          size="x-small"
+                          class="dropdown-icon"
+                        ></lightning-icon>
+                        <span class="dropdown-label">Gestor (Opcional)</span>
+                      </div>
+                      <lightning-combobox
+                        name="gestor"
+                        placeholder="Selecionar gestor..."
+                        options={userOptions}
+                        value={selectedGestorName}
+                        onchange={handleParticipantSelect}
+                        variant="standard"
+                        class="enhanced-combobox"
+                      >
+                      </lightning-combobox>
+                    </div>
+
+                    <!-- Líder Comercial Dropdown -->
+                    <div class={liderComercialDropdownClass}>
+                      <div class="dropdown-label-container">
+                        <lightning-icon
+                          icon-name="utility:salesforce1"
+                          size="x-small"
+                          class="dropdown-icon"
+                        ></lightning-icon>
+                        <span class="dropdown-label"
+                          >Líder Comercial (Opcional)</span
+                        >
+                      </div>
+                      <lightning-combobox
+                        name="liderComercial"
+                        placeholder="Selecionar líder comercial..."
+                        options={userOptions}
+                        value={selectedLiderComercialName}
+                        onchange={handleParticipantSelect}
+                        variant="standard"
+                        class="enhanced-combobox"
+                      >
+                      </lightning-combobox>
+                    </div>
+
+                    <!-- SDR Dropdown -->
+                    <div class={sdrDropdownClass}>
+                      <div class="dropdown-label-container">
+                        <lightning-icon
+                          icon-name="utility:lead"
+                          size="x-small"
+                          class="dropdown-icon"
+                        ></lightning-icon>
+                        <span class="dropdown-label">SDR (Opcional)</span>
+                      </div>
+                      <lightning-combobox
+                        name="sdr"
+                        placeholder="Selecionar SDR..."
+                        options={userOptions}
+                        value={selectedSdrName}
+                        onchange={handleParticipantSelect}
+                        variant="standard"
+                        class="enhanced-combobox"
+                      >
+                      </lightning-combobox>
+                    </div>
+                  </div>
+
+                  <!-- Selected Participants Display -->
+                  <template if:true={hasSelectedParticipants}>
+                    <div class="selected-participants-section">
+                      <div class="selected-participants-header">
+                        <h4 class="selected-participants-title">
+                          <lightning-icon
+                            icon-name="utility:user"
+                            size="xx-small"
+                            class="slds-m-right_x-small"
+                          ></lightning-icon>
+                          Participantes Selecionados
+                        </h4>
+                      </div>
+                      <div class="selected-participants-display">
+                        <c-event-participant-display
+                          gestor-name={selectedGestorName}
+                          lider-comercial-name={selectedLiderComercialName}
+                          sdr-name={selectedSdrName}
+                          display-mode="compact"
+                          max-participants="3"
+                          show-photos="true"
+                          show-roles="true"
+                          custom-class="appointment-participants"
+                        ></c-event-participant-display>
+                      </div>
+                    </div>
+                  </template>
+
+                  <!-- Participants Validation Error - Removed since participants are now optional -->
+                  <!--
+                  <template if:true={participantsValidationError}>
+                    <div class="slds-form-element__help participants-error">
+                      {participantsValidationError}
+                    </div>
+                  </template>
+                  -->
+                </div>
+              </div>
+
+              <!-- Descrição -->
+              <!-- Campo Description ocultado para evitar que o usuário modifique o link da reunião -->
+              <!--
+              <div
+                class="slds-col slds-size_1-of-1 slds-p-horizontal_small slds-p-bottom_small"
+              >
+                <lightning-textarea
+                  label="Descrição"
+                  value={eventData.description}
+                  name="description"
+                  onchange={handleFieldChange}
+                  placeholder="Adicione detalhes importantes sobre o compromisso..."
+                >
+                </lightning-textarea>
+              </div>
+              -->
+
+              <!-- Status da Reunião -->
+              <div class="section-container">
+                <div class="section-header">
+                  <h3 class="section-title">
+                    <lightning-icon
+                      icon-name="utility:check"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    Status da Reunião
+                  </h3>
+                </div>
+
+                <div class="slds-p-around_medium">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <lightning-combobox
+                        label="Status da Reunião"
+                        name="statusReuniao"
+                        value={statusReuniao}
+                        options={statusOptions}
+                        onchange={handleFieldChange}
+                        variant="label-stacked"
+                        placeholder="Selecione o status da reunião"
+                      >
+                      </lightning-combobox>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Availability Dashboard - Temporarily Hidden -->
+              <!--
+              <template if:true={showAvailabilityDashboard}>
+                <div class="section-container">
+                  <div class="section-header">
+                    <h3 class="section-title">
+                      <lightning-icon
+                        icon-name="utility:clock"
+                        size="x-small"
+                        class="slds-m-right_x-small"
+                      ></lightning-icon>
+                      Disponibilidade dos Participantes
+                    </h3>
+                  </div>
+
+                  <div class="slds-p-around_medium">
+                    <c-availability-dashboard
+                      selected-date={eventData.startDateTime}
+                      selected-users={selectedParticipants}
+                      meeting-duration="60"
+                      working-hours-start="8"
+                      working-hours-end="18"
+                      exclude-event-id={eventId}
+                      ontimeslotselect={handleTimeSlotSelect}
+                    >
+                    </c-availability-dashboard>
+                  </div>
+                </div>
+              </template>
+              -->
+            </template>
+          </div>
+
+          <!-- Footer com botão de nota e botão Salvar -->
+          <footer class="slds-modal__footer">
+            <button
+              class="note-button"
+              onclick={handleAddNote}
+              title="Adicionar Nota"
+            >
+              <lightning-icon
+                icon-name="utility:note"
+                size="small"
+              ></lightning-icon>
+              Adicionar Nota
+            </button>
+            <button
+              class="slds-button slds-button_brand full-width-button"
+              onclick={saveAppointment}
+              disabled={isLoading}
+            >
+              Salvar
+            </button>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+  </template>
+</template>

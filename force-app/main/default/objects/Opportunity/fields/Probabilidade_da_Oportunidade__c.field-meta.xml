@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Probabilidade_da_Oportunidade__c</fullName>
+    <label>Probabilidade da Oportunidade</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>zero</fullName>
+                <default>true</default>
+                <label>0%</label>
+            </value>
+            <value>
+                <fullName>treze</fullName>
+                <default>false</default>
+                <label>13%</label>
+            </value>
+            <value>
+                <fullName>trintaequatro</fullName>
+                <default>false</default>
+                <label>34%</label>
+            </value>
+            <value>
+                <fullName>cinquentaecinco</fullName>
+                <default>false</default>
+                <label>55%</label>
+            </value>
+            <value>
+                <fullName>oitentaenove</fullName>
+                <default>false</default>
+                <label>89%</label>
+            </value>
+            <value>
+                <fullName>cem</fullName>
+                <default>false</default>
+                <label>100%</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

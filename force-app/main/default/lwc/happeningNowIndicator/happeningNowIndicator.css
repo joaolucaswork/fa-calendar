@@ -1,0 +1,190 @@
+/**
+ * HappeningNowIndicator LWC Styles
+ * Styles for the "Acontecendo Agora" (Happening Now) indicator component
+ */
+
+/* Base indicator styles */
+.happening-now-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #4bca81;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(75, 202, 129, 0.3);
+    margin: 2px 0;
+}
+
+/* Animated version with pulse effect */
+.happening-now-animated {
+    animation: pulse-happening 2s infinite;
+}
+
+/* Size variants */
+.happening-now-small {
+    padding: 2px 6px;
+    min-height: 16px;
+}
+
+.happening-now-medium {
+    padding: 3px 8px;
+    min-height: 20px;
+}
+
+.happening-now-large {
+    padding: 4px 12px;
+    min-height: 24px;
+}
+
+/* Text styles */
+.happening-now-text {
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+/* Text size variants */
+.happening-now-text-small {
+    font-size: 9px;
+}
+
+.happening-now-text-medium {
+    font-size: 10px;
+}
+
+.happening-now-text-large {
+    font-size: 11px;
+}
+
+/* Pulse animation */
+@keyframes pulse-happening {
+    0% {
+        box-shadow: 0 1px 3px rgba(75, 202, 129, 0.3);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 2px 8px rgba(75, 202, 129, 0.6);
+        transform: scale(1.02);
+    }
+    100% {
+        box-shadow: 0 1px 3px rgba(75, 202, 129, 0.3);
+        transform: scale(1);
+    }
+}
+
+/* Loading state */
+.happening-now-loading {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    opacity: 0.7;
+}
+
+/* Error state */
+.happening-now-error {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    opacity: 0.6;
+}
+
+.happening-now-error lightning-button-icon {
+    --slds-c-button-icon-color-foreground: #c23934;
+    --slds-c-button-icon-color-foreground-hover: #a61e1a;
+}
+
+/* Hover effects */
+.happening-now-indicator:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+.happening-now-animated:hover {
+    animation-play-state: paused;
+}
+
+/* Focus styles for accessibility */
+.happening-now-indicator:focus {
+    outline: 2px solid #4bca81;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .happening-now-indicator {
+        border: 2px solid #ffffff;
+        background: #2d7d32;
+    }
+    
+    .happening-now-text {
+        font-weight: 700;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .happening-now-animated {
+        animation: none;
+    }
+    
+    .happening-now-indicator:hover {
+        transform: none;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .happening-now-indicator {
+        background: #388e3c;
+        box-shadow: 0 1px 3px rgba(56, 142, 60, 0.4);
+    }
+    
+    .happening-now-animated {
+        animation: pulse-happening-dark 2s infinite;
+    }
+}
+
+@keyframes pulse-happening-dark {
+    0% {
+        box-shadow: 0 1px 3px rgba(56, 142, 60, 0.4);
+    }
+    50% {
+        box-shadow: 0 2px 8px rgba(56, 142, 60, 0.7);
+    }
+    100% {
+        box-shadow: 0 1px 3px rgba(56, 142, 60, 0.4);
+    }
+}
+
+/* Custom variants for specific use cases */
+.happening-now-sidebar {
+    margin-top: 6px;
+    margin-bottom: 2px;
+}
+
+.happening-now-calendar {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    z-index: 10;
+}
+
+.happening-now-card {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+/* RTL support */
+[dir="rtl"] .happening-now-calendar {
+    right: auto;
+    left: 2px;
+}
+
+[dir="rtl"] .happening-now-card {
+    margin-left: 0;
+    margin-right: auto;
+}

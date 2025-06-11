@@ -1,0 +1,40 @@
+<!--
+  HappeningNowIndicator LWC Template
+  Displays "Acontecendo Agora" (Happening Now) indicator for events in progress
+-->
+<template>
+    <!-- Main indicator - shown when event is happening -->
+    <div if:true={shouldShow} 
+         class={indicatorClasses}
+         role="status"
+         aria-label={accessibilityLabel}
+         title={customText}>
+        <span class={textClasses}>{customText}</span>
+    </div>
+    
+    <!-- Loading state - shown during server validation -->
+    <div if:true={shouldShowLoading} 
+         class="happening-now-loading"
+         role="status"
+         aria-label="Verificando status do evento">
+        <lightning-spinner 
+            alternative-text="Verificando..." 
+            size="xx-small">
+        </lightning-spinner>
+    </div>
+    
+    <!-- Error state - shown if validation fails -->
+    <div if:true={shouldShowError} 
+         class="happening-now-error"
+         role="alert"
+         aria-label="Erro ao verificar status do evento">
+        <lightning-button-icon
+            icon-name="utility:refresh"
+            variant="bare"
+            size="xx-small"
+            alternative-text="Tentar novamente"
+            title="Tentar novamente"
+            onclick={handleRefresh}>
+        </lightning-button-icon>
+    </div>
+</template>

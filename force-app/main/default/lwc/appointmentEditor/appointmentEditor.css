@@ -1,0 +1,1193 @@
+/* Estilos do Modal de Edição de Compromissos - Baseado no reuniaoModal */
+
+/* Estilos para o container do modal */
+.modal-container {
+  position: relative;
+  z-index: 9000;
+}
+
+/* Estilos para os containers de seção */
+.section-container {
+  margin-bottom: 0.75rem;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  border: 1px solid #ecedf0;
+}
+
+.section-header {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #ecedf0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #514f4f;
+  display: flex;
+  align-items: center;
+}
+
+/* Estilos para os rótulos e valores de campo - Enhanced for information sections */
+.field-label {
+  font-size: 0.75rem;
+  color: #706e6b;
+  margin-bottom: 0.125rem;
+  font-weight: 400;
+}
+
+.field-value {
+  font-size: 0.875rem;
+  color: #181818;
+  font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Empty field value styling */
+.field-value:empty::before {
+  content: "—";
+  color: #706e6b;
+  font-style: italic;
+}
+
+/* Container do carrossel com scroll */
+.cards-carousel-container {
+  padding: 0.5rem;
+  overflow: hidden;
+}
+
+/* Carrossel com scroll horizontal */
+.cards-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #d8d8d8 #f4f4f4;
+  gap: 0.75rem;
+  padding: 0.25rem 0.25rem 0.5rem 0.25rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Estilização da barra de rolagem para navegadores baseados em WebKit */
+.cards-carousel::-webkit-scrollbar {
+  height: 4px;
+}
+
+.cards-carousel::-webkit-scrollbar-track {
+  background: #f4f4f4;
+  border-radius: 2px;
+}
+
+.cards-carousel::-webkit-scrollbar-thumb {
+  background: #d8d8d8;
+  border-radius: 2px;
+}
+
+.cards-carousel::-webkit-scrollbar-thumb:hover {
+  background: #bdbdbd;
+}
+
+/* Estilo do card */
+.card-item {
+  flex: 0 0 auto;
+  width: 160px;
+  min-width: 160px;
+  background-color: #ffffff;
+  border: 1px solid #ecedf0;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 0.5rem;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  align-items: center;
+  opacity: 0.8; /* Slightly reduced opacity but still visible */
+  /* Removed grayscale filter to show colored dots */
+}
+
+/* Efeito hover nos cards */
+.card-item:hover {
+  transform: translateY(-2px);
+  opacity: 1; /* Full opacity on hover */
+  border-color: #2d2d2d;
+}
+
+/* Card selecionado */
+.card-selected {
+  border: 1px solid #2d2d2d;
+  opacity: 1; /* Full opacity for selected card */
+}
+
+/* Cabeçalho do card */
+.card-header {
+  display: flex;
+  margin-bottom: 0.375rem;
+}
+
+/* Layout para os dots ao lado do texto */
+.card-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 0.375rem 0;
+}
+
+/* Colored dots */
+.color-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.card-item:hover .color-dot {
+  transform: scale(1.2);
+}
+
+.card-selected .color-dot {
+  width: 16px;
+  height: 16px;
+  box-shadow:
+    0 0 0 2px white,
+    0 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.color-dot-blue {
+  background-color: #e3e7fb; /* Light lavender (pastel blue) - Sala do Gabriel */
+}
+
+.color-dot-green {
+  background-color: #f6e3d6; /* Light peach (pastel orange) - Sala Principal */
+}
+
+.color-dot-orange {
+  background-color: #f0e0d5; /* Light tan (pastel brown) - Outra Localização */
+}
+
+/* Classes de cores para probabilidade - matching reuniaoModal */
+.probability-0 {
+  color: #c23934;
+  font-weight: bold;
+}
+
+.probability-13 {
+  color: #e57f1e;
+  font-weight: bold;
+}
+
+.probability-34 {
+  color: #ffb75d;
+  font-weight: bold;
+}
+
+.probability-55 {
+  color: #afe16b;
+  font-weight: bold;
+}
+
+.probability-89 {
+  color: #4bca81;
+  font-weight: bold;
+}
+
+.probability-100 {
+  color: #058758;
+  font-weight: bold;
+}
+
+/* Título do card */
+.card-title {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: #181818;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  text-align: center;
+}
+
+/* Estilização conforme guia de estilo de cards */
+.cards-carousel-container {
+  padding: 0.5rem;
+  overflow: hidden;
+}
+
+.cards-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #d8d8d8 #f4f4f4;
+  gap: 0.75rem;
+  padding: 0.25rem 0.25rem 0.5rem 0.25rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cards-carousel::-webkit-scrollbar {
+  height: 4px;
+}
+
+.cards-carousel::-webkit-scrollbar-track {
+  background: #f4f4f4;
+  border-radius: 2px;
+}
+
+.cards-carousel::-webkit-scrollbar-thumb {
+  background: #d8d8d8;
+  border-radius: 2px;
+}
+
+.cards-carousel::-webkit-scrollbar-thumb:hover {
+  background: #bdbdbd;
+}
+
+/* Modal Container - Match reuniaoModal default sizing */
+
+/* Participants Section */
+.participants-section-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #181818;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.participants-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.participant-picker {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e5ee;
+  border-radius: 6px;
+  padding: 16px;
+  transition: all 0.2s ease;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.participant-picker:hover {
+  border-color: #1589ee;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.participants-error {
+  color: #c23934;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #fef7f7;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+}
+
+/* Responsive design for participants - Single column layout like reuniaoModal */
+.participants-container {
+  grid-template-columns: 1fr !important; /* Force single column on all screen sizes */
+  gap: 16px;
+}
+
+/* Enhanced dropdown styling */
+.enhanced-dropdown {
+  position: relative;
+}
+
+.dropdown-label-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 6px;
+}
+
+.dropdown-icon {
+  color: #b8a882; /* Pastel brown/gold variant for icons */
+}
+
+.dropdown-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #181818;
+}
+
+.enhanced-combobox {
+  width: 100%;
+}
+
+/* Enhanced combobox styling */
+.enhanced-dropdown .slds-combobox_container {
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.enhanced-dropdown .slds-combobox_container:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.enhanced-dropdown .slds-input {
+  border: 1px solid #e0e5ee;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.enhanced-dropdown .slds-input:focus {
+  border-color: #6264a7;
+  box-shadow: 0 0 0 2px rgba(98, 100, 167, 0.1);
+}
+
+.enhanced-dropdown .slds-input:hover {
+  border-color: #1589ee;
+}
+
+/* Visual feedback for selected participants */
+.enhanced-dropdown.has-selection .slds-input {
+  border-color: #6264a7;
+  background-color: #f8f9ff;
+}
+
+.enhanced-dropdown.has-selection .dropdown-icon {
+  color: #6264a7;
+}
+
+.enhanced-dropdown.has-selection .dropdown-label {
+  color: #6264a7;
+}
+
+/* Selected participants section */
+.selected-participants-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e5ee;
+}
+
+.selected-participants-header {
+  margin-bottom: 12px;
+}
+
+.selected-participants-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #181818;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.selected-participants-display {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e5ee;
+  border-radius: 6px;
+  padding: 12px;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+}
+
+/* Custom styling for appointment participants display */
+.appointment-participants {
+  width: 100%;
+}
+
+.appointment-participants .participant-display {
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.appointment-participants .participant-avatar {
+  width: 36px;
+  height: 36px;
+}
+
+.appointment-participants .participant-photo {
+  width: 36px;
+  height: 36px;
+}
+
+/* Contact and Opportunity Information Cards */
+.contact-opportunity-info-section {
+  margin: 16px 0;
+  padding: 0 12px;
+}
+
+.contact-opportunity-layout {
+  display: flex;
+  gap: 16px;
+}
+
+.contact-opportunity-layout.side-by-side {
+  flex-direction: row;
+}
+
+.contact-opportunity-layout.full-width {
+  flex-direction: column;
+}
+
+/* Info Cards */
+.info-card {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e5ee;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.info-card:hover {
+  border-color: #6264a7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-card.half-width {
+  flex: 1;
+  min-width: 0;
+}
+
+.info-card.full-width {
+  width: 100%;
+}
+
+/* Info Card Header */
+.info-card-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e5ee;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #181818;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.info-card-action-link {
+  background: transparent;
+  border: none;
+  color: #6264a7;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.info-card-action-link:hover {
+  background-color: #f3f2f1;
+  color: #5a5c96;
+}
+
+/* Info Card Content */
+.info-card-content {
+  padding: 12px 16px;
+}
+
+.info-field-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.info-field-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.info-field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #706e6b;
+  margin-bottom: 2px;
+}
+
+.info-field-value {
+  font-size: 13px;
+  color: #181818;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Responsive design for info cards */
+@media (max-width: 767px) {
+  .contact-opportunity-layout.side-by-side {
+    flex-direction: column;
+  }
+
+  .info-field-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .info-card-header {
+    padding: 10px 12px;
+  }
+
+  .info-card-content {
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .participants-container {
+    gap: 12px;
+  }
+
+  .participant-picker {
+    padding: 12px;
+  }
+}
+
+/* Botão Salvar com largura total */
+.full-width-button {
+  width: 100%;
+  justify-content: center;
+  font-weight: 500;
+  height: 2.5rem;
+}
+
+/* Botão de adicionar nota - versão discreta */
+.note-button {
+  background-color: #ffffff;
+  border: 1px solid #ecedf0;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #181818;
+  transition:
+    background-color 0.1s linear,
+    border-color 0.1s linear;
+  height: 2rem;
+}
+
+.note-button:hover {
+  background-color: #f5f5f5;
+  border-color: #d8d8d8;
+}
+
+.note-button lightning-icon {
+  margin-right: 0.25rem;
+}
+
+/* Link de ação no cabeçalho das seções */
+.action-link {
+  font-size: 0.75rem;
+  color: #181818;
+  background: #ffffff;
+  border: 1px solid #ecedf0;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  transition:
+    background-color 0.1s linear,
+    border-color 0.1s linear;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.action-link:hover {
+  background-color: #f5f5f5;
+  border-color: #d8d8d8;
+}
+
+.action-link .slds-button__icon {
+  margin-right: 0.25rem;
+}
+
+/* Participant Combobox Styling */
+.participant-combobox {
+  width: 100%;
+  max-width: 100%;
+}
+
+.participant-combobox .slds-combobox__form-element {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.participant-combobox .slds-combobox__input {
+  background-color: #ffffff;
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.participant-combobox .slds-combobox__input:focus {
+  border-color: #1589ee;
+  box-shadow: 0 0 0 2px rgba(21, 137, 238, 0.1);
+  outline: none;
+}
+
+.participant-combobox .slds-combobox__input::placeholder {
+  color: #706e6b;
+  font-style: italic;
+}
+
+/* Fix for combobox container to prevent expansion */
+.participant-combobox .slds-combobox {
+  width: 100%;
+  max-width: 100%;
+}
+
+.participant-combobox
+  .slds-combobox__form-element
+  .slds-combobox__input-entity-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Ensure the selected value doesn't break layout */
+.participant-combobox .slds-combobox__input-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: calc(100% - 2rem);
+}
+
+/* Combobox dropdown styling */
+.participant-combobox .slds-dropdown {
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.participant-combobox .slds-dropdown__item {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.participant-combobox .slds-dropdown__item:hover {
+  background-color: #f3f2f2;
+}
+
+.participant-combobox .slds-dropdown__item[aria-selected="true"] {
+  background-color: #1589ee;
+  color: #ffffff;
+}
+
+/* Loading state for combobox */
+.participant-combobox .slds-is-loading .slds-combobox__input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23706e6b' d='M12 2v4c5.5 0 10 4.5 10 10s-4.5 10-10 10S2 21.5 2 16h2c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8V6l-4-2 4-2z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Additional fixes for lightning-combobox layout stability */
+.participant-picker lightning-combobox {
+  width: 100%;
+  max-width: 100%;
+}
+
+.participant-picker lightning-combobox .slds-form-element {
+  width: 100%;
+  max-width: 100%;
+}
+
+.participant-picker lightning-combobox .slds-form-element__control {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Prevent combobox from expanding beyond container */
+.participant-picker lightning-combobox .slds-combobox__form-element {
+  min-width: 0;
+  flex: 1;
+}
+
+/* Ensure consistent width regardless of selected value */
+.participant-picker lightning-combobox .slds-combobox__input {
+  min-width: 0;
+  flex: 1;
+}
+
+/* Contact and Opportunity Information Sections - Following reuniaoModal patterns */
+.section-container {
+  background-color: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.section-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  padding: 12px 16px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #323130;
+  display: flex;
+  align-items: center;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #605e5c;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.field-value {
+  font-size: 14px;
+  color: #323130;
+  font-weight: 400;
+  word-break: break-word;
+}
+
+/* Lookup Fields Styling */
+.lookup-field-container {
+  margin-bottom: 0.75rem;
+}
+
+.lookup-field-container lightning-record-edit-form {
+  background: transparent;
+}
+
+.lookup-field-container lightning-input-field {
+  --slds-c-input-color-border: #d8dde6;
+  --slds-c-input-color-border-focus: #1589ee;
+  --slds-c-input-radius-border: 0.25rem;
+}
+
+/* Action link styling for navigation buttons */
+.action-link {
+  background: transparent;
+  border: none;
+  color: #1589ee;
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.action-link:hover {
+  background: #f3f3f3;
+  text-decoration: underline;
+}
+
+/* Lookup Dropdown Styling */
+.slds-combobox_container {
+  position: relative;
+}
+
+.slds-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 7000;
+  background: white;
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.slds-listbox__option {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.slds-listbox__option:hover {
+  background-color: #f3f2f2;
+}
+
+.slds-listbox__option-text_entity {
+  font-weight: 500;
+  color: #181818;
+}
+
+.slds-listbox__option-meta_entity {
+  font-size: 0.75rem;
+  color: #706e6b;
+  margin-top: 0.125rem;
+}
+
+.slds-listbox__option-icon {
+  margin-right: 0.5rem;
+}
+
+/* Ensure dropdown appears above other elements */
+.slds-combobox {
+  position: relative;
+  z-index: 1;
+}
+
+.slds-combobox__input {
+  width: 100%;
+}
+
+/* Standard Lightning Checkbox styling for search type */
+.search-type-checkbox-input {
+  margin-top: 0.5rem;
+}
+
+/* Customize the lightning-input checkbox appearance */
+.search-type-checkbox-input .slds-form-element__label {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #181818;
+  line-height: 1.25;
+}
+
+.search-type-checkbox-input .slds-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.search-type-checkbox-input .slds-checkbox__faux {
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  background-color: white;
+  transition: all 0.15s ease-in-out;
+  margin-right: 0.5rem;
+}
+
+.search-type-checkbox-input
+  .slds-checkbox
+  input:checked
+  + .slds-checkbox__label
+  .slds-checkbox__faux {
+  background-color: #0176d3;
+  border-color: #0176d3;
+}
+
+.search-type-checkbox-input
+  .slds-checkbox
+  input:focus
+  + .slds-checkbox__label
+  .slds-checkbox__faux {
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 4px #0176d3;
+}
+
+.search-type-checkbox-input
+  .slds-checkbox
+  input:hover
+  + .slds-checkbox__label
+  .slds-checkbox__faux {
+  border-color: #0176d3;
+}
+
+/* Ensure proper spacing and alignment */
+.search-type-checkbox-input .slds-form-element {
+  margin-bottom: 0;
+}
+
+.search-type-checkbox-input .slds-form-element__control {
+  margin-top: 0;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .search-type-checkbox-input {
+    margin-top: 0.75rem;
+  }
+
+  .search-type-checkbox-input .slds-form-element__label {
+    font-size: 0.8125rem;
+  }
+
+  .search-type-checkbox-input .slds-checkbox__faux {
+    width: 0.875rem;
+    height: 0.875rem;
+    margin-right: 0.375rem;
+  }
+}
+
+/* Ensure consistent styling with other form elements */
+.search-type-checkbox-input lightning-input {
+  --slds-c-checkbox-color-background: white;
+  --slds-c-checkbox-color-border: #d8dde6;
+  --slds-c-checkbox-color-border-focus: #0176d3;
+  --slds-c-checkbox-sizing-border: 1px;
+  --slds-c-checkbox-radius-border: 0.25rem;
+}
+
+/* Read-only subject field styling */
+.readonly-subject-field {
+  background-color: #f3f3f3;
+  border: 1px solid #d8dde6;
+  color: #3e3e3c;
+  font-style: italic;
+}
+
+.readonly-subject-field input {
+  background-color: #f3f3f3 !important;
+  color: #3e3e3c !important;
+  cursor: not-allowed;
+}
+
+/* Lookup dropdown styling */
+.lookup-dropdown {
+  background-color: #ffffff;
+  border: 1px solid #dddbda;
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.16);
+  z-index: 9000; /* Increased z-index to ensure visibility */
+  position: absolute;
+  top: calc(100% + 3px); /* Position right below the input */
+  left: 50%; /* Center alignment */
+  transform: translateX(-50%); /* Center the dropdown */
+  width: 100%; /* Match parent width */
+  max-width: 100%; /* Ensure it doesn't overflow */
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 0.125rem;
+  display: block !important; /* Force display */
+}
+
+/* Dropdown container styling with extra visual polish */
+.lookup-dropdown-container {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 100%;
+  z-index: 9000;
+  margin-top: 0.25rem;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.16);
+  border-radius: 0.25rem;
+  transition:
+    opacity 0.2s ease-in-out,
+    transform 0.2s ease-out;
+}
+
+/* Ensure mobile responsiveness */
+@media (max-width: 48em) {
+  .lookup-dropdown {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 50vh;
+    margin: 0;
+    border-radius: 0.25rem 0.25rem 0 0;
+    z-index: 9050;
+  }
+}
+
+.lookup-dropdown-list {
+  margin: 0;
+  padding: 0;
+}
+
+.lookup-dropdown-item {
+  padding: 0;
+}
+
+.lookup-dropdown-item-content {
+  padding: 0.375rem 0.5rem;
+  cursor: pointer;
+}
+
+/* Reduce spacing in the media component */
+.lookup-dropdown-item-content .slds-media__figure {
+  margin-right: 0.25rem;
+  min-width: 1.5rem;
+}
+
+/* Make media layout more compact */
+.lookup-dropdown-item-content.slds-media {
+  display: flex;
+  align-items: center;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+/* Adjust avatar size */
+.lookup-dropdown-item-content .slds-avatar_small {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.lookup-dropdown-item-content:hover {
+  background-color: #f3f2f2;
+}
+
+.lookup-dropdown-item-title {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: #181818;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lookup-dropdown-item-subtitle {
+  font-size: 0.75rem;
+  color: #706e6b;
+  margin-top: 0.125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lookup-dropdown-footer {
+  padding: 0.5rem;
+  color: #706e6b;
+  font-size: 0.75rem;
+  text-align: center;
+  border-top: 1px solid #f3f2f2;
+}
+
+.lookup-empty-item,
+.lookup-loading-item {
+  color: #706e6b;
+  padding: 0.5rem;
+  text-align: center;
+  font-style: italic;
+  font-size: 0.8125rem;
+}
+
+/* Add a slight border when input is focused to connect with dropdown */
+.slds-dropdown-trigger .slds-combobox__input:focus {
+  box-shadow: 0 0 3px #0176d3;
+}
+
+/* Ensure proper positioning of dropdown container */
+.slds-dropdown-trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+/* Ensure dropdown stays above other content */
+.slds-dropdown-trigger_click {
+  position: relative;
+  z-index: 7000;
+}
+
+/* Improve the layout on mobile devices */
+@media (max-width: 30em) {
+  .section-container .slds-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slds-col {
+    width: 100%;
+  }
+}
+
+/* Modern Subject Card Styling */
+.subject-card {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.subject-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.subject-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #706e6b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.subject-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #181818;
+  line-height: 1.4;
+  min-height: 20px;
+  word-wrap: break-word;
+}
+
+.subject-value:empty::before {
+  content: "Selecione a fase, produto e cliente para gerar o assunto automaticamente";
+  color: #a8a8a8;
+  font-style: italic;
+  font-weight: 400;
+}

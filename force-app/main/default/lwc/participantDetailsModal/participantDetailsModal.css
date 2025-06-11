@@ -1,0 +1,523 @@
+/* Participant Details Modal Styles */
+/* Following the same modern styling and positioning logic as calendarioReino color picker modal */
+
+/* Modal Backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.modal-backdrop.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Modal Container */
+.participant-details-modal {
+  position: absolute; /* Changed from fixed to absolute for Floating UI */
+  width: 420px;
+  max-width: 90vw;
+  max-height: 80vh;
+  min-height: 300px; /* Minimum height to ensure usability */
+  background: white;
+  border-radius: 12px;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 8px 16px rgba(0, 0, 0, 0.1);
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.95);
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease,
+    transform 0.3s ease;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Floating UI handles positioning - smooth transitions for Floating UI updates */
+  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+}
+
+.participant-details-modal.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e1dfdd;
+  background: linear-gradient(135deg, #926f1b 0%, #7a5e17 100%);
+  color: white;
+  position: relative;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.participant-avatar-large {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.participant-photo-large {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.participant-basic-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.participant-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.participant-title {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.participant-email {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.participant-department {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Header Buttons Container */
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Close Button */
+.close-button {
+  background: none;
+  border: none;
+  color: #ffffff; /* Fixed to white color */
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.close-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff; /* Maintain white color on hover */
+  transform: scale(1.05);
+}
+
+.close-button:active {
+  transform: scale(0.95);
+}
+
+/* Force white color for close button lightning-icon */
+.close-button lightning-icon {
+  --slds-c-icon-color-foreground: #ffffff !important;
+  --slds-c-icon-color-foreground-default: #ffffff !important;
+}
+
+.close-button:hover lightning-icon {
+  --slds-c-icon-color-foreground: #ffffff !important;
+  --slds-c-icon-color-foreground-default: #ffffff !important;
+}
+
+/* Modal Body */
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  max-height: calc(80vh - 140px);
+  min-height: 200px; /* Ensure minimum usable space */
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 16px;
+}
+
+.loading-text {
+  color: #605e5c;
+  font-size: 0.9rem;
+}
+
+/* Error State */
+.error-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  background-color: #fef7f7;
+  border-left: 4px solid #d83b01;
+  margin: 16px 24px;
+  border-radius: 6px;
+}
+
+.error-message {
+  color: #d83b01;
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+/* Events Section */
+.events-section {
+  padding: 20px 24px;
+}
+
+.events-subsection {
+  margin-bottom: 24px;
+}
+
+.events-subsection:last-child {
+  margin-bottom: 0;
+}
+
+.subsection-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f3f2f1;
+}
+
+.subsection-icon {
+  color: #926f1b;
+}
+
+.subsection-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #323130;
+  margin: 0;
+}
+
+/* Events List */
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.past-events-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Event Cards */
+.event-card {
+  background: white;
+  border: 1px solid #e1dfdd;
+  border-radius: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.event-card:hover {
+  border-color: #926f1b;
+  box-shadow: 0 2px 8px rgba(146, 111, 27, 0.15);
+  transform: translateY(-1px);
+}
+
+.upcoming-event {
+  border-left: 4px solid #4bca81; /* Keep original green for upcoming events */
+  background: linear-gradient(90deg, rgba(75, 202, 129, 0.05) 0%, white 20%);
+}
+
+.past-event {
+  border-left: 4px solid #a19f9d;
+  background: linear-gradient(90deg, rgba(161, 159, 157, 0.05) 0%, white 20%);
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
+}
+
+.event-subject {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #323130;
+  flex: 1;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.event-badges {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Role Badges */
+.role-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.role-gestor {
+  background-color: #e1f5fe;
+  color: #0277bd;
+}
+
+.role-lider {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.role-sdr {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.role-default {
+  background-color: #f3f2f1;
+  color: #605e5c;
+}
+
+/* Status Badges */
+.status-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.status-success {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.status-error {
+  background-color: #fef7f7;
+  color: #d83b01;
+}
+
+.status-warning {
+  background-color: #fff8f0;
+  color: #f7630c;
+}
+
+.status-info {
+  background-color: #f0f6ff;
+  color: #0078d4;
+}
+
+.status-upcoming {
+  background-color: #f0f6ff;
+  color: #0078d4;
+}
+
+/* Event Details */
+.event-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.event-datetime,
+.event-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #605e5c;
+}
+
+.event-datetime lightning-icon,
+.event-location lightning-icon {
+  color: #a19f9d;
+}
+
+/* No Events State */
+.no-events-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.no-events-icon {
+  color: #a19f9d;
+  margin-bottom: 16px;
+}
+
+.no-events-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #323130;
+  margin-bottom: 8px;
+}
+
+.no-events-message {
+  font-size: 0.9rem;
+  color: #605e5c;
+  line-height: 1.4;
+}
+
+/* Modal Footer */
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-top: 1px solid #e1dfdd;
+  background-color: #faf9f8;
+}
+
+.footer-info {
+  flex: 1;
+}
+
+.total-events {
+  font-size: 0.8rem;
+  color: #605e5c;
+}
+
+.footer-close-button {
+  background-color: #926f1b;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.footer-close-button:hover {
+  background-color: #7a5e17;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .participant-details-modal {
+    width: 95vw;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 16px 20px 12px;
+  }
+
+  .header-content {
+    gap: 12px;
+  }
+
+  .participant-avatar-large {
+    width: 48px;
+    height: 48px;
+  }
+
+  .participant-name {
+    font-size: 1.1rem;
+  }
+
+  .events-section {
+    padding: 16px 20px;
+  }
+
+  .modal-footer {
+    padding: 12px 20px;
+  }
+
+  .event-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .event-badges {
+    justify-content: flex-start;
+  }
+
+  /* Ensure text clipping works on mobile */
+  .event-subject {
+    font-size: 0.85rem;
+    max-width: calc(100% - 8px);
+  }
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Interessado</fullName>
+        <default>false</default>
+        <label>Interessado</label>
+    </customValue>
+    <customValue>
+        <fullName>Sem Interesse</fullName>
+        <default>false</default>
+        <label>Sem Interesse</label>
+    </customValue>
+    <customValue>
+        <fullName>Retornar Depois</fullName>
+        <default>false</default>
+        <label>Retornar depois</label>
+    </customValue>
+    <customValue>
+        <fullName>Lead Inválido</fullName>
+        <default>false</default>
+        <label>Lead Inválido</label>
+    </customValue>
+    <customValue>
+        <fullName>Sem Perfil</fullName>
+        <default>false</default>
+        <label>Sem Perfil</label>
+    </customValue>
+    <customValue>
+        <fullName>naoAtendeu</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Não Atendeu</label>
+    </customValue>
+    <masterLabel>Classificação do Lead</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

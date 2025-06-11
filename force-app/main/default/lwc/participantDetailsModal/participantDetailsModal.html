@@ -1,0 +1,229 @@
+<template>
+  <!-- Modal Backdrop -->
+  <div class={backdropClass} onclick={handleBackdropClick}>
+    <!-- Modal Container -->
+    <div class={modalClass} onclick={handleModalClick}>
+      <!-- Modal Header -->
+      <div class={headerClass}>
+        <div class="header-content">
+          <div class="participant-avatar-large">
+            <img
+              src={participantPhotoUrl}
+              alt={participantName}
+              class="participant-photo-large"
+              onerror={handleImageError}
+            />
+          </div>
+          <div class="participant-basic-info">
+            <h2 class="participant-name">{participantName}</h2>
+            <div class="participant-title">{participantTitle}</div>
+            <div class="participant-email">{participantEmail}</div>
+            <template if:true={participantDepartment}>
+              <div class="participant-department">{participantDepartment}</div>
+            </template>
+          </div>
+        </div>
+        <div class="header-buttons">
+          <button
+            class="close-button"
+            onclick={handleCloseClick}
+            title="Fechar"
+          >
+            <lightning-icon
+              icon-name="utility:close"
+              size="small"
+              variant="inverse"
+            ></lightning-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- Loading State -->
+        <template if:true={isLoading}>
+          <div class="loading-container">
+            <lightning-spinner
+              alternative-text="Carregando detalhes..."
+              size="medium"
+            ></lightning-spinner>
+            <div class="loading-text">
+              Carregando informações do participante...
+            </div>
+          </div>
+        </template>
+
+        <!-- Error State -->
+        <template if:true={error}>
+          <div class="error-container">
+            <lightning-icon
+              icon-name="utility:warning"
+              size="small"
+              variant="warning"
+            ></lightning-icon>
+            <div class="error-message">{error}</div>
+          </div>
+        </template>
+
+        <!-- Content -->
+        <template if:false={isLoading}>
+          <template if:false={error}>
+            <!-- Events Participation Section -->
+            <template if:true={hasAnyEvents}>
+              <div class="events-section">
+                <!-- Current/Upcoming Events -->
+                <template if:true={hasCurrentUpcomingEvents}>
+                  <div class="events-subsection">
+                    <div class="subsection-header">
+                      <lightning-icon
+                        icon-name="utility:event"
+                        size="x-small"
+                        class="subsection-icon"
+                      ></lightning-icon>
+                      <h3 class="subsection-title">
+                        Eventos Atuais/Futuros ({upcomingEventsCount})
+                      </h3>
+                    </div>
+                    <div class="events-list">
+                      <template
+                        for:each={currentUpcomingEvents}
+                        for:item="event"
+                      >
+                        <div
+                          key={event.id}
+                          class="event-card upcoming-event"
+                          data-event-id={event.id}
+                          onclick={handleEventClick}
+                        >
+                          <div class="event-header">
+                            <div class="event-subject">{event.subject}</div>
+                            <div class="event-badges">
+                              <span
+                                class={event.roleBadgeClass}
+                                data-role={event.participantRole}
+                                >{event.participantRole}</span
+                              >
+                              <template if:true={event.statusBadge}>
+                                <span class={event.statusBadge.class}
+                                  >{event.statusBadge.text}</span
+                                >
+                              </template>
+                            </div>
+                          </div>
+                          <div class="event-details">
+                            <div class="event-datetime">
+                              <lightning-icon
+                                icon-name="utility:clock"
+                                size="xx-small"
+                              ></lightning-icon>
+                              <span>{event.formattedDateTime}</span>
+                            </div>
+                            <div class="event-location">
+                              <lightning-icon
+                                icon-name="utility:location"
+                                size="xx-small"
+                              ></lightning-icon>
+                              <span>{event.formattedLocation}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Past Events -->
+                <template if:true={hasPastEvents}>
+                  <div class="events-subsection">
+                    <div class="subsection-header">
+                      <lightning-icon
+                        icon-name="utility:history"
+                        size="x-small"
+                        class="subsection-icon"
+                      ></lightning-icon>
+                      <h3 class="subsection-title">
+                        Eventos Passados ({pastEventsCount})
+                      </h3>
+                    </div>
+                    <div class="events-list past-events-list">
+                      <template for:each={pastEvents} for:item="event">
+                        <div
+                          key={event.id}
+                          class="event-card past-event"
+                          data-event-id={event.id}
+                          onclick={handleEventClick}
+                        >
+                          <div class="event-header">
+                            <div class="event-subject">{event.subject}</div>
+                            <div class="event-badges">
+                              <span
+                                class={event.roleBadgeClass}
+                                data-role={event.participantRole}
+                                >{event.participantRole}</span
+                              >
+                              <template if:true={event.statusBadge}>
+                                <span class={event.statusBadge.class}
+                                  >{event.statusBadge.text}</span
+                                >
+                              </template>
+                            </div>
+                          </div>
+                          <div class="event-details">
+                            <div class="event-datetime">
+                              <lightning-icon
+                                icon-name="utility:clock"
+                                size="xx-small"
+                              ></lightning-icon>
+                              <span>{event.formattedDateTime}</span>
+                            </div>
+                            <div class="event-location">
+                              <lightning-icon
+                                icon-name="utility:location"
+                                size="xx-small"
+                              ></lightning-icon>
+                              <span>{event.formattedLocation}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
+
+            <!-- No Events State -->
+            <template if:false={hasAnyEvents}>
+              <div class="no-events-container">
+                <lightning-icon
+                  icon-name="utility:event"
+                  size="medium"
+                  class="no-events-icon"
+                ></lightning-icon>
+                <div class="no-events-title">Nenhum evento encontrado</div>
+                <div class="no-events-message">
+                  Este participante não possui eventos registrados no sistema.
+                </div>
+              </div>
+            </template>
+          </template>
+        </template>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <div class="footer-info">
+          <template if:true={hasAnyEvents}>
+            <span class="total-events"
+              >Total: {upcomingEventsCount} futuros, {pastEventsCount}
+              passados</span
+            >
+          </template>
+        </div>
+        <button class="footer-close-button" onclick={handleCloseClick}>
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+</template>

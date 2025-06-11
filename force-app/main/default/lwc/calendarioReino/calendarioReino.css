@@ -1,0 +1,5000 @@
+/* Component Reset - Remove any parent container styling */
+:host {
+  display: block !important;
+  width: 100% !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: none !important;
+  position: relative !important;
+  /* overflow: hidden !important; */ /* Prevent horizontal scroll - COMMENTED OUT */
+  box-sizing: border-box !important;
+}
+
+/* Allow overflow during drag operations - apply to host when any popup is dragging */
+:host(.dragging-active),
+:host(.popup-dragging) {
+  overflow: visible !important;
+}
+
+/* Override SLDS brand band padding that affects the component */
+.slds-brand-band.slds-brand-band_cover.slds-brand-band_medium.slds-template_default.forceBrandBand {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Override any parent SLDS containers that might add padding */
+.slds-brand-band {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.slds-template_default {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.forceBrandBand {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Layout principal com barra lateral - Full screen display */
+.teams-layout {
+  display: flex;
+  min-height: 100vh; /* Full viewport height */
+  height: fit-content; /* Exact viewport height */
+  width: 100%; /* Full available width */
+  background-color: #ffffff;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  margin: 0; /* Remove any default margins */
+  padding: 0; /* Remove any default padding */
+  border: none; /* Remove any borders */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  position: relative; /* Ensure proper positioning */
+}
+
+/* Allow overflow during drag operations */
+.teams-layout.dragging-active {
+  overflow: visible !important;
+  /* Disable transitions during drag to prevent layout interference */
+  transition: none !important;
+}
+
+/* Ensure parent containers don't interfere with popup drag positioning */
+.teams-layout.dragging-active .teams-main-content {
+  overflow: visible !important;
+  transition: none !important;
+}
+
+.teams-layout.dragging-active .teams-right-sidebar {
+  overflow: visible !important;
+}
+
+/* When sidebar is collapsed, main content takes full width */
+.teams-layout.sidebar-collapsed {
+  /* Main content will automatically expand to full width */
+}
+
+/* Main content area with premium transitions - Full screen */
+.teams-main-content {
+  flex: 1;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Remove hardware acceleration transform to prevent stacking context issues during drag */
+  width: 100%; /* Full width */
+  height: 100%; /* Full available height */
+  margin: 0; /* Remove margins */
+  padding: 0; /* Remove padding */
+  border: none; /* Remove borders */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  overflow: hidden; /* Prevent scroll within main content */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Allow overflow during drag operations */
+.teams-main-content.dragging-active {
+  overflow: visible !important;
+}
+
+.teams-layout.sidebar-collapsed .teams-main-content {
+  transform: translateX(-10px) translateZ(0);
+  animation: contentExpand 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes contentExpand {
+  0% {
+    transform: translateX(0) translateZ(0);
+  }
+  50% {
+    transform: translateX(-5px) scale(1.01) translateZ(0);
+  }
+  100% {
+    transform: translateX(0) scale(1) translateZ(0);
+  }
+}
+
+/* Barra lateral estilo Teams */
+.teams-sidebar {
+  width: 250px;
+  flex: 0 0 250px;
+  border-right: 1px solid #f0f0f0;
+  background-color: #f5f5f5;
+  overflow-y: auto; /* Internal scrolling */
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+  height: 100vh; /* Fixed viewport height for sidebar only */
+  max-height: 100vh; /* Constrain sidebar to viewport height */
+  position: sticky; /* Sticky positioning */
+  top: 0; /* Stick to top of viewport */
+  scroll-behavior: smooth; /* Smooth scrolling */
+  animation: slideInLeft 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Enhanced shadow during animation */
+.teams-sidebar:hover {
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Glow effect during transitions */
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow:
+      2px 0 20px rgba(146, 111, 27, 0.2),
+      2px 0 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Premium Sidebar Animations */
+@keyframes slideInLeft {
+  0% {
+    transform: translateX(-100%) scale(0.95);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(-5%) scale(1.02);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutLeft {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: translateX(-5%) scale(0.98);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(-100%) scale(0.95);
+    opacity: 0;
+  }
+}
+
+/* Staggered content animations */
+@keyframes fadeInUp {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOutDown {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+/* Sidebar content staggered animations */
+.sidebar-content {
+  animation: fadeInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s both;
+}
+
+.sidebar-section:nth-child(1) {
+  animation: fadeInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s both;
+}
+
+.sidebar-section:nth-child(2) {
+  animation: fadeInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s both;
+}
+
+.sidebar-section:nth-child(3) {
+  animation: fadeInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.35s both;
+}
+
+/* Accessibility: Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .teams-sidebar,
+  .teams-main-content,
+  .sidebar-content,
+  .sidebar-section,
+  .sidebar-toggle-svg {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .teams-layout {
+    transition: none !important;
+  }
+
+  .teams-layout.sidebar-collapsed .teams-main-content {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .teams-sidebar {
+    animation-duration: 0.3s;
+  }
+
+  .sidebar-content,
+  .sidebar-section {
+    animation-duration: 0.3s;
+  }
+
+  .teams-main-content {
+    transition-duration: 0.3s;
+  }
+}
+
+/* Custom scrollbar styling for sidebar */
+.teams-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.teams-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.teams-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.teams-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Sidebar content container */
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Seções da barra lateral */
+.sidebar-section {
+  margin-bottom: 16px;
+  flex-shrink: 0; /* Prevent sections from shrinking */
+}
+
+/* Last sidebar section should not have bottom margin */
+.sidebar-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 10px; /* Add some bottom padding instead */
+}
+
+/* Cabeçalho da seção */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #252423;
+  font-weight: 500;
+  position: relative;
+}
+
+.sidebar-header:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.sidebar-toggle-icon {
+  margin-right: 8px;
+}
+
+.sidebar-year {
+  flex: 1;
+}
+
+/* Botões de navegação horizontal para mini calendário */
+.sidebar-nav-button {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  min-width: 24px;
+  height: 24px;
+}
+
+.sidebar-nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-nav-button.nav-left {
+  margin-right: auto;
+}
+
+.sidebar-nav-button.nav-right {
+  margin-left: auto;
+}
+
+/* Grid de meses */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  padding: 8px 16px;
+}
+
+.month-item {
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #252423;
+}
+
+.month-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.month-item.selected {
+  background-color: #e8dcc8; /* Lighter pastel brown/gold */
+  color: #2d2d2d;
+}
+
+/* Sidebar days grid styling */
+.days-grid {
+  margin-top: 8px;
+}
+
+.days-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+  padding: 0 16px;
+}
+
+.day-weekday {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #605e5c;
+  padding: 4px 0;
+}
+
+.days-container {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 0 16px;
+}
+
+.sidebar-day {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #252423;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-day:hover {
+  background-color: #e1dfdd;
+}
+
+/* Today indicator - distinct from selection */
+.sidebar-day.today {
+  background-color: #e1dfdd;
+  color: #323130;
+  font-weight: 600;
+  border: 2px solid #8a8886;
+}
+
+.sidebar-day.today:hover {
+  background-color: #d2d0ce;
+  border-color: #605e5c;
+}
+
+.sidebar-day.other-month {
+  color: #a19f9d;
+}
+
+/* Selection indicator - distinct brown/gold styling */
+.sidebar-day.selected {
+  background-color: #d4c4a0; /* Pastel brown/gold */
+  color: #2d2d2d; /* Darker text for better contrast */
+  font-weight: 600;
+  border: 2px solid #d4c4a0;
+}
+
+.sidebar-day.selected:hover {
+  background-color: #c7b896; /* Slightly darker pastel brown/gold */
+  border-color: #c7b896;
+}
+
+/* Ensure other-month selected days are still visible */
+.sidebar-day.other-month.selected {
+  background-color: #f0f8ff;
+  color: #005a9e;
+  border: 2px solid #005a9e;
+  opacity: 0.8;
+}
+
+.sidebar-day.other-month.selected:hover {
+  background-color: #e6f3ff;
+  opacity: 1;
+}
+
+/* Combined styling when a day is both today and selected */
+.sidebar-day.today.selected {
+  background-color: #926f1b;
+  color: white;
+  font-weight: 600;
+  border: 2px solid #ffffff;
+  box-shadow:
+    0 0 0 2px #926f1b,
+    0 0 0 4px #8a8886;
+}
+
+.sidebar-day.today.selected:hover {
+  background-color: #7a5e17;
+  border-color: #ffffff;
+  box-shadow:
+    0 0 0 2px #7a5e17,
+    0 0 0 4px #605e5c;
+}
+
+/* Update sidebar header for month/year display */
+.sidebar-month-year {
+  font-weight: 500;
+  color: #252423;
+  text-align: center;
+}
+
+/* Mini Calendar Styling (No longer accordion) */
+.mini-calendar-content {
+  padding: 8px 0;
+}
+
+.mini-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #252423;
+  font-weight: 500;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+  margin: 0 8px 8px 8px;
+}
+
+.mini-calendar-header:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Month/year display container */
+.month-year-display {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+}
+
+/* Lista de calendários */
+.calendars-list {
+  padding: 8px 16px;
+}
+
+.calendar-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  cursor: pointer;
+  font-size: 14px;
+  color: #252423;
+}
+
+.calendar-item.selected {
+  font-weight: 500;
+}
+
+.calendar-checkbox {
+  margin-right: 8px;
+}
+
+.view-all {
+  padding: 8px 0;
+  margin-top: 4px;
+}
+
+.view-all a {
+  color: #b8a882; /* Pastel brown/gold variant for links */
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.view-all a:hover {
+  text-decoration: underline;
+}
+
+/* Filters section styling */
+.filters-list {
+  padding: 8px 16px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  cursor: pointer;
+  font-size: 14px;
+  color: #252423;
+}
+
+.filter-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  margin: 0 -8px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.filter-checkbox {
+  --slds-c-checkbox-color-background: #ffffff;
+  --slds-c-checkbox-color-border: #d8dde6;
+  --slds-c-checkbox-color-background-checked: #926f1b;
+  --slds-c-checkbox-color-border-checked: #926f1b;
+  --slds-c-checkbox-sizing-border: 1px;
+  --slds-c-checkbox-radius-border: 3px;
+}
+
+.filter-checkbox .slds-form-element__label {
+  font-size: 14px;
+  color: #252423;
+  font-weight: 400;
+}
+
+.filter-checkbox .slds-checkbox {
+  margin-right: 8px;
+}
+
+/* Ensure filter checkboxes align properly */
+.filter-item .slds-form-element {
+  margin-bottom: 0;
+}
+
+.filter-item .slds-form-element__control {
+  display: flex;
+  align-items: center;
+}
+
+/* Salas de reunião na barra lateral */
+.rooms-list {
+  padding: 8px 16px;
+}
+
+.room-item {
+  margin-bottom: 12px;
+}
+
+.room-filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.room-filter-checkbox {
+  flex: 1;
+  --slds-c-checkbox-color-background: #ffffff;
+  --slds-c-checkbox-color-border: #d8dde6;
+  --slds-c-checkbox-color-background-checked: #926f1b;
+  --slds-c-checkbox-color-border-checked: #926f1b;
+  --slds-c-checkbox-sizing-border: 1px;
+  --slds-c-checkbox-radius-border: 3px;
+}
+
+.room-filter-checkbox .slds-checkbox {
+  margin-right: 8px;
+}
+
+.room-filter-checkbox .slds-form-element__label {
+  font-size: 14px;
+  color: #252423;
+  font-weight: 400;
+}
+
+/* Indicadores de disponibilidade de sala */
+.room-availability {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.room-availability.available {
+  background-color: #e8f5e8;
+}
+
+.room-availability.occupied {
+  background-color: #ffeaea;
+}
+
+.room-availability.neutral {
+  background-color: #f0f0f0;
+}
+
+.room-availability-icon {
+  --slds-c-icon-color-foreground-default: inherit;
+}
+
+.room-availability.available .room-availability-icon {
+  --slds-c-icon-color-foreground-default: #4bca81; /* Keep original green for availability */
+}
+
+.room-availability.occupied .room-availability-icon {
+  --slds-c-icon-color-foreground-default: #c0392b; /* Keep original red for occupied */
+}
+
+.room-availability.neutral .room-availability-icon {
+  --slds-c-icon-color-foreground-default: #6c757d;
+}
+
+/* Enhanced card-based occupied slots */
+.room-occupied-slots {
+  margin-top: 12px;
+  padding-left: 16px;
+  border-left: 3px solid #e1dfdd;
+}
+
+.occupied-slot-card {
+  background: #ffffff;
+  border: 1px solid #e1dfdd;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.occupied-slot-card:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border-color: #926f1b;
+}
+
+.slot-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.slot-time-info {
+  display: flex;
+  align-items: center;
+}
+
+.slot-time-combined {
+  font-weight: 600;
+  color: #252423;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+/* Legacy styles for backward compatibility */
+.slot-time {
+  font-weight: 600;
+  color: #252423;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.slot-date {
+  font-size: 11px;
+  color: #605e5c;
+  font-weight: 400;
+}
+
+.slot-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Sidebar participant display styling */
+.slot-participants {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.slot-participants .sidebar-participants {
+  font-size: 0.75rem;
+}
+
+.slot-subject {
+  font-size: 12px;
+  font-weight: 500;
+  color: #252423;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.slot-organizer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #605e5c;
+}
+
+.slot-organizer-icon {
+  --slds-c-icon-color-foreground-default: #605e5c;
+  flex-shrink: 0;
+}
+
+.slot-organizer span {
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+/* Category indicator dot */
+.slot-category-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Old happening now styles removed - now using happeningNowIndicator component */
+
+/* Upcoming vs Past Appointment Styling - White background for all cards */
+.occupied-slot-card.upcoming-appointment {
+  background: #ffffff; /* White background for upcoming appointments */
+}
+
+.occupied-slot-card.upcoming-appointment:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border-color: #926f1b;
+}
+
+.occupied-slot-card.upcoming-appointment .slot-time,
+.occupied-slot-card.upcoming-appointment .slot-time-combined {
+  color: #252423; /* Standard color for upcoming appointment time */
+}
+
+.occupied-slot-card.past-appointment {
+  background: #ffffff; /* White background for past appointments */
+  opacity: 0.85;
+}
+
+.occupied-slot-card.past-appointment:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border-color: #926f1b;
+  opacity: 1;
+}
+
+.occupied-slot-card.past-appointment .slot-time,
+.occupied-slot-card.past-appointment .slot-time-combined {
+  color: #605e5c; /* Muted color for past appointment time */
+}
+
+.occupied-slot-card.past-appointment .slot-subject {
+  color: #605e5c; /* Muted color for past appointment subject */
+}
+
+/* User calendar selection styling */
+.calendar-radio,
+.user-calendar-radio {
+  --slds-c-radio-color-background: #ffffff;
+  --slds-c-radio-color-border: #d8dde6;
+  --slds-c-radio-color-background-checked: #926f1b;
+  --slds-c-radio-color-border-checked: #926f1b;
+  --slds-c-radio-sizing-border: 1px;
+}
+
+.calendar-radio .slds-form-element__label,
+.user-calendar-radio .slds-form-element__label {
+  font-size: 14px;
+  color: #252423;
+  font-weight: 400;
+}
+
+.user-calendars-section {
+  margin-top: 12px;
+  border-top: 1px solid #ecedf0;
+  padding-top: 12px;
+}
+
+.user-calendars-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 0 16px;
+}
+
+.user-calendars-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #605e5c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.user-loading-spinner {
+  --slds-c-spinner-color-foreground: #926f1b;
+}
+
+.user-calendars-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0 16px;
+}
+
+.user-calendar-item {
+  margin-bottom: 6px;
+}
+
+.user-calendar-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  margin: 0 -8px 6px -8px;
+  padding: 0 8px;
+}
+
+/* User calendar indicator styling - Full width base styling */
+.user-calendar-indicator {
+  background: linear-gradient(135deg, #926f1b 0%, #7a5e17 100%);
+  color: white;
+  padding: 0; /* Remove padding to allow full width */
+  margin: 0; /* Remove margins for seamless integration */
+  border-bottom: 3px solid #5d4711;
+  width: 100%; /* Ensure full width */
+  box-sizing: border-box; /* Include borders in width calculation */
+}
+
+.user-calendar-indicator-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.user-calendar-icon {
+  --slds-c-icon-color-foreground-default: #ffffff;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  padding: 8px;
+}
+
+/* User calendar avatar styling */
+.user-calendar-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-calendar-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.user-calendar-text {
+  flex: 1;
+}
+
+.user-calendar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.user-calendar-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.2;
+}
+
+.return-to-default-button {
+  --slds-c-button-neutral-color-background: rgba(255, 255, 255, 0.1);
+  --slds-c-button-neutral-color-border: rgba(255, 255, 255, 0.3);
+  --slds-c-button-neutral-color-background-hover: rgba(255, 255, 255, 0.2);
+  --slds-c-button-text-color: #ffffff;
+  --slds-c-button-radius-border: 4px;
+  font-weight: 500;
+}
+
+/* Calendar container with user selection styling */
+.section-container.user-calendar-active {
+  border: 2px solid #926f1b;
+  border-radius: 8px;
+  margin-top: 0;
+}
+
+/* Relocated user calendar indicator styling - Full width, flush against calendar */
+.user-calendar-indicator-relocated {
+  margin: 0; /* Remove all margins for full width */
+  border-radius: 0; /* Remove border radius for seamless integration */
+  box-shadow: none; /* Remove shadow for flush appearance */
+  width: 100%; /* Ensure full width */
+}
+
+/* Adjust content padding for relocated indicator - Full width layout */
+.user-calendar-indicator-relocated .user-calendar-indicator-content {
+  padding: 16px 20px; /* Maintain internal padding for content */
+  max-width: none; /* Remove max-width constraint */
+  margin: 0; /* Remove auto margins */
+  width: 100%; /* Ensure full width */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Responsive adjustments for relocated user calendar indicator */
+@media (max-width: 768px) {
+  .user-calendar-indicator-relocated {
+    margin: 0; /* Maintain full width on mobile */
+    width: 100%; /* Ensure full width on mobile */
+  }
+
+  .user-calendar-indicator-relocated .user-calendar-indicator-content {
+    padding: 12px 16px; /* Reduce padding on mobile but maintain full width */
+    flex-direction: column; /* Stack elements vertically on mobile */
+    gap: 12px;
+    text-align: center;
+    width: 100%; /* Ensure full width on mobile */
+    box-sizing: border-box; /* Include padding in width calculation */
+  }
+
+  .user-calendar-indicator-relocated .user-calendar-text {
+    text-align: center;
+  }
+
+  /* Responsive adjustments for relocated calendar selection */
+  .calendars-selection-content {
+    padding: 6px 12px 8px 12px;
+  }
+
+  .user-calendars-list-relocated {
+    max-height: 150px; /* Reduce height on mobile */
+  }
+
+  .calendars-title {
+    font-size: 13px; /* Slightly smaller on mobile */
+  }
+
+  .user-calendars-title-relocated {
+    font-size: 11px; /* Smaller subtitle on mobile */
+  }
+
+  /* Responsive adjustments for calendar cards */
+  .calendar-cards-container {
+    gap: 8px;
+    padding: 6px 12px 8px 12px;
+  }
+
+  .calendar-card {
+    min-width: 160px;
+    max-width: 220px;
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .calendar-card-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .calendar-card-name {
+    font-size: 13px;
+  }
+
+  .calendar-card-subtitle {
+    font-size: 10px;
+  }
+
+  .calendar-card-selected-indicator {
+    width: 18px;
+    height: 18px;
+    top: 6px;
+    right: 6px;
+  }
+}
+
+/* Relocated User Calendar Selection Styling */
+.calendars-header-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calendars-title-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendars-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+}
+
+.calendars-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #252423;
+  line-height: 1.2;
+}
+
+.calendars-loading-spinner {
+  --slds-c-spinner-color-foreground: #926f1b;
+  margin-left: 8px;
+}
+
+.calendars-selection-content {
+  padding: 0; /* Remove padding since cards container handles it */
+}
+
+/* Calendar Cards Layout - Adapted for Popup */
+.calendar-cards-container {
+  display: flex;
+  flex-direction: column; /* Stack vertically in popup */
+  gap: 0; /* Remove gap since we're using dividers */
+  padding: 0; /* Remove padding since popup-content handles it */
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d8dde6 transparent;
+}
+
+.calendar-cards-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.calendar-cards-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.calendar-cards-container::-webkit-scrollbar-thumb {
+  background-color: #d8dde6;
+  border-radius: 3px;
+}
+
+.calendar-cards-container::-webkit-scrollbar-thumb:hover {
+  background-color: #c0c7d0;
+}
+
+/* Calendar Card Base Styling - Borderless with Dividers */
+.calendar-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: none; /* Remove borders */
+  border-bottom: 1px solid #e1dfdd; /* Add bottom divider */
+  border-radius: 0; /* Remove border radius for clean divider look */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 200px;
+  max-width: 280px;
+  position: relative;
+}
+
+.calendar-card:hover {
+  background: #f8f9fa;
+}
+
+.calendar-card-selected {
+  background: linear-gradient(135deg, #f9f7f3 0%, #f5f1e8 100%);
+  border-left: 3px solid #d4c4a0; /* Pastel brown/gold accent border for selected state */
+}
+
+/* Remove bottom border from last card */
+.calendar-card:last-child {
+  border-bottom: none;
+}
+
+/* Calendar Card Avatar */
+.calendar-card-avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f2f1;
+  border: 2px solid #e1dfdd;
+}
+
+.user-calendar-card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.default-calendar-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+}
+
+/* Calendar Card Info */
+.calendar-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.calendar-card-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #252423;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-card-subtitle {
+  font-size: 11px;
+  color: #605e5c;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Selected Indicator */
+.calendar-card-selected-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: #926f1b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(146, 111, 27, 0.3);
+}
+
+.selected-check-icon {
+  --slds-c-icon-color-foreground-default: #ffffff;
+}
+
+/* Default Calendar Card Specific Styling */
+.default-calendar-card .calendar-card-avatar {
+  background: linear-gradient(135deg, #926f1b 0%, #7a5e17 100%);
+  border-color: #926f1b;
+}
+
+/* User Calendar Card Specific Styling */
+.user-calendar-card .calendar-card-avatar {
+  border-color: #d8dde6;
+}
+
+.user-calendar-card.calendar-card-selected .calendar-card-avatar {
+  border-color: #d4c4a0; /* Pastel brown/gold */
+  box-shadow: 0 0 0 2px rgba(212, 196, 160, 0.3); /* Pastel brown/gold shadow */
+}
+
+/* No Users Card */
+.no-users-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border: 2px dashed #d8dde6;
+  border-radius: 8px;
+  min-width: 200px;
+}
+
+.no-users-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.no-users-icon {
+  --slds-c-icon-color-foreground-default: #605e5c;
+}
+
+.no-users-text {
+  font-size: 12px;
+  color: #605e5c;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Integrated Right Sidebar */
+.teams-right-sidebar {
+  width: 48px;
+  flex: 0 0 48px; /* Fixed width, don't grow or shrink */
+  border-left: 1px solid #e1dfdd;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+  /* Removed min-height: 100vh to prevent extra bottom space */
+}
+
+/* Right Sidebar Icons */
+.right-sidebar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.right-sidebar-icon:hover {
+  background: rgba(146, 111, 27, 0.1);
+}
+
+.sidebar-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+}
+
+/* Loading indicator for sidebar icons */
+.sidebar-loading-indicator {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background: #926f1b;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Accordion Popups - Color Picker Modal Style */
+.accordion-popup {
+  background: #ffffff;
+  border: 1px solid #d8dde6;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  width: fit-content; /* Content-based sizing - no min-width constraint */
+  max-width: 500px; /* Maintain max-width constraint */
+  /* Remove animation to prevent interference with drag */
+  position: fixed; /* Always use fixed positioning */
+  /* Start invisible to prevent flash at (0,0) */
+  opacity: 0;
+  visibility: hidden;
+  /* Default safe position to prevent (0,0) flash */
+  top: 100px;
+  left: 100px;
+  /* Disable text selection to prevent drag interference */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Show popup when positioned correctly */
+.accordion-popup.positioned {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+}
+
+/* Disable animations and transitions during drag */
+.accordion-popup.dragging {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Comprehensive text selection disabling for all popup content */
+.accordion-popup *,
+.accordion-popup .popup-header,
+.accordion-popup .popup-content,
+.accordion-popup .popup-title,
+.accordion-popup .suggestion-card,
+.accordion-popup .suggestion-card *,
+.accordion-popup .color-legend-item,
+.accordion-popup .color-legend-item *,
+.accordion-popup .calendar-selection-item,
+.accordion-popup .calendar-selection-item * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  -webkit-touch-callout: none !important; /* iOS Safari */
+}
+
+/* Re-enable text selection for interactive elements that need it */
+.accordion-popup input,
+.accordion-popup textarea,
+.accordion-popup [contenteditable="true"],
+.accordion-popup .slds-input,
+.accordion-popup .slds-textarea,
+.accordion-popup lightning-input input,
+.accordion-popup lightning-textarea textarea,
+.accordion-popup lightning-combobox input {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+/* Ensure buttons and interactive elements remain clickable and accessible */
+.accordion-popup button,
+.accordion-popup .slds-button,
+.accordion-popup lightning-button,
+.accordion-popup lightning-button button,
+.accordion-popup .popup-close-button,
+.accordion-popup .pin-button,
+.accordion-popup a,
+.accordion-popup [role="button"],
+.accordion-popup [tabindex] {
+  user-select: none !important; /* Keep buttons non-selectable but functional */
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+/* Specific rules for suggestion cards and interactive content */
+.accordion-popup .suggestion-card {
+  user-select: none !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure checkboxes and radio buttons work properly */
+.accordion-popup input[type="checkbox"],
+.accordion-popup input[type="radio"],
+.accordion-popup .slds-checkbox,
+.accordion-popup .slds-radio,
+.accordion-popup lightning-input[type="checkbox"],
+.accordion-popup lightning-input[type="radio"] {
+  user-select: none !important;
+  pointer-events: auto !important;
+}
+
+/* Color picker and interactive elements */
+.accordion-popup .color-option,
+.accordion-popup .color-swatch,
+.accordion-popup .calendar-option {
+  user-select: none !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+/* Accessibility: Ensure screen readers and assistive technology work properly */
+.accordion-popup [aria-label],
+.accordion-popup [aria-labelledby],
+.accordion-popup [aria-describedby],
+.accordion-popup [role],
+.accordion-popup .slds-assistive-text {
+  /* Don't interfere with accessibility - these elements should remain accessible */
+  pointer-events: auto !important;
+}
+
+/* Focus management - ensure focus indicators work properly */
+.accordion-popup *:focus,
+.accordion-popup *:focus-visible {
+  outline: 2px solid #005fb2 !important;
+  outline-offset: 2px !important;
+  user-select: none !important; /* Keep focus elements non-selectable */
+}
+
+/* Ensure drag handles and headers maintain proper cursor */
+.accordion-popup .popup-header {
+  cursor: grab !important;
+}
+
+.accordion-popup .popup-header:active,
+.accordion-popup.dragging .popup-header {
+  cursor: grabbing !important;
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Popup Arrow - Pointing to Right Sidebar */
+.popup-arrow {
+  position: absolute;
+  top: 20px;
+  right: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid #ffffff;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  z-index: 1001;
+}
+
+.popup-arrow::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: -9px;
+  width: 0;
+  height: 0;
+  border-left: 9px solid #d8dde6;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+}
+
+/* Popup Header */
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px; /* Minimized padding for space economy */
+  border-bottom: 1px solid #e1dfdd;
+  background: #fafafa;
+  min-height: 48px; /* Reduced header height for compact design */
+  box-sizing: border-box; /* Include padding in height calculation */
+}
+
+.popup-title-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0; /* Allow text to shrink if needed */
+}
+
+/* Original title icon styling (kept for reference) */
+.popup-title-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+  flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+/* Pin icon in title - minimal styling, no background, no padding */
+.popup-title-pin-icon {
+  margin-right: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  --slds-c-icon-color-foreground-default: #605e5c;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  flex-shrink: 0;
+}
+
+.popup-title-pin-icon:hover {
+  --slds-c-icon-color-foreground-default: #926f1b;
+  transform: scale(1.1);
+}
+
+.popup-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #252423;
+  margin: 0;
+  line-height: 1.2; /* Consistent line height */
+  white-space: nowrap; /* Prevent title from wrapping */
+}
+
+/* Removed duplicate - using updated definition below */
+
+.popup-close-button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #605e5c;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.popup-close-button:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Popup Content */
+.popup-content {
+  padding: 12px 16px; /* Minimized padding for space economy */
+  max-height: 450px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d8dde6 transparent;
+}
+
+.popup-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+  background-color: #d8dde6;
+  border-radius: 3px;
+}
+
+.popup-content::-webkit-scrollbar-thumb:hover {
+  background-color: #c0c7d0;
+}
+
+/* Responsive Behavior for Integrated Right Sidebar */
+@media (max-width: 768px) {
+  .teams-right-sidebar {
+    display: none; /* Hide on mobile */
+  }
+
+  .accordion-popup {
+    display: none; /* Hide popups on mobile */
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .teams-right-sidebar {
+    width: 44px; /* Slightly smaller on tablets */
+    flex: 0 0 44px;
+  }
+
+  .right-sidebar-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .accordion-popup {
+    width: fit-content; /* Responsive popup width on tablets */
+    max-width: 420px; /* Maximum width constraint on tablets */
+  }
+}
+
+/* Meeting Suggestions Styling */
+.suggestions-header-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.suggestions-title-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suggestions-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+}
+
+.suggestions-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #252423;
+  line-height: 1.2;
+}
+
+.suggestions-subtitle {
+  font-size: 11px;
+  color: #605e5c;
+  font-style: italic;
+  margin-left: 20px; /* Align with title after icon */
+}
+
+.suggestions-loading-spinner {
+  --slds-c-spinner-color-foreground: #926f1b;
+  margin-left: 8px;
+}
+
+.meeting-suggestions-content {
+  padding: 0; /* Remove padding since functional-section-content handles it */
+}
+
+.suggestions-scroll-container {
+  display: flex;
+  flex-direction: column; /* Stack vertically in popup */
+  gap: 12px;
+  padding-top: 0;
+  padding-bottom: 4px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.suggestions-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.suggestions-scroll-container::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 3px;
+}
+
+.suggestions-scroll-container::-webkit-scrollbar-thumb {
+  background: #c4c4c4;
+  border-radius: 3px;
+}
+
+.suggestions-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+.suggestion-card {
+  width: 100%; /* Full width in popup */
+  background: #ffffff;
+  border: 1px solid #e1dfdd;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.suggestion-card:hover {
+  border-color: #926f1b;
+  border-left-color: #1589ee; /* Maintain AI border on hover */
+  box-shadow: 0 2px 6px rgba(146, 111, 27, 0.15);
+  transform: translateY(-1px);
+}
+
+.suggestion-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.suggestion-time-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+}
+
+.suggestion-time-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #252423;
+}
+
+.suggestion-date {
+  display: flex;
+  align-items: center;
+}
+
+.suggestion-date-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #926f1b;
+  background: rgba(146, 111, 27, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.suggestion-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0; /* Allow content to shrink */
+  overflow: hidden; /* Prevent content from breaking layout */
+}
+
+.suggestion-room,
+.suggestion-participants,
+.suggestion-meeting-type {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0; /* Allow flex items to shrink */
+}
+
+/* Ensure room text with inline meeting type stays on one line */
+.suggestion-room {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.suggestion-room-icon,
+.suggestion-participants-icon,
+.suggestion-meeting-type-icon {
+  --slds-c-icon-color-foreground-default: #605e5c;
+}
+
+.suggestion-room-text,
+.suggestion-participants-text,
+.suggestion-meeting-type-text {
+  font-size: 12px;
+  color: #605e5c;
+  line-height: 1.3;
+}
+
+/* Single-line layout with text clipping for participants */
+.suggestion-participants-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* Inline meeting type styling */
+.suggestion-meeting-type-inline {
+  font-size: 11px;
+  color: #926f1b;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+/* Meeting type indicator styling */
+.suggestion-meeting-type-indicator {
+  font-size: 14px;
+  margin-left: 6px;
+  opacity: 0.8;
+}
+
+.suggestion-meeting-type {
+  background: rgba(146, 111, 27, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin: 2px 0;
+}
+
+.suggestion-meeting-type-text {
+  font-size: 11px;
+  font-weight: 500;
+  color: #926f1b;
+}
+
+.suggestion-meeting-type-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+}
+
+/* AI Badge Styling - Updated to gray background with brown/gold text */
+.suggestion-ai-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 8px 0 4px 0;
+  padding: 4px 8px;
+  background: #f3f2f1;
+  border: 1px solid #e1dfdd;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.suggestion-ai-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+}
+
+.suggestion-ai-text {
+  font-size: 10px;
+  font-weight: 600;
+  color: #926f1b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.no-suggestions-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  color: #605e5c;
+}
+
+.no-suggestions-icon {
+  --slds-c-icon-color-foreground-default: #a0a0a0;
+  margin-bottom: 8px;
+}
+
+.no-suggestions-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Color Legend Accordion Styling */
+.legend-header-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 8px;
+}
+
+.legend-title-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.legend-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+}
+
+.legend-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #323130;
+}
+
+.legend-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clear-filters-button {
+  --slds-c-button-neutral-color-background: #f3f2f1;
+  --slds-c-button-neutral-color-border: #d2d0ce;
+  --slds-c-button-neutral-text-color: #323130;
+  --slds-c-button-neutral-color-background-hover: #e1dfdd;
+  --slds-c-button-neutral-color-border-hover: #c8c6c4;
+  font-size: 12px;
+}
+
+.clear-filters-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Clear Calendar Button - Same styling as clear filters button */
+.clear-calendar-button {
+  --slds-c-button-neutral-color-background: #f3f2f1;
+  --slds-c-button-neutral-color-border: #d2d0ce;
+  --slds-c-button-neutral-text-color: #323130;
+  --slds-c-button-neutral-color-background-hover: #e1dfdd;
+  --slds-c-button-neutral-color-border-hover: #c8c6c4;
+  font-size: 12px;
+}
+
+.clear-calendar-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.color-legend-content {
+  padding: 0; /* Remove padding since functional-section-content handles it */
+  background: transparent; /* Remove background since functional-section handles it */
+}
+
+.color-legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+.color-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e1dfdd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.color-legend-item:hover {
+  border-color: #926f1b;
+  box-shadow: 0 2px 6px rgba(146, 111, 27, 0.15);
+  transform: translateY(-1px);
+}
+
+.color-legend-item-active {
+  border-color: #926f1b;
+  background: linear-gradient(
+    135deg,
+    rgba(146, 111, 27, 0.1) 0%,
+    rgba(122, 94, 23, 0.05) 100%
+  );
+  box-shadow: 0 2px 6px rgba(146, 111, 27, 0.2);
+}
+
+.color-legend-item-disabled {
+  opacity: 0.6;
+  background: #f8f9fa;
+}
+
+/* Predefined colors with zero count should still be clickable */
+.color-legend-item-disabled[data-predefined="true"] {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.color-legend-item-disabled[data-predefined="true"]:hover {
+  border-color: #926f1b;
+  box-shadow: 0 2px 6px rgba(146, 111, 27, 0.15);
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+/* Non-predefined colors with zero count should not be clickable */
+.color-legend-item-disabled:not([data-predefined="true"]) {
+  cursor: not-allowed;
+}
+
+.color-legend-item-disabled:not([data-predefined="true"]):hover {
+  border-color: #e1dfdd;
+  box-shadow: none;
+  transform: none;
+}
+
+.color-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid #ffffff;
+  /* Background color and border color are set via inline style in colorStyle */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.color-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.color-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #252423;
+  line-height: 1.2;
+}
+
+.color-count {
+  font-size: 11px;
+  color: #605e5c;
+  font-weight: 400;
+}
+
+.color-active-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+  flex-shrink: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .color-legend-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .color-legend-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .legend-actions {
+    align-self: flex-end;
+  }
+
+  /* Adjust layout for smaller screens */
+  .teams-layout {
+    min-height: 100vh; /* Maintain minimum viewport height */
+    flex-direction: column; /* Stack sidebar and content vertically on mobile */
+  }
+
+  .teams-sidebar {
+    width: 100%; /* Full width on mobile */
+    flex: 0 0 auto; /* Don't grow, but allow natural height */
+    height: auto; /* Allow natural height on mobile */
+    max-height: 40vh; /* Limit sidebar to 40% of viewport height on mobile */
+    position: relative; /* Remove sticky positioning on mobile */
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+    animation: none; /* Disable animations on mobile */
+  }
+
+  .teams-main-content {
+    flex: 1; /* Take remaining space */
+    /* Removed min-height to prevent extra space on mobile */
+  }
+
+  /* User calendar avatar responsive adjustments */
+  .user-calendar-indicator-content {
+    gap: 12px;
+    padding: 12px 16px;
+    width: 100%; /* Ensure full width on mobile */
+    box-sizing: border-box; /* Include padding in width calculation */
+  }
+
+  .user-calendar-avatar {
+    width: 40px;
+    height: 40px;
+    border-width: 2px;
+  }
+
+  .user-calendar-title {
+    font-size: 1rem;
+  }
+
+  .user-calendar-subtitle {
+    font-size: 0.8rem;
+  }
+}
+
+/* Ensure proper height constraints for very small screens */
+@media (max-height: 600px) {
+  .teams-layout {
+    min-height: 600px; /* Minimum usable height */
+  }
+
+  .teams-sidebar {
+    max-height: 200px; /* Smaller sidebar on very short screens */
+  }
+
+  .calendar-container {
+    min-height: 400px; /* Ensure calendar is visible on short screens */
+  }
+}
+
+/* Conteúdo principal */
+.teams-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  /* Removed min-height: 100vh to prevent extra bottom space */
+}
+
+/* Cabeçalho estilo Teams */
+.teams-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #ecedf0;
+  background-color: #ffffff;
+  height: 64px;
+}
+
+.teams-header-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+}
+
+.teams-header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 2;
+  max-width: 400px;
+  margin: 24px 0;
+}
+
+.teams-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+/* Estilo para o dropdown de visualização */
+.teams-view-selector {
+  margin-left: 8px;
+}
+
+.teams-view-menu {
+  --slds-c-button-radius-border: 4px;
+  --slds-c-button-neutral-color-background: #f5f5f5;
+  --slds-c-button-neutral-color-border: #e0e0e0;
+  --slds-c-button-neutral-color-background-hover: #e9e9e9;
+  --slds-c-button-text-color: #252423;
+  --slds-c-button-spacing-block-start: 6px;
+  --slds-c-button-spacing-block-end: 6px;
+  --slds-c-button-spacing-inline-start: 12px;
+  --slds-c-button-spacing-inline-end: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Remover os botões padrão do FullCalendar */
+:host .fc-right {
+  display: none !important;
+}
+
+:host .fc-toolbar.fc-header-toolbar {
+  margin-bottom: 0 !important;
+  border-bottom: none !important;
+  padding: 0 !important;
+  display: none;
+}
+
+:host .fc-center h2 {
+  display: none !important;
+}
+
+/* Estilos para o popup de calendário */
+.teams-date-picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 9000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.teams-date-picker-modal {
+  background: white;
+  border-radius: 4px;
+  box-shadow:
+    0 6.4px 14.4px 0 rgba(0, 0, 0, 0.132),
+    0 1.2px 3.6px 0 rgba(0, 0, 0, 0.108);
+  margin-top: 64px;
+  width: 480px;
+  max-width: 100%;
+  overflow: hidden;
+  animation: teams-modal-in 0.3s ease;
+}
+
+@keyframes teams-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.teams-date-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #ecedf0;
+}
+
+.teams-date-picker-tabs {
+  display: flex;
+  gap: 24px;
+}
+
+.teams-date-picker-tab {
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.teams-date-picker-tab span {
+  font-size: 14px;
+  font-weight: 400;
+  color: #252423;
+  padding-bottom: 4px;
+}
+
+.teams-date-picker-tab span.active {
+  font-weight: 600;
+  color: #926f1b;
+  border-bottom: 2px solid #926f1b;
+}
+
+.teams-date-picker-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.teams-date-picker-nav-btn {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+}
+
+.teams-date-picker-nav-btn:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.teams-date-picker-content {
+  padding: 16px;
+}
+
+.teams-date-picker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.teams-date-picker-weekday {
+  font-size: 12px;
+  font-weight: 600;
+  color: #605e5c;
+  padding: 4px 0;
+}
+
+.teams-date-picker-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.teams-date-picker-day {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #252423;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.teams-date-picker-day:hover {
+  background-color: #f3f2f1;
+}
+
+.teams-date-picker-day.other-month {
+  color: #a19f9d;
+}
+
+.teams-date-picker-day.today {
+  background-color: #f5f1e8; /* Lighter pastel background */
+  font-weight: 600;
+}
+
+.teams-date-picker-day.selected {
+  background-color: #d4c4a0; /* Pastel brown/gold */
+  color: #2d2d2d; /* Darker text for better contrast */
+  font-weight: 600;
+}
+
+.teams-date-picker-day.in-range {
+  background-color: #f5f1e8; /* Lighter pastel background */
+}
+
+.teams-date-picker-months {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 8px;
+}
+
+.teams-date-picker-month {
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.teams-date-picker-month:hover {
+  background-color: #f3f2f1;
+}
+
+.teams-date-picker-month.selected {
+  background-color: #d4c4a0; /* Pastel brown/gold */
+  color: #2d2d2d; /* Darker text for better contrast */
+  font-weight: 600;
+}
+
+.teams-date-picker-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #ecedf0;
+  text-align: right;
+}
+
+.teams-date-picker-today {
+  display: inline-block;
+  color: #926f1b;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.teams-date-picker-today:hover {
+  background-color: #f3f2f1;
+}
+
+/* Date display (non-clickable) */
+.teams-date-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  position: relative;
+}
+
+.teams-date-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+}
+
+.teams-date-dropdown-icon {
+  --slds-c-icon-color-foreground-default: #926f1b;
+  margin-left: 4px;
+}
+
+.teams-date-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #252423;
+}
+
+.teams-nav-controls {
+  display: flex;
+  align-items: center;
+  margin-left: 24px; /* Increased spacing from sidebar toggle button */
+  margin-right: 16px; /* Increased spacing to date display */
+  gap: 12px; /* Consistent 12px spacing between all navigation elements */
+}
+
+/* Ensure all navigation elements have consistent sizing */
+.teams-nav-controls .teams-nav-button,
+.teams-nav-controls .teams-today-button {
+  flex: 0 0 auto; /* Don't grow or shrink */
+  margin: 0; /* Reset any default margins */
+}
+
+/* Custom sidebar toggle button with SVG */
+.teams-sidebar-toggle-button-custom {
+  background: none;
+  border: none;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  transition: background-color 0.2s ease;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.teams-sidebar-toggle-button-custom:hover {
+  background-color: #f5f1e8;
+}
+
+.teams-sidebar-toggle-button-custom:focus {
+  outline: 2px solid #926f1b;
+  outline-offset: 2px;
+}
+
+.teams-sidebar-toggle-button-custom:active {
+  background-color: #e8dcc8;
+}
+
+/* SVG icon styling with premium animations */
+.sidebar-toggle-svg {
+  color: #926f1b;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  width: 24px;
+  height: 24px;
+  transform-origin: center;
+}
+
+.teams-sidebar-toggle-button-custom:hover .sidebar-toggle-svg {
+  color: #7a5e17;
+  transform: scale(1.1);
+}
+
+/* SVG rotation animation based on sidebar state */
+.teams-layout.sidebar-collapsed .sidebar-toggle-svg {
+  transform: rotateY(180deg);
+}
+
+.teams-layout:not(.sidebar-collapsed) .sidebar-toggle-svg {
+  transform: rotateY(0deg);
+}
+
+.teams-nav-button {
+  --slds-c-button-radius-border: 4px;
+  --slds-c-button-color-border: transparent;
+  --slds-c-button-color-background: transparent;
+  --slds-c-button-color-background-hover: #f5f1e8;
+  --slds-c-button-spacing-block: 8px;
+  --slds-c-button-spacing-inline: 8px;
+  --slds-c-icon-color-foreground-default: #252423;
+  transition: all 0.2s ease;
+  width: 36px; /* Fixed width for perfect symmetry */
+  height: 36px; /* Fixed height for perfect symmetry */
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.teams-today-button {
+  --slds-c-button-radius-border: 4px;
+  --slds-c-button-neutral-color-background: #f5f1e8;
+  --slds-c-button-neutral-color-border: transparent;
+  --slds-c-button-neutral-color-background-hover: #e8dcc8;
+  --slds-c-button-text-color: #926f1b;
+  --slds-c-button-spacing-block-start: 8px;
+  --slds-c-button-spacing-block-end: 8px;
+  --slds-c-button-spacing-inline-start: 16px;
+  --slds-c-button-spacing-inline-end: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  height: 36px; /* Match navigation button height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Prevent shrinking */
+  transition: all 0.2s ease;
+}
+
+.teams-view-options {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Search container - Enhanced for centered layout */
+.teams-search-container {
+  width: 100%;
+  max-width: 400px;
+  min-width: 300px;
+}
+
+.teams-search-input {
+  --slds-c-input-radius-border: 4px;
+  --slds-c-input-color-border: #e0e0e0;
+  --slds-c-input-color-background: #ffffff;
+  --slds-c-input-spacing-block: 12px;
+  --slds-c-input-spacing-inline: 16px;
+  --slds-c-input-sizing-min-height: 44px;
+  font-size: 14px;
+}
+
+/* Target the actual input element within lightning-input */
+.teams-search-input lightning-input .slds-input {
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 12px 16px !important;
+  border-radius: 4px !important;
+  border: 1px solid #e0e0e0 !important;
+  background-color: #ffffff !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  transition: all 0.2s ease;
+}
+
+/* Target the input container */
+.teams-search-input lightning-input .slds-form-element__control {
+  height: 44px !important;
+  min-height: 44px !important;
+}
+
+/* Target the input wrapper */
+.teams-search-input lightning-input .slds-input__container {
+  height: 44px !important;
+  min-height: 44px !important;
+}
+
+/* Focus state for the actual input */
+.teams-search-input lightning-input .slds-input:focus {
+  border-color: #926f1b !important;
+  box-shadow: 0 0 0 2px rgba(146, 111, 27, 0.1) !important;
+  outline: none !important;
+}
+
+/* Alternative targeting for different SLDS versions */
+.teams-search-input input[type="search"] {
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 12px 16px !important;
+  border-radius: 4px !important;
+  border: 1px solid #e0e0e0 !important;
+  background-color: #ffffff !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  transition: all 0.2s ease;
+}
+
+.teams-search-input input[type="search"]:focus {
+  border-color: #926f1b !important;
+  box-shadow: 0 0 0 2px rgba(146, 111, 27, 0.1) !important;
+  outline: none !important;
+}
+
+/* Responsive design for search bar */
+@media (max-width: 1200px) {
+  .teams-header-center {
+    flex: 1.5;
+    max-width: 350px;
+  }
+
+  .teams-search-container {
+    max-width: 350px;
+    min-width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .teams-header-center {
+    flex: 1;
+    max-width: 250px;
+    margin: 0 12px;
+  }
+
+  .teams-search-container {
+    max-width: 250px;
+    min-width: 200px;
+  }
+
+  .teams-search-input {
+    --slds-c-input-sizing-min-height: 40px;
+  }
+
+  .teams-search-input lightning-input .slds-input {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 10px 12px !important;
+  }
+
+  .teams-search-input lightning-input .slds-form-element__control {
+    height: 40px !important;
+    min-height: 40px !important;
+  }
+
+  .teams-search-input lightning-input .slds-input__container {
+    height: 40px !important;
+    min-height: 40px !important;
+  }
+
+  .teams-search-input input[type="search"] {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 10px 12px !important;
+  }
+}
+
+/* ===== FLOATING FUZZY SEARCH OVERLAY STYLES - COMMENTED OUT ===== */
+
+/* Header center placeholder for layout balance - COMMENTED OUT */
+/*
+.header-center-placeholder {
+  width: 400px;
+  height: 40px;
+  /* Invisible placeholder to maintain header flex layout */
+/*
+}
+*/
+
+/* Main floating search overlay positioned over header center - COMMENTED OUT */
+/*
+.floating-fuzzy-search-overlay {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(30%);
+  z-index: 1500; /* Above header but below dropdown suggestions */
+/*
+  pointer-events: none; /* Allow clicks to pass through to underlying elements */
+/*
+  width: 400px;
+  max-width: 90vw;
+}
+
+/* Floating search container with enhanced styling - COMMENTED OUT */
+/*
+.floating-fuzzy-search-container {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible; /* Ensure dropdown can extend beyond container */
+/*
+  pointer-events: auto; /* Re-enable pointer events for the search container */
+/*
+  margin-top: 12px; /* Offset from header top */
+/*
+}
+
+/* Content header for repositioned icons - COMMENTED OUT */
+/*
+.floating-fuzzy-search-content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 6px 12px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Search icon in content header - COMMENTED OUT */
+/*
+.floating-fuzzy-search-icon {
+  color: #0176d3;
+  flex-shrink: 0;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.floating-fuzzy-search-icon:hover {
+  opacity: 1;
+}
+
+/* Close button in content header - COMMENTED OUT */
+/*
+.floating-fuzzy-search-close-button {
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+/* Close button hover effect - COMMENTED OUT */
+/*
+.floating-fuzzy-search-close-button:hover {
+  background: #5a6268;
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+/* Content wrapper for fuzzy search component - COMMENTED OUT */
+/*
+.floating-fuzzy-search-content {
+  position: relative;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e8eaed;
+}
+
+/* Override fuzzy search component styles within floating container - COMMENTED OUT */
+/*
+.floating-fuzzy-search-content c-fuzzy-search-suggestions {
+  width: 100%;
+}
+
+/* Ensure suggestions dropdown extends properly with floating behavior - COMMENTED OUT */
+/*
+.floating-fuzzy-search-content .search-suggestions-dropdown {
+  position: fixed !important; /* Use fixed positioning for floating behavior */
+/*
+  z-index: 10000 !important; /* High z-index to appear above header */
+/*
+  margin-top: 4px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border: 2px solid #e8eaed;
+  background: white;
+  max-height: 300px;
+  overflow-y: auto;
+}
+*/
+
+/* Enhanced responsive design for floating search - COMMENTED OUT */
+/*
+@media (max-width: 1200px) {
+  .floating-fuzzy-search-overlay {
+    width: 350px;
+  }
+
+  .header-center-placeholder {
+    width: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .floating-fuzzy-search-overlay {
+    width: 300px;
+  }
+
+  .header-center-placeholder {
+    width: 300px;
+  }
+
+  .floating-fuzzy-search-content {
+    padding: 10px;
+  }
+
+  .floating-fuzzy-search-content-header {
+    padding: 6px 10px 4px 10px;
+    margin-bottom: 6px;
+  }
+
+  .floating-fuzzy-search-close-button {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-fuzzy-search-overlay {
+    width: 250px;
+  }
+
+  .header-center-placeholder {
+    width: 250px;
+  }
+
+  .floating-fuzzy-search-content {
+    padding: 8px;
+  }
+
+  .floating-fuzzy-search-content-header {
+    padding: 4px 8px 2px 8px;
+    margin-bottom: 4px;
+  }
+
+  .floating-fuzzy-search-close-button {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+  }
+}
+*/
+
+/* Animation for floating search appearance - COMMENTED OUT */
+/*
+@keyframes floatingSearchFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.floating-fuzzy-search-container {
+  animation: floatingSearchFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+*/
+
+/* High contrast mode support - COMMENTED OUT */
+/*
+@media (prefers-contrast: high) {
+  .floating-fuzzy-search-content {
+    border: 3px solid #000;
+    background: #fff;
+  }
+
+  .floating-fuzzy-search-content-header {
+    background: #f0f0f0;
+    border-bottom: 2px solid #000;
+  }
+
+  .floating-fuzzy-search-close-button {
+    background: #000;
+    color: #fff;
+  }
+}
+
+/* Reduced motion support - COMMENTED OUT */
+/*
+@media (prefers-reduced-motion: reduce) {
+  .floating-fuzzy-search-container {
+    animation: none;
+    transition: none;
+  }
+
+  .floating-fuzzy-search-close-button:hover {
+    transform: none;
+  }
+
+  .floating-fuzzy-search-icon,
+  .floating-fuzzy-search-close-button {
+    transition: none;
+  }
+}
+*/
+
+.teams-filter-menu {
+  --slds-c-button-radius-border: 4px;
+  --slds-c-button-neutral-color-background: #f5f5f5;
+  --slds-c-button-neutral-color-border: #e0e0e0;
+  --slds-c-button-neutral-color-background-hover: #e9e9e9;
+  --slds-c-button-text-color: #252423;
+  --slds-c-button-spacing-block-start: 6px;
+  --slds-c-button-spacing-block-end: 6px;
+  --slds-c-button-spacing-inline-start: 12px;
+  --slds-c-button-spacing-inline-end: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.teams-new-event-button {
+  --slds-c-button-radius-border: 4px;
+  --slds-c-button-brand-color-background: #926f1b;
+  --slds-c-button-brand-color-border: #926f1b;
+  --slds-c-button-brand-color-background-hover: #7a5e17;
+  --slds-c-button-spacing-block: 8px;
+  --slds-c-button-spacing-inline: 8px;
+}
+
+.today-button {
+  border-radius: 4px;
+}
+
+/* Seção do calendário - estilo Teams - Full screen */
+.section-container {
+  margin: 0; /* Remove all margins for full screen */
+  background-color: #fff;
+  border-radius: 0; /* Remove border radius for edge-to-edge display */
+  border: none; /* Remove borders */
+  padding: 0; /* Remove padding */
+  overflow: hidden;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  /* Removed box-shadow for cleaner, flatter calendar design */
+}
+
+/* Container styling for the calendar - estilo Teams - Full screen */
+.calendar-container {
+  flex: 1; /* Take remaining space after header */
+  background-color: #ffffff;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  margin: 0; /* Remove margins */
+  padding: 0; /* Remove padding */
+  border: none; /* Remove borders */
+  border-radius: 0; /* Remove border radius for edge-to-edge display */
+  /* Removed box-shadow for cleaner, flatter design */
+}
+
+/* Calendar container wrapper for layout adjustments - Full screen */
+.calendar-container-wrapper {
+  transition: all 0.3s ease;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  margin: 0; /* Remove margins */
+  padding: 0; /* Remove padding */
+  border: none; /* Remove borders */
+  flex: 1; /* Take remaining space */
+}
+
+.calendar-container-wrapper.sidebar-collapsed {
+  /* Full width when sidebar is collapsed - handled by flexbox automatically */
+  /* Calendar will automatically expand to use full available width */
+}
+
+/* ===== USER CALENDAR FOCUS MODE STYLES ===== */
+
+/* When user calendar focus mode is active, dim non-essential elements */
+.teams-layout.user-calendar-focus-mode .teams-sidebar,
+.teams-layout.user-calendar-focus-mode .teams-right-sidebar,
+.teams-layout.user-calendar-focus-mode .teams-header,
+.teams-layout.user-calendar-focus-mode .accordion-popup:not(.calendars-popup) {
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+}
+
+/* Keep main calendar, user indicator, and user calendar selection popup at full opacity */
+.teams-layout.user-calendar-focus-mode .calendar-container,
+.teams-layout.user-calendar-focus-mode .user-calendar-indicator-relocated,
+.teams-layout.user-calendar-focus-mode .accordion-popup.calendars-popup {
+  opacity: 1 !important;
+  transition: opacity 0.3s ease;
+}
+
+/* Ensure calendar events and interactions remain fully visible */
+.teams-layout.user-calendar-focus-mode .calendar-container .fc-event,
+.teams-layout.user-calendar-focus-mode .calendar-container .fc-content,
+.teams-layout.user-calendar-focus-mode .calendar-container .fc-time,
+.teams-layout.user-calendar-focus-mode .calendar-container .fc-title {
+  opacity: 1 !important;
+}
+
+/* Default state - all elements at full opacity */
+.teams-layout .teams-sidebar,
+.teams-layout .teams-right-sidebar,
+.teams-layout .teams-header,
+.teams-layout .accordion-popup,
+.teams-layout .calendar-container,
+.teams-layout .user-calendar-indicator-relocated {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Disable transitions on accordion popups during drag */
+.teams-layout .accordion-popup.dragging {
+  transition: none !important;
+}
+
+/* Remove border-radius from calendar container when user calendar is selected */
+.teams-layout.user-calendar-focus-mode .section-container,
+.teams-layout.user-calendar-focus-mode .section-container.user-calendar-active,
+.teams-layout.user-calendar-focus-mode .calendar-container {
+  border-radius: 0 !important;
+}
+
+/* ===== POPUP DRAG FUNCTIONALITY STYLES ===== */
+
+/* Draggable cursor for popup headers */
+.popup-header {
+  cursor: move;
+  cursor: grab;
+}
+
+.popup-header:active {
+  cursor: grabbing;
+}
+
+/* Prevent text selection during drag */
+.popup-header.dragging {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Ensure buttons in header maintain pointer cursor */
+.popup-header lightning-button,
+.popup-header .popup-header-actions {
+  cursor: pointer;
+}
+
+/* Visual feedback during drag */
+.accordion-popup.dragging {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 10001 !important; /* Ensure popup stays on top during drag */
+  position: fixed !important; /* Ensure fixed positioning is maintained */
+  /* Isolate the dragged popup from layout changes */
+  contain: layout style paint !important;
+  will-change: transform !important;
+  /* Prevent any parent influence on positioning */
+  top: var(--drag-top, 0) !important;
+  left: var(--drag-left, 0) !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* ===== CALENDAR EVENT DRAG FUNCTIONALITY STYLES ===== */
+
+/* Calendar event drag styling */
+:host .fc-event.fc-dragging {
+  opacity: 0.8 !important;
+  z-index: 9999 !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  transform: rotate(2deg) scale(1.05) !important;
+  transition: none !important; /* Remove transitions during drag for smooth movement */
+  cursor: grabbing !important;
+  pointer-events: none !important; /* Prevent interference during drag */
+}
+
+/* Ensure dragged events can overflow containers */
+:host .fc-event.fc-dragging {
+  position: fixed !important;
+}
+
+/* Calendar container overflow during drag */
+:host .calendar-container.dragging-active {
+  overflow: visible !important;
+}
+
+/* FullCalendar specific drag overrides */
+:host .fc-view-container.dragging-active {
+  overflow: visible !important;
+}
+
+:host .fc-month-view.dragging-active {
+  overflow: visible !important;
+}
+
+/* Prevent text selection during calendar event drag */
+:host(.dragging-active) {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* ===== PIN BUTTON STYLES ===== */
+
+/* Pin button styling */
+.pin-button {
+  margin-right: 0; /* Removed margin - using gap from parent container */
+  transition: all 0.2s ease;
+}
+
+/* Pin button hover effects */
+.pin-button:hover {
+  transform: scale(1.05);
+}
+
+/* Pinned state styling - removed purple background, keeping icon distinction */
+.pin-button.pinned {
+  /* Removed background-color and border-color overrides */
+  /* Pin state is now indicated by icon change and popup border */
+}
+
+.pin-button.pinned:hover {
+  /* Removed background-color and border-color overrides */
+  /* Standard button hover behavior maintained */
+}
+
+/* Pin button icon color for pinned state - removed white color override */
+.pin-button.pinned lightning-primitive-icon {
+  /* Removed color override - using default icon color */
+}
+
+/* Ensure proper spacing in header actions */
+.popup-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Minimized gap for space economy */
+  margin-right: 10px; /* Reduced margin for compact design */
+  flex-shrink: 0;
+}
+
+/* Pin button accessibility */
+.pin-button:focus {
+  outline: 2px solid #005fb2;
+  outline-offset: 2px;
+}
+
+/* Visual indicator for pinned popups - removed purple left border */
+.accordion-popup.pinned-popup {
+  /* Removed border-left - pin state indicated only by icon change */
+}
+
+/* Z-index management for multiple pinned popups */
+.accordion-popup.pinned-popup {
+  z-index: 1002;
+}
+
+.accordion-popup.pinned-popup:hover {
+  z-index: 1003;
+}
+
+/* ===== FULLCALENDAR ENHANCED STYLING FOR PASTEL DESIGN ===== */
+
+/* Day number positioning - left-aligned as shown in reference image */
+:host .fc-day-number {
+  text-align: left !important;
+  padding: 8px 12px !important;
+  font-weight: 500;
+  color: #2d2d2d;
+  font-size: 14px;
+  pointer-events: none !important; /* Disable click events on day numbers */
+  cursor: default !important; /* Ensure day numbers don't show pointer cursor */
+}
+
+/* Month view day cells - enhanced spacing and layout with better horizontal padding */
+:host .fc-month-view .fc-day,
+:host .fc-month-view .fc-day-grid-cell,
+:host .fc-month-view td.fc-day-number {
+  padding: 4px 10px !important; /* Increased horizontal padding for better event card spacing */
+  background-color: #ffffff;
+  border-color: #f0f0f0 !important;
+  box-sizing: border-box !important; /* Ensure padding is included in width calculations */
+}
+
+/* Add hover cursor for empty day cells to indicate clickability for appointment creation */
+:host .fc-month-view .fc-day-grid-cell,
+:host .fc-month-view .fc-day,
+:host .fc-month-view td.fc-day {
+  cursor: crosshair !important; /* Use crosshair cursor to indicate day cell is clickable for creating appointments */
+}
+
+/* Ensure events maintain pointer cursor and override day cell cursor */
+:host .fc-month-view .fc-event,
+:host .fc-month-view .fc-day-grid-event,
+:host .fc-month-view .fc-event-container {
+  cursor: pointer !important;
+}
+
+/* Ensure day numbers maintain default cursor (non-clickable) */
+:host .fc-month-view .fc-day-number {
+  cursor: default !important;
+}
+
+/* Month view day cells hover state */
+:host .fc-month-view .fc-day:hover {
+  background-color: #fafbff !important;
+}
+
+/* Additional cursor rules to ensure crosshair appears on all day cell elements */
+:host .fc-month-view .fc-day-grid .fc-row .fc-content-skeleton td,
+:host .fc-month-view .fc-day-grid .fc-row .fc-bg td,
+:host .fc-month-view .fc-day-top {
+  cursor: crosshair !important;
+}
+
+/* Override any FullCalendar default cursor styles */
+:host .fc-month-view .fc-day-grid-cell:not(.fc-event):not(.fc-day-grid-event) {
+  cursor: crosshair !important;
+}
+
+/* Force crosshair cursor on all month view day elements with maximum specificity */
+:host .calendar-container .fc-month-view .fc-day-grid-cell,
+:host .calendar-container .fc-month-view .fc-day,
+:host .calendar-container .fc-month-view td.fc-day,
+:host .calendar-container .fc-month-view .fc-day-top {
+  cursor: crosshair !important;
+}
+
+/* Ensure events and day numbers override the crosshair cursor */
+:host .calendar-container .fc-month-view .fc-event,
+:host .calendar-container .fc-month-view .fc-day-grid-event {
+  cursor: pointer !important;
+}
+
+:host .calendar-container .fc-month-view .fc-day-number {
+  cursor: default !important;
+}
+
+/* Today highlighting with pastel accent */
+:host .fc-today {
+  background-color: #fffbf0 !important;
+  border-color: #e8dbb8 !important;
+}
+
+/* Day header styling improvements */
+:host .fc-day-header {
+  padding: 12px 8px !important;
+  font-weight: 600;
+  color: #2d2d2d;
+  background-color: #fafbff !important;
+  border-color: #f0f0f0 !important;
+}
+
+/* Enhanced spacing for calendar grid */
+:host .fc-month-view .fc-week {
+  min-height: 120px !important; /* Increased height for better breathing room */
+}
+
+/* Event container spacing improvements - increased bottom margin for better separation */
+:host .fc-month-view .fc-day-grid-event {
+  margin: 2px 2px 6px 2px !important; /* Increased bottom margin for better event separation */
+  padding: 4px 8px !important;
+}
+
+/* Comprehensive day cell selectors for lateral spacing fix */
+:host .fc-month-view .fc-day-grid-cell,
+:host .fc-month-view td.fc-day,
+:host .fc-month-view .fc-day-grid .fc-row .fc-content-skeleton td,
+:host .fc-month-view .fc-day-grid .fc-row .fc-bg td {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure event content area respects the new padding */
+:host .fc-month-view .fc-day-content {
+  padding: 0 !important; /* Remove any conflicting padding */
+  margin: 0 !important; /* Remove any conflicting margin */
+}
+
+/* Fix for FullCalendar table structure */
+:host .fc-month-view .fc-day-grid table {
+  table-layout: fixed !important; /* Ensure consistent column widths */
+}
+
+:host .fc-month-view .fc-day-grid .fc-row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* ===== BASIC EVENT STYLING ONLY ===== */
+
+/* Keep minimal event styling with pastel colors and borders */
+:host .fc-event {
+  background-color: #f8eec6; /* Light cream (pastel gold/yellow) - default */
+  border: 1px solid #926f1b; /* Gold border */
+  border-radius: 4px;
+}
+
+:host .fc-event-container a {
+  color: #ffffff; /* White text for all events */
+}
+
+/* ===== STICKY DAY HEADERS FOR BETTER UX ===== */
+
+/* Make FullCalendar day headers sticky */
+:host .fc-head-container {
+  position: sticky;
+  top: 0;
+  z-index: 100; /* Above calendar content but below modals */
+  background: #ffffff; /* Ensure solid background */
+  border-bottom: 1px solid #e1dfdd; /* Subtle separator */
+}
+
+/* Ensure day header table is properly styled */
+:host .fc-head-container .fc-head {
+  background: #ffffff;
+}
+
+/* Style the day header cells */
+:host .fc-day-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e1dfdd !important;
+  font-weight: 600 !important;
+  color: #252423 !important;
+  padding: 12px 8px !important;
+  text-align: center !important;
+}
+
+/* Ensure proper styling for widget headers */
+:host .fc-widget-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e1dfdd !important;
+}
+
+/* Month view specific header styling */
+:host .fc-month-view .fc-day-header {
+  font-size: 14px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Week view specific header styling */
+:host .fc-agendaWeek-view .fc-day-header,
+:host .fc-agendaDay-view .fc-day-header {
+  font-size: 13px !important;
+}
+
+/* Ensure sticky headers work with calendar scrolling */
+:host .fc-scroller {
+  overflow-y: auto !important;
+}
+
+/* Additional sticky header support for different calendar views */
+:host .fc-view-container {
+  position: relative;
+}
+
+/* Ensure proper stacking context for sticky headers */
+:host .fc-view {
+  position: relative;
+  z-index: 1;
+}
+
+/* Handle sticky positioning for month view specifically */
+:host .fc-month-view .fc-head-container {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Handle sticky positioning for week/day views */
+:host .fc-agenda-view .fc-head-container {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Ensure calendar content doesn't overlap with sticky headers */
+:host .fc-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive adjustments for sticky headers */
+@media (max-width: 768px) {
+  :host .fc-day-header {
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* ===== DAY HEADER STYLING REMOVED - USING DEFAULT FULLCALENDAR STYLES ===== */
+
+/* ===== GRID BORDERS AND DIVIDERS REMOVED - USING DEFAULT FULLCALENDAR STYLES ===== */
+
+/* ===== MONTH VIEW STYLING REMOVED - USING DEFAULT FULLCALENDAR STYLES ===== */
+
+/* ===== DAY AND BUTTON STYLING REMOVED - USING DEFAULT FULLCALENDAR STYLES ===== */
+
+/* ===== RESPONSIVE AND MOBILE STYLING REMOVED - USING DEFAULT FULLCALENDAR STYLES ===== */
+
+/* ===== TIME GRID AND SLOT STYLING REMOVED - USING DEFAULT FULLCALENDAR STYLES ===== */
+
+/* Enhanced event styling for different views */
+/* Week view events */
+:host .fc-agenda-view .fc-event {
+  font-weight: 500;
+  text-shadow: none;
+  border-left: 3px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Month view events */
+:host .fc-month-view .fc-event {
+  font-size: 0.75rem !important;
+  padding: 3px 6px !important;
+  margin: 1px !important;
+  min-height: 20px !important;
+}
+
+/* Day view events */
+:host .fc-agendaDay-view .fc-event {
+  font-size: 0.85rem !important;
+  padding: 8px 10px !important;
+  min-height: 32px !important;
+}
+
+/* Event title styling - white text for all events */
+:host .fc-event .fc-title {
+  font-weight: 600; /* Increased weight for better readability */
+  color: #000000b7; /* White text for all events */
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* Event time styling - white text for all events */
+:host .fc-event .fc-time {
+  font-weight: 500; /* Increased weight for better readability */
+  color: #000000b7; /* White text for all events */
+  font-size: 1.4em;
+}
+
+/* ===== ALL SEPARATOR AND BORDER STYLING REMOVED - USING DEFAULT FULLCALENDAR STYLES ===== */
+
+/* ===== SELECTED DAY STYLING REMOVED - USING DEFAULT FULLCALENDAR STYLES ===== */
+
+/* ===== ALL TIME GRID AND SEPARATOR STRUCTURE REMOVED - USING DEFAULT FULLCALENDAR STYLES ===== */
+
+/* Customização de eventos por tipo - cores pastéis com bordas */
+:host .reino-event-opportunity {
+  background-color: #d6f3e4; /* Light mint (pastel green) */
+  border: 2px solid #4bca81; /* Green border */
+}
+
+:host .reino-event-contact {
+  background-color: #e3e7fb; /* Light lavender (pastel blue) */
+  border: 2px solid #4f6bed; /* Blue border */
+}
+
+/* All event text colors are now white - no specific overrides needed */
+
+/* Estrutura interna dos eventos no estilo Teams */
+:host .teams-event-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  padding: 1px 0;
+}
+
+/* Enhanced event content styling */
+/* Default event content styling - white text for all events */
+:host .event-type {
+  font-size: 0.7rem;
+  color: #ffffff; /* White text for all events */
+  font-weight: 500; /* Increased weight for better readability */
+  line-height: 1.2;
+  margin-top: 1px;
+}
+
+:host .event-room {
+  font-size: 0.7rem;
+  color: #ffffff; /* White text for all events */
+  font-weight: 500; /* Increased weight for better readability */
+  line-height: 1.2;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+:host .event-participants {
+  font-size: 0.7rem;
+  color: #ffffff; /* White text for all events */
+  font-weight: 500; /* Increased weight for better readability */
+  line-height: 1.2;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+:host .event-attachment {
+  font-size: 0.7rem;
+  color: #ffffff; /* White text for all events */
+  font-weight: 500; /* Increased weight for better readability */
+  line-height: 1.2;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+:host .event-creator {
+  font-size: 0.7rem;
+  color: rgba(
+    255,
+    255,
+    255,
+    0.9
+  ); /* Slightly transparent white for creator text */
+  font-weight: 500; /* Increased weight for better readability */
+  line-height: 1.2;
+  margin-top: 1px;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:host .event-icon {
+  font-size: 0.6rem;
+  opacity: 0.8;
+}
+
+/* Attachment indicator */
+:host .attachment-indicator {
+  width: 8px;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  flex-shrink: 0;
+}
+
+:host .attachment-indicator::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 4px;
+  background-color: #0078d4;
+  border-radius: 50%;
+}
+
+/* Month view specific styling - hide secondary information for cleaner design */
+:host .fc-month-view .event-type,
+:host .fc-month-view .event-room,
+:host .fc-month-view .event-participants,
+:host .fc-month-view .event-attachment,
+:host .fc-month-view .event-creator {
+  display: none !important; /* Hide all secondary event details in month view */
+}
+
+:host .fc-month-view .event-icon {
+  display: none !important; /* Hide icons in month view for cleaner design */
+}
+
+/* Ensure Teams event content container doesn't add extra spacing in month view */
+:host .fc-month-view .teams-event-content {
+  gap: 0 !important; /* Remove gap between elements since most are hidden */
+  padding: 0 !important; /* Remove padding for cleaner appearance */
+}
+
+/* Month view - show only title and time with proper spacing */
+:host .fc-month-view .fc-title {
+  margin-bottom: 2px !important; /* Small spacing between title and time */
+  line-height: 1.2 !important;
+}
+
+:host .fc-month-view .fc-time {
+  margin-top: 0 !important;
+  line-height: 1.1 !important;
+  font-size: 0.85em !important; /* Increased from 0.75em for better readability */
+  font-weight: 500 !important; /* Maintain font weight for readability */
+}
+
+/* Week/Day view specific styling - show detailed information (not hidden like month view) */
+:host .fc-agendaWeek-view .event-type,
+:host .fc-agendaDay-view .event-type {
+  font-size: 0.75rem;
+  margin-top: 2px;
+  display: block !important; /* Ensure visibility in week/day views */
+}
+
+:host .fc-agendaWeek-view .event-room,
+:host .fc-agendaDay-view .event-room,
+:host .fc-agendaWeek-view .event-participants,
+:host .fc-agendaDay-view .event-participants,
+:host .fc-agendaWeek-view .event-attachment,
+:host .fc-agendaDay-view .event-attachment {
+  font-size: 0.7rem;
+  margin-top: 2px;
+  display: flex !important; /* Ensure visibility in week/day views */
+}
+
+/* Ensure three-dot menu button remains visible and functional in month view */
+:host .fc-month-view .event-menu-button {
+  display: flex !important; /* Keep menu button visible in month view */
+  opacity: 0.8 !important; /* Make it more visible in compact month view */
+}
+
+:host .fc-month-view .fc-event:hover .event-menu-button {
+  opacity: 1 !important; /* Full opacity on hover */
+}
+
+/* Event type specific colors - pastel variants with borders */
+:host .reino-event-type-reunião-presencial {
+  background-color: #f8eec6 !important; /* Light cream (pastel gold/yellow) */
+  border: 1px solid #926f1b !important; /* Gold border */
+}
+
+:host .reino-event-type-reunião-online {
+  background-color: #d6f3e4 !important; /* Light mint (pastel green) for online */
+  border: 1px solid #4bca81 !important; /* Green border */
+}
+
+:host .reino-event-type-ligação-telefônica {
+  background-color: #e3e7fb !important; /* Light lavender (pastel blue) for phone calls */
+  border: 1px solid #4f6bed !important; /* Blue border */
+}
+
+/* All event text colors are now white - consistent across all event types */
+
+/* Event header with three-dot menu */
+:host .event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+}
+
+:host .event-header .fc-title {
+  flex: 1;
+  min-width: 0; /* Allow text to truncate */
+}
+
+/* Three-dot menu button - dark gray color for all events */
+:host .event-menu-button {
+  background: none;
+  border: none;
+  color: #000000b7; /* Dark gray color for all menu buttons */
+  cursor: pointer;
+  padding: 2px;
+  margin: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0.4; /* Slightly visible by default */
+  transition:
+    opacity 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
+  flex-shrink: 0;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+:host .event-menu-button:hover {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /* White background with transparency */
+  color: #000000b7;
+  transform: scale(1.1);
+}
+
+:host .event-menu-button:focus {
+  outline: 1px solid rgba(255, 255, 255, 0.5); /* White outline */
+  outline-offset: 1px;
+}
+
+/* All menu buttons now use white color - no type-specific overrides needed */
+
+/* Show menu button on event hover */
+:host .fc-event:hover .event-menu-button {
+  opacity: 1;
+}
+
+/* Always show in month view for better accessibility */
+:host .fc-month-view .event-menu-button {
+  opacity: 0.8;
+}
+
+:host .fc-month-view .fc-event:hover .event-menu-button {
+  opacity: 1;
+}
+
+:host .event-menu-dots {
+  transform: rotate(90deg);
+  font-weight: bold;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Dynamic Event Highlighting */
+:host .event-highlighted {
+  position: relative !important;
+  z-index: 999 !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  transform: scale(1.08) !important;
+  /* Default fallback colors */
+  --highlight-color: #8A8886;
+  --highlight-rgb: 138, 136, 134;
+}
+
+:host .event-highlighted::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border: 5px solid var(--highlight-color);
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: -1;
+  animation: constantBreathing 2s ease-in-out infinite;
+}
+
+@keyframes constantBreathing {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1.0;
+  }
+}
+
+@keyframes highlightPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(68, 68, 68, 0.3),
+      0 0 12px rgba(0, 0, 0, 0.4),
+      0 0 20px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(68, 68, 68, 0.4),
+      0 0 16px rgba(0, 0, 0, 0.6),
+      0 0 24px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Fade-out animation for highlight removal */
+:host .event-highlight-fadeout {
+  transition: all 0.3s ease-out !important;
+  transform: scale(1) !important;
+}
+
+:host .event-highlight-fadeout::before {
+  opacity: 0 !important;
+  transform: scale(0.95) !important;
+}
+
+/* Color Picker Modal */
+:host .color-picker-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:host .color-picker-modal {
+  position: absolute;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  min-width: 280px;
+  max-width: 320px;
+  width: auto;
+  z-index: 10000;
+  animation: colorPickerSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: visible;
+  /* Floating UI handles positioning - smooth transitions for Floating UI updates */
+  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+  /* Remove manual positioning constraints - Floating UI handles all positioning */
+}
+
+/* Arrow styles removed - focusing on positioning only */
+
+/* Estilos específicos para quando o modal abre para cima */
+:host .color-picker-modal.open-upward {
+  animation: colorPickerFadeInUpward 0.2s ease-out;
+  /* Adiciona um pequeno estilo visual para indicar que o modal está abrindo para cima */
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para diferentes alinhamentos horizontais */
+:host .color-picker-modal.align-left::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 16px;
+  width: 16px;
+  height: 16px;
+  transform: rotate(45deg);
+  background-color: white;
+  box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.05);
+  z-index: -1;
+  border-top-left-radius: 2px;
+}
+
+:host .color-picker-modal.align-center::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  margin-left: -8px;
+  width: 16px;
+  height: 16px;
+  transform: rotate(45deg);
+  background-color: white;
+  box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.05);
+  z-index: -1;
+  border-top-left-radius: 2px;
+}
+
+:host .color-picker-modal.align-right::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: 16px;
+  width: 16px;
+  height: 16px;
+  transform: rotate(45deg);
+  background-color: white;
+  box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.05);
+  z-index: -1;
+  border-top-left-radius: 2px;
+}
+
+/* Ajuste dos indicadores de seta para quando o modal abre para cima */
+:host .color-picker-modal.open-upward.align-left::before {
+  top: auto;
+  bottom: -8px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.05);
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 2px;
+}
+
+:host .color-picker-modal.open-upward.align-center::before {
+  top: auto;
+  bottom: -8px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.05);
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 2px;
+}
+
+:host .color-picker-modal.open-upward.align-right::before {
+  top: auto;
+  bottom: -8px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.05);
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 2px;
+}
+
+@keyframes colorPickerSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes colorPickerFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes colorPickerFadeInUpward {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+:host .color-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e1dfdd;
+  background-color: #ffffff;
+  min-height: 60px;
+  border-radius: 12px 12px 0 0;
+}
+
+:host .header-time {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+:host .header-time-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #323130;
+  line-height: 1.2;
+}
+
+:host .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+:host .color-picker-delete {
+  background: none;
+  border: none;
+  color: #d13438;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+:host .color-picker-delete:hover {
+  background-color: #fdf3f4;
+  color: #a4262c;
+  transform: scale(1.05);
+}
+
+:host .color-picker-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #605e5c;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+:host .color-picker-close:hover {
+  background-color: #f3f2f1;
+  color: #323130;
+  transform: scale(1.05);
+}
+
+/* Event Information Section */
+:host .color-picker-event-info {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e1dfdd;
+  background-color: #faf9f8;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+:host .event-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+:host .event-subject {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #323130;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  width: 100%;
+}
+
+:host .event-participants {
+  display: flex;
+  align-items: center;
+}
+
+/* Global override for participant photos in color picker */
+:host .event-participants c-event-participant-display {
+  --slds-c-avatar-radius-border: 50%;
+}
+
+/* Additional specific selectors to ensure size override */
+:host
+  .event-participants
+  .participant-list
+  .participant-item
+  .participant-avatar,
+:host .event-participants .participant-list .participant-avatar,
+:host .event-participants .participant-avatar {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+}
+
+:host
+  .event-participants
+  .participant-list
+  .participant-item
+  .participant-photo,
+:host .event-participants .participant-list .participant-photo,
+:host .event-participants .participant-photo {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+}
+
+/* Large participant avatars for color picker - only photos, no text */
+:host .color-picker-participants-large {
+  --participant-avatar-size: 40px;
+}
+
+/* Force larger avatar size with multiple selectors */
+:host .color-picker-participants-large .participant-avatar,
+:host .event-participants .participant-avatar,
+:host
+  c-event-participant-display.color-picker-participants-large
+  .participant-avatar {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+}
+
+/* Force larger photo size */
+:host .color-picker-participants-large .participant-photo,
+:host .event-participants .participant-photo,
+:host
+  c-event-participant-display.color-picker-participants-large
+  .participant-photo {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+:host .color-picker-participants-large .participant-item {
+  padding: 4px 6px;
+  margin-right: 8px;
+}
+
+/* Hide participant info text in compact mode for color picker */
+:host .color-picker-participants-large .participant-info {
+  display: none !important;
+}
+
+/* Ensure only photos are shown */
+:host .color-picker-participants-large .participant-name,
+:host .color-picker-participants-large .participant-title,
+:host .color-picker-participants-large .participant-role {
+  display: none !important;
+}
+
+/* Hide remaining participants indicator in sidebar cards */
+:host .sidebar-participants .participant-item--remaining,
+:host .sidebar-participants .participant-avatar--remaining {
+  display: none !important;
+}
+
+/* Opacity effects for sidebar event cards */
+:host .first-event-full-opacity {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+:host .other-events-dimmed {
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+/* Hover effect to restore full opacity temporarily */
+:host .other-events-dimmed:hover {
+  opacity: 0.8;
+}
+
+:host .color-picker-status-section {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e1dfdd;
+  background-color: #faf9f8;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 3.125rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+:host .status-radio-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  align-items: flex-start;
+  text-align: left;
+}
+
+:host .status-radio-header {
+  margin-bottom: 0.75rem;
+  width: 100%;
+}
+
+:host .status-radio-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #323130;
+  display: block;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+
+:host .status-radio-options {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+:host .status-radio {
+  flex: 0 0 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Override SLDS radio styling to match modal design and ensure proper display */
+:host .status-radio lightning-input {
+  --slds-c-input-label-color-text: #323130;
+  --slds-c-input-label-font-size: 0.875rem;
+  --slds-c-input-label-font-weight: 400;
+  width: 100%;
+}
+
+/* Ensure proper spacing for radio buttons */
+:host .status-radio lightning-input .slds-form-element {
+  margin-bottom: 0;
+  margin-right: 0;
+  text-align: left;
+}
+
+:host .status-radio lightning-input .slds-form-element__control {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+:host .status-radio lightning-input .slds-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+:host .status-radio lightning-input .slds-form-element__label {
+  font-size: 0.875rem;
+  color: #323130;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Additional radio button styling for better visual consistency */
+:host .status-radio-yes lightning-input .slds-form-element__label {
+  color: #107c10; /* Green for "Yes" */
+}
+
+:host .status-radio-no lightning-input .slds-form-element__label {
+  color: #d13438; /* Red for "No" */
+}
+
+:host .status-radio-undefined lightning-input .slds-form-element__label {
+  color: #605e5c; /* Gray for "Undefined" */
+}
+
+/* Responsive design for radio buttons */
+@media (max-width: 480px) {
+  :host .status-radio-options {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    text-align: left;
+  }
+
+  :host .status-radio {
+    width: 100%;
+    text-align: left;
+  }
+}
+
+/* Meeting Outcome Interface Styling */
+
+/* Meeting outcome container */
+:host .meeting-outcome-container {
+  width: 100%;
+  text-align: left;
+}
+
+:host .meeting-outcome-header {
+  margin-bottom: 0.875rem;
+  text-align: left;
+}
+
+:host .meeting-outcome-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #323130;
+  display: block;
+  line-height: 1.4;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+
+/* Yes/No buttons styling - Compact and aligned design */
+:host .meeting-outcome-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+}
+
+:host .outcome-button {
+  flex: 0 0 auto;
+  min-width: 5rem;
+  max-width: 6.25rem;
+  height: 2rem;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  border-radius: 0.25rem;
+  transition: all 0.3s ease;
+  padding: 0 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none !important;
+  text-align: center;
+}
+
+/* Opacity effects for meeting outcome buttons */
+:host .outcome-button-normal {
+  opacity: 1;
+}
+
+:host .outcome-button-dimmed {
+  opacity: 0.5;
+}
+
+:host .outcome-button-yes {
+  --slds-c-button-brand-color-background: #4bca81;
+  --slds-c-button-brand-color-background-hover: #3db86f;
+  --slds-c-button-brand-color-background-active: #2fa85f;
+  --slds-c-button-brand-color-border: #4bca81;
+  --slds-c-button-brand-color-border-hover: #3db86f;
+  --slds-c-button-neutral-color-background: #ffffff;
+  --slds-c-button-neutral-color-background-hover: #f8f9fa;
+  --slds-c-button-neutral-color-border: #4bca81;
+  --slds-c-button-neutral-text-color: #4bca81;
+  --slds-c-button-neutral-text-color-hover: #3db86f;
+}
+
+:host .outcome-button-no {
+  --slds-c-button-brand-color-background: #c0392b;
+  --slds-c-button-brand-color-background-hover: #a93226;
+  --slds-c-button-brand-color-background-active: #922b21;
+  --slds-c-button-brand-color-border: #c0392b;
+  --slds-c-button-brand-color-border-hover: #a93226;
+  --slds-c-button-neutral-color-background: #ffffff;
+  --slds-c-button-neutral-color-background-hover: #f8f9fa;
+  --slds-c-button-neutral-color-border: #c0392b;
+  --slds-c-button-neutral-text-color: #c0392b;
+  --slds-c-button-neutral-text-color-hover: #a93226;
+}
+
+/* Enhanced button states for better visual feedback */
+:host .outcome-button:focus {
+  box-shadow: 0 0 0 2px rgba(75, 202, 129, 0.3);
+  outline: none;
+}
+
+:host .outcome-button-no:focus {
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.3);
+}
+
+:host .outcome-button:active {
+  transform: translateY(1px);
+}
+
+/* Status reason section (conditional combobox) */
+:host .status-reason-section {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e1dfdd;
+  text-align: left;
+}
+
+:host .status-reason-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #605e5c;
+  display: block;
+  text-align: left;
+  padding: 0;
+}
+
+:host .status-reason-combobox {
+  width: 100%;
+  --slds-c-combobox-color-border: #d8dde6;
+  --slds-c-combobox-color-border-focus: #926f1b;
+  --slds-c-combobox-radius-border: 0.25rem;
+  text-align: left;
+}
+
+:host .status-reason-combobox lightning-combobox {
+  width: 100%;
+  text-align: left;
+}
+
+/* Responsive adjustments for meeting outcome interface */
+@media (max-width: 480px) {
+  :host .meeting-outcome-buttons {
+    gap: 0.375rem;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  :host .outcome-button {
+    min-width: 4.375rem;
+    max-width: 5.625rem;
+    height: 1.875rem;
+    font-size: 0.75rem;
+    padding: 0 0.5rem;
+  }
+
+  :host .status-reason-section {
+    margin-top: 0.625rem;
+    padding-top: 0.5rem;
+    text-align: left;
+  }
+}
+
+@media (max-width: 320px) {
+  :host .meeting-outcome-label {
+    font-size: 0.8125rem;
+    text-align: left;
+  }
+
+  :host .status-reason-label {
+    font-size: 0.75rem;
+    text-align: left;
+  }
+
+  :host .meeting-outcome-buttons {
+    gap: 0.25rem;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  :host .outcome-button {
+    min-width: 4.0625rem;
+    max-width: 5rem;
+    height: 1.75rem;
+    font-size: 0.6875rem;
+    padding: 0 0.375rem;
+  }
+}
+
+:host .color-picker-content {
+  padding: 12px 0px 12px 16px;
+  border-radius: 0 0 12px 12px;
+}
+
+/* URL Input Section - Only visible for online meetings */
+:host .color-picker-url-section {
+  margin-top: 20px;
+  margin-bottom: 16px;
+}
+
+/* Adjust color palette spacing when URL section is not present */
+:host .color-palette {
+  margin-top: 0;
+}
+
+:host .url-input-field {
+  width: 100%;
+}
+
+:host .url-input-field lightning-input {
+  --slds-c-input-sizing-border: 1px solid #d8dde6;
+  --slds-c-input-color-border-focus: #1589ee;
+  --slds-c-input-radius-border: 4px;
+}
+
+:host .url-input-field .slds-form-element__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #3e3e3c;
+  margin-bottom: 4px;
+}
+
+:host .url-input-field .slds-input {
+  font-size: 0.875rem;
+  padding: 8px 12px;
+  min-height: 36px;
+}
+
+/* URL input validation styling */
+:host .url-input-field .slds-input:invalid {
+  border-color: #ea001e;
+  box-shadow: 0 0 0 1px #ea001e inset;
+}
+
+:host .url-input-field .slds-input:invalid:focus {
+  border-color: #ea001e;
+  box-shadow: 0 0 0 2px rgba(234, 0, 30, 0.2);
+}
+
+/* URL Card Styling */
+:host .url-card-container {
+  margin-bottom: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+:host .url-card-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #3e3e3c;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.0625rem;
+}
+
+:host .url-card {
+  background: #ffffff;
+  border: 1px solid #d8dde6;
+  border-radius: 6px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+}
+
+:host .url-card:hover {
+  border-color: #1589ee;
+  box-shadow: 0 2px 8px rgba(21, 137, 238, 0.15);
+  transform: translateY(-1px);
+}
+
+:host .url-card:focus {
+  outline: none;
+  border-color: #1589ee;
+  box-shadow: 0 0 0 2px rgba(21, 137, 238, 0.2);
+}
+
+:host .url-card:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+:host .url-card-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+}
+
+:host .url-card-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #f3f3f3;
+  border-radius: 4px;
+}
+
+:host .url-external-icon {
+  color: #706e6b;
+}
+
+/* Custom Teams PNG icon styling */
+:host .url-custom-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  filter: none; /* Preserve original Teams colors */
+}
+
+:host .url-card-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+:host .url-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #181818;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host .url-card-url {
+  font-size: 0.75rem;
+  color: #706e6b;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host .url-card-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+:host .url-edit-button {
+  background: transparent;
+  border: 1px solid #d8dde6;
+  border-radius: 4px;
+  padding: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+:host .url-edit-button:hover {
+  background: #f3f3f3;
+  border-color: #c9c7c5;
+}
+
+:host .url-edit-button:focus {
+  outline: none;
+  border-color: #1589ee;
+  box-shadow: 0 0 0 1px rgba(21, 137, 238, 0.2);
+}
+
+:host .url-edit-button:active {
+  background: #e5e5e5;
+}
+
+:host .color-palette {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+:host .color-palette::-webkit-scrollbar {
+  height: 6px;
+}
+
+:host .color-palette::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+:host .color-palette::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+:host .color-palette::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+:host .color-option {
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 6px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:host .color-option:hover {
+  border-color: #8a8886;
+  transform: scale(1.05);
+}
+
+:host .color-option.selected {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 1px #0078d4;
+}
+
+:host .color-swatch {
+  width: 32px;
+  height: 30px;
+  border-radius: 50%;
+  position: relative;
+  /* Border is now set via inline style in swatchStyle to match the color scheme */
+}
+
+:host .color-check {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+:host .teams-event-time {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+:host .teams-event-title {
+  font-size: 0.75rem;
+  font-weight: normal;
+  color: rgba(255, 255, 255, 0.95);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:host .teams-event-location {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ícones de evento */
+:host .event-icon {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  width: 10px;
+  height: 10px;
+}
+
+:host .recurring-icon::before {
+  content: "↻"; /* Símbolo de repetição */
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Adicionar linha vertical colorida como no Teams */
+:host .reino-event::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: inherit;
+  border-radius: 1.5px 0 0 1.5px;
+}
+
+/* Enhanced positioning for edge cases */
+:host .color-picker-modal.viewport-constrained {
+  /* Applied when modal is constrained by viewport boundaries */
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+}
+
+:host .color-picker-modal.position-adjusted {
+  /* Applied when position has been automatically adjusted */
+  animation: colorPickerRepositionFade 0.15s ease-out;
+}
+
+@keyframes colorPickerRepositionFade {
+  from {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive design for color picker modal */
+@media (max-width: 480px) {
+  :host .color-picker-modal {
+    min-width: 260px;
+    max-width: 90vw;
+    margin: 0 10px;
+    /* Enhanced mobile positioning - removed max-height to prevent scroll */
+    /* max-height: calc(100vh - 40px); */
+  }
+
+  :host .color-picker-event-info {
+    padding: 10px 12px;
+  }
+
+  :host .color-picker-status-section {
+    padding: 0.625rem 0.75rem;
+    min-height: 2.8125rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  :host .color-picker-header {
+    padding: 10px 12px;
+    min-height: 50px;
+  }
+
+  :host .header-actions {
+    gap: 6px;
+  }
+
+  :host .color-picker-delete {
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+  }
+
+  :host .color-picker-close {
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+  }
+
+  :host .header-time-text {
+    font-size: 1rem;
+  }
+
+  /* Smaller participant avatars on mobile */
+  :host .color-picker-participants-large {
+    --participant-avatar-size: 32px;
+  }
+
+  /* Force larger avatar size on mobile */
+  :host .color-picker-participants-large .participant-avatar,
+  :host .event-participants .participant-avatar,
+  :host
+    c-event-participant-display.color-picker-participants-large
+    .participant-avatar {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+  }
+
+  /* Force larger photo size on mobile */
+  :host .color-picker-participants-large .participant-photo,
+  :host .event-participants .participant-photo,
+  :host
+    c-event-participant-display.color-picker-participants-large
+    .participant-photo {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  :host .color-picker-content {
+    padding: 10px 12px;
+  }
+
+  /* Mobile URL input styling */
+  :host .color-picker-url-section {
+    margin-top: 16px;
+    margin-bottom: 12px;
+  }
+
+  :host .url-input-field .slds-form-element__label {
+    font-size: 0.7rem;
+  }
+
+  :host .url-input-field .slds-input {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    min-height: 32px;
+  }
+
+  /* Mobile URL card styling */
+  :host .url-card-container {
+    margin-bottom: 12px;
+  }
+
+  :host .url-card {
+    padding: 14px;
+    min-height: 48px;
+  }
+
+  :host .url-card-content {
+    gap: 10px;
+  }
+
+  :host .url-card-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  :host .url-card-title {
+    font-size: 0.8125rem;
+  }
+
+  :host .url-card-url {
+    font-size: 0.6875rem;
+  }
+
+  :host .url-edit-button {
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+  }
+
+  /* Mobile Teams PNG icon styling */
+  :host .url-custom-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Ensure text clipping works on mobile */
+  :host .event-subject {
+    font-size: 0.85rem;
+    max-width: calc(100% - 8px);
+  }
+
+  :host .color-palette {
+    gap: 6px;
+    padding: 2px 0;
+  }
+
+  :host .color-palette::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  :host .color-option {
+    width: 40px;
+    height: 40px;
+    padding: 6px;
+  }
+
+  :host .color-swatch {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Ensure radio buttons are properly sized on small screens */
+@media (max-width: 320px) {
+  :host .status-radio lightning-input {
+    --slds-c-input-label-font-size: 0.8rem;
+  }
+
+  :host .color-picker-status-section {
+    padding: 0.625rem 0.75rem;
+    min-height: 2.8125rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  :host .status-radio-options {
+    gap: 0.75rem;
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
+
+/* Custom popover styles removed - using default FullCalendar popover behavior */
+
+/* Basic styling for default FullCalendar popover to maintain brown/gold color scheme */
+:host .fc-more-popover .fc-event:hover {
+  border-color: #926f1b !important;
+  box-shadow: 0 2px 6px rgba(146, 111, 27, 0.15) !important;
+}
+
+:host .fc-popover .fc-event:hover {
+  border-color: #926f1b !important;
+  box-shadow: 0 2px 6px rgba(146, 111, 27, 0.15) !important;
+}
+
+/* Lead Event Styling */
+.fc-event.lead-event {
+  background-color: #ff6b35 !important;
+  border-color: #e55a2b !important;
+  color: #ffffff !important;
+  border-left: 4px solid #d14d21 !important;
+  position: relative;
+}
+
+.fc-event.lead-event:hover {
+  background-color: #e55a2b !important;
+  border-color: #d14d21 !important;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3) !important;
+}
+
+.fc-event.lead-event .fc-content {
+  position: relative;
+}
+
+/* Lead event indicator badge */
+.fc-event.lead-event::before {
+  content: "LEAD";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #ff6b35;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 1px 3px;
+  border-radius: 2px;
+  line-height: 1;
+  z-index: 10;
+}
+
+/* Lead event title styling */
+.fc-event.lead-event .fc-title {
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Lead event time styling */
+.fc-event.lead-event .fc-time {
+  font-weight: 600;
+  opacity: 0.9;
+}

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>AcaoETF</fullName>
+        <default>true</default>
+        <label>Ação/ETF</label>
+    </customValue>
+    <customValue>
+        <fullName>Ativo Genérico</fullName>
+        <default>false</default>
+        <label>Ativo Genérico</label>
+    </customValue>
+    <customValue>
+        <fullName>Caixa</fullName>
+        <default>false</default>
+        <label>Caixa</label>
+    </customValue>
+    <customValue>
+        <fullName>Clube Invest.</fullName>
+        <default>false</default>
+        <label>Clube Invest.</label>
+    </customValue>
+    <customValue>
+        <fullName>CRI/CRA</fullName>
+        <default>false</default>
+        <label>CRI/CRA</label>
+    </customValue>
+    <customValue>
+        <fullName>Debênture</fullName>
+        <default>false</default>
+        <label>Debênture</label>
+    </customValue>
+    <customValue>
+        <fullName>Fundo</fullName>
+        <default>false</default>
+        <label>Fundo</label>
+    </customValue>
+    <customValue>
+        <fullName>Mercado Futuro</fullName>
+        <default>false</default>
+        <label>Mercado Futuro</label>
+    </customValue>
+    <customValue>
+        <fullName>Opção</fullName>
+        <default>false</default>
+        <label>Opção</label>
+    </customValue>
+    <customValue>
+        <fullName>Previdência</fullName>
+        <default>false</default>
+        <label>Previdência</label>
+    </customValue>
+    <customValue>
+        <fullName>RendaFixa</fullName>
+        <default>false</default>
+        <label>Renda Fixa (CDB/LCI/LCA ... )</label>
+    </customValue>
+    <customValue>
+        <fullName>TituloPublico</fullName>
+        <default>false</default>
+        <label>Título Público</label>
+    </customValue>
+    <masterLabel>Tipo de Ativos</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

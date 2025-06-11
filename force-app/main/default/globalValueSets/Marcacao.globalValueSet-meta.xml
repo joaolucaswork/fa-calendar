@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Preço de fechamento</fullName>
+        <default>false</default>
+        <label>Preço de fechamento</label>
+    </customValue>
+    <customValue>
+        <fullName>Preço de referência</fullName>
+        <default>false</default>
+        <label>Preço de referência</label>
+    </customValue>
+    <masterLabel>Marcação</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

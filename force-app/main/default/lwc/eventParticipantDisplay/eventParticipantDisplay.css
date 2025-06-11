@@ -1,0 +1,293 @@
+/* Event Participant Display Component Styles */
+/* Teams-style design following calendarioReino patterns */
+
+.participant-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.participant-display--compact {
+  flex-wrap: nowrap;
+}
+
+.participant-display--detailed {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Loading state */
+.participant-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+/* Error state */
+.participant-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #d83b01;
+  font-size: 0.75rem;
+}
+
+.error-message {
+  font-size: 0.75rem;
+}
+
+/* Participant list with photos */
+.participant-list {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.participant-list--with-photos {
+  flex-wrap: nowrap;
+}
+
+.participant-list--text-only {
+  flex-wrap: wrap;
+}
+
+/* Individual participant item */
+.participant-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px;
+  transition: background-color 0.2s ease;
+  position: relative;
+  z-index: 10; /* Ensure participant items are above parent card */
+}
+
+.participant-item:hover {
+  background-color: rgba(98, 100, 167, 0.1);
+  transform: scale(1.05);
+}
+
+/* Participant avatar */
+.participant-avatar {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #f3f2f1;
+  border: 1px solid #e1dfdd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.participant-photo {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Remaining participants indicator */
+.participant-avatar--remaining {
+  background-color: #6264a7;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.remaining-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+}
+
+/* Participant information */
+.participant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.participant-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #323130;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.participant-title {
+  font-size: 0.65rem;
+  color: #605e5c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+/* Role indicators */
+.participant-role {
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.participant-role--gestor {
+  background-color: #e1f5fe;
+  color: #0277bd;
+}
+
+.participant-role--lider {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.participant-role--sdr {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+/* Text-only mode */
+.participant-text-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.participant-text-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.participant-name-link {
+  color: #6264a7;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  z-index: 10; /* Ensure participant links are above parent card */
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.participant-name-link:hover {
+  text-decoration: underline;
+  color: #5a5c96;
+  background-color: rgba(98, 100, 167, 0.1);
+}
+
+.participant-role-text {
+  font-size: 0.65rem;
+  color: #605e5c;
+  font-style: italic;
+}
+
+.participant-separator {
+  color: #605e5c;
+}
+
+.participant-remaining-text {
+  color: #605e5c;
+  font-style: italic;
+  font-size: 0.7rem;
+}
+
+/* No participants state */
+.no-participants {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #a19f9d;
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
+.no-participants-icon {
+  opacity: 0.6;
+}
+
+.no-participants-text {
+  font-size: 0.7rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .participant-name {
+    max-width: 80px;
+  }
+
+  .participant-title {
+    max-width: 80px;
+  }
+
+  .participant-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .remaining-count {
+    font-size: 0.55rem;
+  }
+}
+
+/* Compact mode specific styles */
+.participant-display--compact .participant-info {
+  display: none;
+}
+
+.participant-display--compact .participant-item {
+  padding: 1px;
+}
+
+.participant-display--compact .participant-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+/* Detailed mode specific styles */
+.participant-display--detailed .participant-item {
+  width: 100%;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.participant-display--detailed .participant-item:hover {
+  border-color: #6264a7;
+  background-color: rgba(98, 100, 167, 0.05);
+}
+
+.participant-display--detailed .participant-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.participant-display--detailed .participant-info {
+  display: flex;
+}
+
+.participant-display--detailed .participant-name {
+  font-size: 0.8rem;
+  max-width: 200px;
+}
+
+.participant-display--detailed .participant-title {
+  font-size: 0.7rem;
+  max-width: 200px;
+}

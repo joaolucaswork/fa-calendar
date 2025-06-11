@@ -1,0 +1,941 @@
+<template>
+  <!-- Event Color Manager - Service component for color operations -->
+  <c-event-color-manager
+    oncolorupdate={handleColorUpdate}
+    oncolorclear={handleColorClear}
+    onstatusupdate={handleStatusUpdate}
+    onoutcomeupdate={handleOutcomeUpdate}
+    onroomupdate={handleRoomUpdate}
+  ></c-event-color-manager>
+
+  <div class={teamsLayoutClass}>
+    <!-- Barra lateral esquerda estilo Teams - Only visible when expanded -->
+    <template if:false={isSidebarCollapsed}>
+      <div class="teams-sidebar">
+        <!-- Sidebar Content -->
+        <div class="sidebar-content">
+          <!-- Mini Calendário Section (No longer accordion) -->
+          <div class="sidebar-section">
+            <div class="mini-calendar-content">
+              <!-- Header showing current month/year with horizontal navigation -->
+              <div class="mini-calendar-header" onclick={toggleMonthSection}>
+                <button
+                  class="sidebar-nav-button nav-left"
+                  onclick={navigateToPrevMonth}
+                >
+                  <lightning-icon
+                    icon-name="utility:chevronleft"
+                    size="x-small"
+                  ></lightning-icon>
+                </button>
+                <div class="month-year-display">
+                  <span class="sidebar-month-year">{currentMonthYear}</span>
+                </div>
+                <button
+                  class="sidebar-nav-button nav-right"
+                  onclick={navigateToNextMonth}
+                >
+                  <lightning-icon
+                    icon-name="utility:chevronright"
+                    size="x-small"
+                  ></lightning-icon>
+                </button>
+              </div>
+
+              <!-- Days view (default) -->
+              <div if:false={isMonthSectionExpanded} class="days-grid">
+                <div class="days-weekdays">
+                  <div class="day-weekday">D</div>
+                  <div class="day-weekday">S</div>
+                  <div class="day-weekday">T</div>
+                  <div class="day-weekday">Q</div>
+                  <div class="day-weekday">Q</div>
+                  <div class="day-weekday">S</div>
+                  <div class="day-weekday">S</div>
+                </div>
+                <div class="days-container">
+                  <template for:each={sidebarDays} for:item="day">
+                    <div
+                      key={day.key}
+                      class={day.class}
+                      data-date={day.date}
+                      onclick={handleSidebarDaySelect}
+                    >
+                      {day.label}
+                    </div>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Months view (when expanded) -->
+              <div if:true={isMonthSectionExpanded} class="month-grid">
+                <template for:each={monthsInYear} for:item="month">
+                  <div
+                    key={month.value}
+                    class={month.class}
+                    onclick={handleMonthSelect}
+                    data-month={month.value}
+                  >
+                    {month.label}
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção de salas de reunião (moved below Mini Calendar) -->
+          <div class="sidebar-section">
+            <div class="sidebar-header" onclick={toggleRoomsSection}>
+              <lightning-icon
+                icon-name={roomsSectionIcon}
+                size="x-small"
+                class="sidebar-toggle-icon"
+              ></lightning-icon>
+              <span>Salas de Reunião</span>
+            </div>
+
+            <div if:true={isRoomsSectionExpanded} class="rooms-list">
+              <template for:each={meetingRooms} for:item="room">
+                <div key={room.value} class="room-item">
+                  <div class="room-filter-row">
+                    <lightning-input
+                      type="checkbox"
+                      label={room.label}
+                      name={room.value}
+                      checked={room.selected}
+                      onchange={handleRoomFilterChange}
+                      class="room-filter-checkbox"
+                    ></lightning-input>
+                    <div
+                      class={room.availabilityClass}
+                      title={room.availabilityText}
+                    >
+                      <lightning-icon
+                        icon-name={room.availabilityIcon}
+                        size="xx-small"
+                        class="room-availability-icon"
+                      ></lightning-icon>
+                    </div>
+                  </div>
+                  <div
+                    if:true={room.showOccupiedSlots}
+                    class="room-occupied-slots"
+                  >
+                    <template for:each={room.occupiedSlots} for:item="slot">
+                      <div
+                        key={slot.id}
+                        class={slot.slotCardClass}
+                        data-event-id={slot.eventId}
+                        onclick={handleSlotCardClick}
+                      >
+                        <div class="slot-card-header">
+                          <div class="slot-time-info">
+                            <span class="slot-time-combined"
+                              >{slot.timeRange} • {slot.dateInfo}</span
+                            >
+                          </div>
+                          <div
+                            class="slot-category-indicator"
+                            style={slot.categoryColor}
+                            title="Categoria do evento"
+                          ></div>
+                        </div>
+                        <div class="slot-card-content">
+                          <div class="slot-subject">{slot.subject}</div>
+                          <div class="slot-participants">
+                            <c-event-participant-display
+                              gestor-name={slot.eventData.gestorName}
+                              lider-comercial-name={slot.eventData.liderComercialName}
+                              sdr-name={slot.eventData.sdrName}
+                              display-mode="compact"
+                              max-participants="4"
+                              show-photos="true"
+                              show-roles="false"
+                              custom-class="sidebar-participants"
+                              onparticipantclick={handleParticipantClick}
+                            ></c-event-participant-display>
+                          </div>
+                          <!-- Happening Now Indicator using reusable component -->
+                          <c-happening-now-indicator
+                            start-date-time={slot.eventData.startDateTime}
+                            end-date-time={slot.eventData.endDateTime}
+                            custom-class="happening-now-sidebar"
+                            size="small"
+                            custom-text="Acontecendo Agora"
+                          >
+                          </c-happening-now-indicator>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Seção de filtros -->
+          <div class="sidebar-section">
+            <div class="sidebar-header" onclick={toggleFiltersSection}>
+              <lightning-icon
+                icon-name={filtersSectionIcon}
+                size="x-small"
+                class="sidebar-toggle-icon"
+              ></lightning-icon>
+              <span>Filtros</span>
+            </div>
+
+            <div if:true={isFiltersSectionExpanded} class="filters-list">
+              <div class="filter-item">
+                <lightning-input
+                  type="checkbox"
+                  label="Todos os eventos"
+                  name="all"
+                  checked={isFilterSelected.all}
+                  onchange={handleFilterCheckboxChange}
+                  class="filter-checkbox"
+                ></lightning-input>
+              </div>
+              <div class="filter-item">
+                <lightning-input
+                  type="checkbox"
+                  label="Reunião Presencial"
+                  name="presencial"
+                  checked={isFilterSelected.presencial}
+                  onchange={handleFilterCheckboxChange}
+                  class="filter-checkbox"
+                ></lightning-input>
+              </div>
+              <div class="filter-item">
+                <lightning-input
+                  type="checkbox"
+                  label="Reunião Online"
+                  name="online"
+                  checked={isFilterSelected.online}
+                  onchange={handleFilterCheckboxChange}
+                  class="filter-checkbox"
+                ></lightning-input>
+              </div>
+              <div class="filter-item">
+                <lightning-input
+                  type="checkbox"
+                  label="Ligação Telefônica"
+                  name="telefonica"
+                  checked={isFilterSelected.telefonica}
+                  onchange={handleFilterCheckboxChange}
+                  class="filter-checkbox"
+                ></lightning-input>
+              </div>
+              <div class="filter-item">
+                <lightning-input
+                  type="checkbox"
+                  label="Eventos de Leads"
+                  name="leadEvents"
+                  checked={showLeadEvents}
+                  onchange={handleLeadEventsToggle}
+                  class="filter-checkbox"
+                ></lightning-input>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End of sidebar-content -->
+      </div>
+      <!-- End of teams-sidebar -->
+    </template>
+
+    <!-- Conteúdo principal do calendário -->
+    <div class="teams-main-content">
+      <div class="teams-header">
+        <div class="teams-header-left">
+          <!-- Sidebar toggle button with custom SVG -->
+          <button
+            class="teams-sidebar-toggle-button-custom"
+            onclick={toggleSidebar}
+            title={sidebarToggleTitle}
+            aria-label={sidebarToggleTitle}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              class="sidebar-toggle-svg"
+            >
+              <path
+                fill="currentColor"
+                d="M8 5.454c0-.029.002-.057.004-.085-.449.006-.824.018-1.15.045-.529.043-.862.12-1.113.228l-.103.048a3 3 0 0 0-1.196 1.105L4.327 7c-.134.263-.227.612-.276 1.217C4 8.835 4 9.628 4 10.764v2.472c0 1.137 0 1.93.05 2.546.05.605.143.953.277 1.216l.115.206a3 3 0 0 0 1.196 1.105l.103.048c.251.109.584.185 1.113.228.325.026.699.038 1.146.044V5.454Zm14 7.782c0 1.104.001 1.991-.058 2.708-.052.638-.154 1.208-.381 1.738l-.106.224a5 5 0 0 1-2.184 2.185h-.002c-.592.301-1.232.428-1.96.487-.718.059-1.606.058-2.71.058H9.4l-.366-.002-.034.002-.043-.003c-.901-.001-1.647-.004-2.266-.055-.637-.052-1.208-.154-1.737-.382l-.224-.105a5.001 5.001 0 0 1-2.092-2.01l-.093-.175c-.302-.592-.428-1.233-.487-1.962C1.999 15.227 2 14.34 2 13.236v-2.472c0-1.104-.001-1.992.058-2.71.06-.728.185-1.368.487-1.96l.093-.175a5.002 5.002 0 0 1 2.092-2.01l.224-.106c.53-.227 1.1-.33 1.737-.382.718-.059 1.606-.058 2.71-.058H14.6c1.103 0 1.991 0 2.709.058.728.06 1.368.186 1.96.487l.175.094a5.001 5.001 0 0 1 2.011 2.092l.106.223c.227.53.33 1.1.381 1.738.059.717.058 1.605.058 2.709v2.472Zm-12 5.4h4.6c1.136 0 1.929 0 2.545-.051.606-.05.954-.142 1.217-.276l.206-.116c.47-.288.853-.701 1.105-1.195l.049-.104c.108-.25.184-.583.227-1.112.05-.617.051-1.41.051-2.546v-2.472c0-1.137 0-1.93-.05-2.546-.044-.53-.12-.862-.228-1.114l-.05-.103a3.001 3.001 0 0 0-1.104-1.195l-.206-.116c-.263-.134-.611-.226-1.216-.276-.617-.05-1.41-.05-2.546-.05H9.996c.003.03.004.06.004.09v13.182Z"
+              />
+            </svg>
+          </button>
+
+          <div class="teams-nav-controls">
+            <lightning-button-icon
+              icon-name="utility:chevronleft"
+              variant="bare"
+              class="teams-nav-button"
+              alternative-text="Anterior"
+              onclick={navigateToPrev}
+            ></lightning-button-icon>
+            <lightning-button
+              label="Hoje"
+              variant="neutral"
+              class="teams-today-button"
+              onclick={navigateToToday}
+            ></lightning-button>
+            <lightning-button-icon
+              icon-name="utility:chevronright"
+              variant="bare"
+              class="teams-nav-button"
+              alternative-text="Próximo"
+              onclick={navigateToNext}
+            ></lightning-button-icon>
+          </div>
+          <!-- Date display (non-clickable) -->
+          <div class="teams-date-display">
+            <div class="teams-date-text">{currentDateRangeText}</div>
+          </div>
+        </div>
+
+        <!-- Centered Search Section -->
+        <div class="teams-header-center">
+          <div class="teams-search-container">
+            <lightning-input
+              type="search"
+              label="Pesquisar eventos"
+              variant="label-hidden"
+              placeholder="Pesquisar eventos..."
+              value={searchTerm}
+              onchange={handleSearchChange}
+              class="teams-search-input"
+            ></lightning-input>
+          </div>
+        </div>
+
+        <div class="teams-header-right">
+          <div class="teams-view-options">
+            <div class="teams-view-selector">
+              <lightning-button-menu
+                label={currentViewLabel}
+                variant="neutral"
+                class="teams-view-menu"
+                menu-alignment="auto"
+                onselect={handleViewChange}
+              >
+                <lightning-menu-item
+                  value="month"
+                  label="Mês"
+                ></lightning-menu-item>
+              </lightning-button-menu>
+            </div>
+
+            <!-- Novo Compromisso Button -->
+            <lightning-button
+              label="Criar"
+              variant="brand"
+              class="teams-new-event-button"
+              onclick={handleCreateEvent}
+              icon-name="utility:add"
+            >
+            </lightning-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Fuzzy Search Overlay - COMMENTED OUT -->
+      <!-- <div class="floating-fuzzy-search-overlay">
+        <template if:true={isFuzzySearchVisible}>
+          <div class="floating-fuzzy-search-container">
+            <div class="floating-fuzzy-search-content">
+              <c-fuzzy-search-suggestions
+                show-debug-info={showFuzzySearchDebug}
+                similarity-threshold="0.6"
+                max-suggestions="8"
+                debounce-delay="250"
+                onsuggestionselected={handleFuzzySuggestionSelected}
+                onsearchcleared={handleFuzzySearchCleared}
+              ></c-fuzzy-search-suggestions>
+            </div>
+          </div>
+        </template>
+      </div> -->
+
+      <!-- Left-Opening Accordion Popups -->
+      <!-- Meeting Suggestions Popup -->
+      <template if:true={isMeetingSuggestionsExpanded}>
+        <div class={suggestionsPopupClass} style={suggestionsPopupStyle}>
+          <div class="popup-arrow"></div>
+          <div class="popup-header">
+            <div class="popup-title-section">
+              <lightning-icon
+                icon-name={suggestionsPinIcon}
+                size="x-small"
+                class="popup-title-pin-icon"
+                onclick={handleToggleSuggestionsPin}
+                title={suggestionsPinTitle}
+              ></lightning-icon>
+              <span class="popup-title">Sugestões de Reuniões</span>
+            </div>
+            <!-- Pin functionality moved to title icon -->
+            <button
+              class="popup-close-button"
+              onclick={handleCloseMeetingSuggestions}
+            >
+              ×
+            </button>
+          </div>
+          <div class="popup-content">
+            <template if:true={meetingSuggestions.length}>
+              <div class="suggestions-scroll-container">
+                <template for:each={meetingSuggestions} for:item="suggestion">
+                  <div
+                    key={suggestion.id}
+                    class="suggestion-card"
+                    onclick={handleSuggestionClick}
+                    data-suggestion-id={suggestion.id}
+                    title={suggestion.tooltip}
+                  >
+                    <div class="suggestion-card-header">
+                      <div class="suggestion-time">
+                        <lightning-icon
+                          icon-name="utility:clock"
+                          size="xx-small"
+                          class="suggestion-time-icon"
+                        ></lightning-icon>
+                        <span class="suggestion-time-text"
+                          >{suggestion.timeSlot}</span
+                        >
+                      </div>
+                      <div class="suggestion-date">
+                        <span class="suggestion-date-text"
+                          >{suggestion.dateLabel}</span
+                        >
+                      </div>
+                    </div>
+
+                    <!-- AI Badge -->
+                    <div class="suggestion-ai-badge">
+                      <lightning-icon
+                        icon-name="utility:einstein"
+                        size="xx-small"
+                        class="suggestion-ai-icon"
+                      ></lightning-icon>
+                      <span class="suggestion-ai-text">Sugestão por IA</span>
+                    </div>
+
+                    <div class="suggestion-card-body">
+                      <div class="suggestion-room">
+                        <lightning-icon
+                          icon-name="utility:location"
+                          size="xx-small"
+                          class="suggestion-room-icon"
+                        ></lightning-icon>
+                        <span class="suggestion-room-text"
+                          >{suggestion.roomName}</span
+                        >
+                        <template if:true={suggestion.meetingTypeText}>
+                          <span class="suggestion-meeting-type-inline">
+                            • {suggestion.meetingTypeText}
+                          </span>
+                        </template>
+                        <template if:true={suggestion.meetingTypeIndicator}>
+                          <span class="suggestion-meeting-type-indicator">
+                            {suggestion.meetingTypeIndicator}
+                          </span>
+                        </template>
+                      </div>
+
+                      <div class="suggestion-participants">
+                        <lightning-icon
+                          icon-name="utility:people"
+                          size="xx-small"
+                          class="suggestion-participants-icon"
+                        ></lightning-icon>
+                        <span class="suggestion-participants-text">
+                          {suggestion.participantsText}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
+
+            <template if:false={meetingSuggestions.length}>
+              <div class="no-suggestions-message">
+                <lightning-icon
+                  icon-name="utility:info"
+                  size="small"
+                  class="no-suggestions-icon"
+                ></lightning-icon>
+                <p class="no-suggestions-text">
+                  Nenhuma sugestão disponível no momento. Tente criar um
+                  compromisso manualmente.
+                </p>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+
+      <!-- Color Legend Popup -->
+      <template if:true={isColorLegendExpanded}>
+        <div class={colorsPopupClass} style={colorsPopupStyle}>
+          <div class="popup-arrow"></div>
+          <div class="popup-header">
+            <div class="popup-title-section">
+              <lightning-icon
+                icon-name={colorsPinIcon}
+                size="x-small"
+                class="popup-title-pin-icon"
+                onclick={handleToggleColorsPin}
+                title={colorsPinTitle}
+              ></lightning-icon>
+              <span class="popup-title">Filtros de Cor</span>
+            </div>
+            <div class="popup-header-actions">
+              <lightning-button
+                label="Limpar"
+                variant="neutral"
+                size="small"
+                onclick={handleClearColorFilters}
+                disabled={isColorFiltersEmpty}
+                class="clear-filters-button"
+              ></lightning-button>
+            </div>
+            <button
+              class="popup-close-button"
+              onclick={handleToggleColorLegend}
+            >
+              ×
+            </button>
+          </div>
+          <div class="popup-content">
+            <div class="color-legend-grid">
+              <template for:each={colorLegend} for:item="colorItem">
+                <div
+                  key={colorItem.id}
+                  class={colorItem.cssClass}
+                  onclick={handleColorFilterClick}
+                  data-color-id={colorItem.id}
+                  data-predefined={colorItem.isPredefined}
+                  title={colorItem.description}
+                >
+                  <div
+                    class="color-indicator"
+                    style={colorItem.colorStyle}
+                  ></div>
+                  <div class="color-info">
+                    <span class="color-label">{colorItem.label}</span>
+                    <span class="color-count">({colorItem.count})</span>
+                  </div>
+                  <template if:true={colorItem.active}>
+                    <lightning-icon
+                      icon-name="utility:check"
+                      size="xx-small"
+                      class="color-active-icon"
+                    ></lightning-icon>
+                  </template>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- User Calendar Selection Popup -->
+      <template if:true={isCalendarsSectionExpanded}>
+        <div class={calendarsPopupClass} style={calendarsPopupStyle}>
+          <div class="popup-arrow"></div>
+          <div class="popup-header">
+            <div class="popup-title-section">
+              <lightning-icon
+                icon-name={calendarsPinIcon}
+                size="x-small"
+                class="popup-title-pin-icon"
+                onclick={handleToggleCalendarsPin}
+                title={calendarsPinTitle}
+              ></lightning-icon>
+              <span class="popup-title">Calendários</span>
+            </div>
+            <!-- Clear button removed - using toggle behavior instead -->
+            <button class="popup-close-button" onclick={handleToggleCalendars}>
+              ×
+            </button>
+          </div>
+          <div class="popup-content">
+            <div class="calendar-cards-container">
+              <!-- User calendar cards -->
+              <template for:each={availableUsers} for:item="user">
+                <div
+                  key={user.id}
+                  class={user.cardClass}
+                  onclick={handleUserCalendarClick}
+                  data-user-id={user.id}
+                  title={user.cardTooltip}
+                >
+                  <div class="calendar-card-avatar">
+                    <img
+                      src={user.photoUrl}
+                      alt={user.name}
+                      class="user-calendar-card-photo"
+                      onerror={handleUserCardPhotoError}
+                    />
+                  </div>
+                  <div class="calendar-card-info">
+                    <div class="calendar-card-name">{user.name}</div>
+                  </div>
+                  <template if:true={user.selected}>
+                    <div class="calendar-card-selected-indicator">
+                      <lightning-icon
+                        icon-name="utility:check"
+                        size="x-small"
+                        class="selected-check-icon"
+                      ></lightning-icon>
+                    </div>
+                  </template>
+                </div>
+              </template>
+
+              <!-- No users message -->
+              <template if:false={availableUsers.length}>
+                <div class="no-users-card">
+                  <div class="no-users-card-content">
+                    <lightning-icon
+                      icon-name="utility:info"
+                      size="small"
+                      class="no-users-icon"
+                    ></lightning-icon>
+                    <p class="no-users-text">Nenhum usuário disponível</p>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- User Calendar Indicator - Relocated to be adjacent to main calendar -->
+      <template if:true={showUserCalendarIndicator}>
+        <div class="user-calendar-indicator user-calendar-indicator-relocated">
+          <div class="user-calendar-indicator-content">
+            <div class="user-calendar-avatar">
+              <img
+                src={selectedUserPhotoUrl}
+                alt={selectedUserName}
+                title={selectedUserName}
+                class="user-calendar-photo"
+                onerror={handleUserPhotoError}
+              />
+            </div>
+            <div class="user-calendar-text">
+              <h3 class="user-calendar-title">
+                Calendário de {selectedUserName}
+              </h3>
+              <p class="user-calendar-subtitle">
+                Visualizando eventos específicos do usuário
+              </p>
+            </div>
+            <lightning-button
+              label="Voltar para Todos"
+              variant="neutral"
+              size="small"
+              onclick={handleReturnToDefaultCalendar}
+              class="return-to-default-button"
+            ></lightning-button>
+          </div>
+        </div>
+      </template>
+
+      <div class={calendarContainerClass}>
+        <div class="calendar-container" lwc:dom="manual"></div>
+      </div>
+    </div>
+
+    <!-- Integrated Right Sidebar -->
+    <div class="teams-right-sidebar">
+      <!-- Meeting Suggestions Icon -->
+      <template if:true={showMeetingSuggestions}>
+        <div
+          class="right-sidebar-icon"
+          onclick={handleToggleMeetingSuggestions}
+          title="Sugestões de Reuniões"
+          data-section="suggestions"
+        >
+          <lightning-icon
+            icon-name="utility:event"
+            size="small"
+            class="sidebar-icon"
+          ></lightning-icon>
+          <template if:true={isLoadingSuggestions}>
+            <div class="sidebar-loading-indicator"></div>
+          </template>
+        </div>
+      </template>
+
+      <!-- Color Legend Icon -->
+      <div
+        class="right-sidebar-icon"
+        onclick={handleToggleColorLegend}
+        title="Filtros de Cor"
+        data-section="colors"
+      >
+        <lightning-icon
+          icon-name="utility:color_swatch"
+          size="small"
+          class="sidebar-icon"
+        ></lightning-icon>
+      </div>
+
+      <!-- User Calendar Selection Icon -->
+      <div
+        class="right-sidebar-icon"
+        onclick={handleToggleCalendars}
+        title="Calendários"
+        data-section="calendars"
+      >
+        <lightning-icon
+          icon-name="utility:user"
+          size="small"
+          class="sidebar-icon"
+        ></lightning-icon>
+        <template if:true={isLoadingUsers}>
+          <div class="sidebar-loading-indicator"></div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <div if:true={isLoading} class="slds-is-relative">
+    <lightning-spinner
+      alternative-text="Carregando"
+      size="medium"
+    ></lightning-spinner>
+  </div>
+  <div if:true={error} class="slds-text-color_error slds-p-around_small">
+    Ocorreu um erro ao carregar o calendário. Por favor, tente novamente.
+  </div>
+
+  <!-- Appointment Editor Modal -->
+  <c-appointment-editor
+    show-modal={showAppointmentEditor}
+    event-id={selectedEventId}
+    who-id={prefilledWhoId}
+    what-id={prefilledWhatId}
+    selected-event-data={selectedEventData}
+    selected-start-date={selectedStartDate}
+    selected-end-date={selectedEndDate}
+    suggestion-data={suggestionData}
+    onclose={handleAppointmentEditorClose}
+    onappointmentsaved={handleAppointmentSaved}
+  >
+  </c-appointment-editor>
+
+  <!-- Lead Event Editor Modal - COMMENTED OUT - PAUSED LEAD EVENT SYSTEM -->
+  <!--
+  <template if:true={showLeadEventEditor}>
+    <c-lead-event-editor
+      lead-id={selectedLeadId}
+      event-id={selectedLeadEventId}
+      onclose={handleLeadEventEditorClose}
+      onsave={handleLeadEventEditorSave}
+    >
+    </c-lead-event-editor>
+  </template>
+  -->
+
+  <!-- Participant Details Modal -->
+  <c-participant-details-modal
+    onmodalclose={handleParticipantModalClose}
+    oneventclick={handleParticipantModalEventClick}
+  ></c-participant-details-modal>
+
+  <!-- Color Picker Modal -->
+  <template if:true={showColorPicker}>
+    <div class="color-picker-backdrop" onclick={handleBackdropClick}>
+      <div
+        class={colorPickerModalClass}
+        onclick={handleColorPickerClick}
+      >
+        <div class="color-picker-header">
+          <div class="header-time">
+            <span class="header-time-text">{colorPickerEventTimeAndDate}</span>
+          </div>
+          <div class="header-actions">
+            <button
+              class="color-picker-delete"
+              onclick={handleDeleteFromColorPicker}
+              aria-label="Excluir evento"
+              title="Excluir evento"
+            >
+              <lightning-icon
+                icon-name="utility:delete"
+                size="x-small"
+                variant="neutral"
+              ></lightning-icon>
+            </button>
+            <button
+              class="color-picker-close"
+              onclick={closeColorPicker}
+              aria-label="Fechar seletor de cores"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        <!-- Event Information Section -->
+        <div class="color-picker-event-info">
+          <div class="event-info-content">
+            <div class="event-subject">{colorPickerEventSubject}</div>
+            <div class="event-participants">
+              <c-event-participant-display
+                gestor-name={colorPickerEventGestorName}
+                lider-comercial-name={colorPickerEventLiderComercialName}
+                sdr-name={colorPickerEventSdrName}
+                display-mode="compact"
+                max-participants="3"
+                show-photos="true"
+                show-roles="false"
+                custom-class="color-picker-participants-large"
+              ></c-event-participant-display>
+            </div>
+          </div>
+        </div>
+
+        <!-- URL Input Field - Only show for online meetings -->
+        <template if:true={showUrlInputField}>
+          <div class="color-picker-url-section">
+            <!-- URL Input Field (shown when editing or no URL) -->
+            <template if:false={showUrlCard}>
+              <lightning-input
+                type="url"
+                label="Link da reunião"
+                placeholder="https://exemplo.com/reuniao"
+                value={colorPickerLinkReuniao}
+                onchange={handleLinkReuniaoChange}
+                onblur={handleLinkReuniaoBlur}
+                class="url-input-field"
+                variant="label-stacked"
+              ></lightning-input>
+            </template>
+
+            <!-- URL Card (shown when URL exists and not editing) -->
+            <template if:true={showUrlCard}>
+              <div class="url-card-container">
+                <div class="url-card-label">Link da reunião</div>
+                <div
+                  class="url-card"
+                  onclick={handleUrlCardClick}
+                  onkeydown={handleUrlCardKeydown}
+                  tabindex="0"
+                  role="button"
+                  aria-label={urlCardAriaLabel}
+                >
+                  <div class="url-card-content">
+                    <div class="url-card-icon">
+                      <!-- Custom Teams PNG Icon -->
+                      <template if:true={useCustomIcon}>
+                        <img
+                          src={urlCardIcon}
+                          alt="Microsoft Teams"
+                          class="url-custom-icon"
+                        />
+                      </template>
+                      <!-- Default Lightning Icon -->
+                      <template if:false={useCustomIcon}>
+                        <lightning-icon
+                          icon-name={urlCardIcon}
+                          size="x-small"
+                          class="url-external-icon"
+                        ></lightning-icon>
+                      </template>
+                    </div>
+                    <div class="url-card-text">
+                      <div class="url-card-title">{urlCardTitle}</div>
+                      <div class="url-card-url">{urlCardDisplayUrl}</div>
+                    </div>
+                    <div class="url-card-actions">
+                      <button
+                        class="url-edit-button"
+                        onclick={handleUrlEditClick}
+                        onkeydown={handleUrlEditKeydown}
+                        aria-label="Editar link da reunião"
+                        title="Editar link"
+                      >
+                        <lightning-icon
+                          icon-name="utility:edit"
+                          size="xx-small"
+                        ></lightning-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
+
+        <!-- Meeting Outcome Interface Section -->
+        <div class="color-picker-status-section">
+          <div class="meeting-outcome-container">
+            <div class="meeting-outcome-header">
+              <span class="meeting-outcome-label">A reunião aconteceu?</span>
+            </div>
+
+            <!-- Yes/No Buttons -->
+            <div class="meeting-outcome-buttons">
+              <lightning-button
+                label="Sim"
+                variant={yesButtonVariant}
+                onclick={handleMeetingOutcomeYes}
+                class={yesButtonClass}
+              ></lightning-button>
+              <lightning-button
+                label="Não"
+                variant={noButtonVariant}
+                onclick={handleMeetingOutcomeNo}
+                class={noButtonClass}
+              ></lightning-button>
+            </div>
+
+            <!-- Conditional Status Combobox -->
+            <template if:true={showStatusCombobox}>
+              <div class="status-reason-section">
+                <div class="status-reason-label">Por que?</div>
+                <lightning-combobox
+                  name="statusReason"
+                  placeholder="Selecione o motivo..."
+                  options={statusPicklistOptions}
+                  value={colorPickerMeetingStatus}
+                  onchange={handleStatusComboboxChange}
+                  variant="standard"
+                  class="status-reason-combobox"
+                ></lightning-combobox>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <div class="color-picker-content">
+          <div class="color-palette">
+            <template for:each={availableColors} for:item="color">
+              <button
+                key={color.value}
+                class={color.class}
+                data-color={color.value}
+                onclick={handleColorSelect}
+                aria-label={color.label}
+                title={color.label}
+              >
+                <div class="color-swatch" style={color.swatchStyle}></div>
+                <template if:true={color.isSelected}>
+                  <span class="color-check">✓</span>
+                </template>
+              </button>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+</template>

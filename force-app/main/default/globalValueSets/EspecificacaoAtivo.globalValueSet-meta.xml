@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>LCI</fullName>
+        <default>true</default>
+        <label>LCI</label>
+    </customValue>
+    <customValue>
+        <fullName>LCA</fullName>
+        <default>false</default>
+        <label>LCA</label>
+    </customValue>
+    <customValue>
+        <fullName>CDB</fullName>
+        <default>false</default>
+        <label>CDB</label>
+    </customValue>
+    <customValue>
+        <fullName>LC</fullName>
+        <default>false</default>
+        <label>LC</label>
+    </customValue>
+    <customValue>
+        <fullName>LCD</fullName>
+        <default>false</default>
+        <label>LCD</label>
+    </customValue>
+    <customValue>
+        <fullName>COE</fullName>
+        <default>false</default>
+        <label>COE</label>
+    </customValue>
+    <customValue>
+        <fullName>OC</fullName>
+        <default>false</default>
+        <label>OC</label>
+    </customValue>
+    <customValue>
+        <fullName>LF</fullName>
+        <default>false</default>
+        <label>LF</label>
+    </customValue>
+    <customValue>
+        <fullName>LIG</fullName>
+        <default>false</default>
+        <label>LIG</label>
+    </customValue>
+    <customValue>
+        <fullName>CRI SINTETIZADO</fullName>
+        <default>false</default>
+        <label>CRI SINTETIZADO</label>
+    </customValue>
+    <customValue>
+        <fullName>CRA SINTETIZADO</fullName>
+        <default>false</default>
+        <label>CRA SINTETIZADO</label>
+    </customValue>
+    <customValue>
+        <fullName>CDCA</fullName>
+        <default>false</default>
+        <label>CDCA</label>
+    </customValue>
+    <customValue>
+        <fullName>CPR</fullName>
+        <default>false</default>
+        <label>CPR</label>
+    </customValue>
+    <customValue>
+        <fullName>RDB</fullName>
+        <default>false</default>
+        <label>RDB</label>
+    </customValue>
+    <customValue>
+        <fullName>DPGE</fullName>
+        <default>false</default>
+        <label>DPGE</label>
+    </customValue>
+    <masterLabel>Especificação do Ativo</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

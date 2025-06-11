@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>produto_evento__c</fullName>
+    <label>Produto</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Gestão de Patrimônio</fullName>
+                <default>false</default>
+                <label>Gestão de Patrimônio</label>
+            </value>
+            <value>
+                <fullName>Liquidação Otimizada</fullName>
+                <default>false</default>
+                <label>Liquidação Otimizada</label>
+            </value>
+            <value>
+                <fullName>Consultoria Societária</fullName>
+                <default>false</default>
+                <label>Consultoria Societária</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

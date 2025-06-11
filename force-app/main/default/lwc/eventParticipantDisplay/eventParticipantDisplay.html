@@ -1,0 +1,138 @@
+<template>
+  <div class={containerClass}>
+    <!-- Loading state -->
+    <template if:true={isLoading}>
+      <div class="participant-loading">
+        <lightning-spinner
+          alternative-text="Carregando participantes..."
+          size="small"
+        ></lightning-spinner>
+      </div>
+    </template>
+
+    <!-- Error state -->
+    <template if:true={error}>
+      <div class="participant-error">
+        <lightning-icon
+          icon-name="utility:warning"
+          size="x-small"
+          variant="warning"
+        ></lightning-icon>
+        <span class="error-message">Erro ao carregar participantes</span>
+      </div>
+    </template>
+
+    <!-- Participants display -->
+    <template if:true={hasParticipants}>
+      <template if:false={isLoading}>
+        <template if:false={error}>
+          <!-- Compact mode with photos -->
+          <template if:true={showPhotos}>
+            <div class={participantListClass}>
+              <template for:each={displayParticipants} for:item="participant">
+                <div
+                  key={participant.id}
+                  class="participant-item"
+                  data-participant-id={participant.id}
+                  onclick={handleParticipantClick}
+                  title={participant.name}
+                >
+                  <div class="participant-avatar">
+                    <img
+                      src={participant.photoUrl}
+                      alt={participant.name}
+                      class="participant-photo"
+                      onerror={handleImageError}
+                    />
+                  </div>
+
+                  <!-- Show name in detailed mode or when no photos -->
+                  <template if:true={displayMode}>
+                    <template if:false={displayMode.compact}>
+                      <div class="participant-info">
+                        <div class="participant-name">{participant.name}</div>
+                        <template if:true={showRoles}>
+                          <template if:true={participant.role}>
+                            <div class={participant.roleClass}>
+                              {participant.role}
+                            </div>
+                          </template>
+                        </template>
+                        <template if:true={participant.title}>
+                          <div class="participant-title">
+                            {participant.title}
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                  </template>
+                </div>
+              </template>
+
+              <!-- Remaining participants indicator -->
+              <template if:true={showRemainingIndicator}>
+                <div class="participant-item participant-item--remaining">
+                  <div class="participant-avatar participant-avatar--remaining">
+                    <span class="remaining-count">+{remainingCount}</span>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </template>
+
+          <!-- Text-only mode -->
+          <template if:false={showPhotos}>
+            <div class="participant-text-list">
+              <template
+                for:each={displayParticipants}
+                for:item="participant"
+                for:index="index"
+              >
+                <span key={participant.id} class="participant-text-item">
+                  <span
+                    class="participant-name-link"
+                    data-participant-id={participant.id}
+                    onclick={handleParticipantClick}
+                    title={participant.title}
+                  >
+                    {participant.name}
+                  </span>
+                  <template if:true={showRoles}>
+                    <template if:true={participant.role}>
+                      <span class="participant-role-text"
+                        >({participant.role})</span
+                      >
+                    </template>
+                  </template>
+                  <!-- Add comma separator except for last item -->
+                  <template if:false={participant.isLast}>
+                    <span class="participant-separator">, </span>
+                  </template>
+                </span>
+              </template>
+
+              <!-- Remaining participants indicator for text mode -->
+              <template if:true={showRemainingIndicator}>
+                <span class="participant-remaining-text">
+                  +{remainingCount} mais</span
+                >
+              </template>
+            </div>
+          </template>
+        </template>
+      </template>
+    </template>
+
+    <!-- No participants state -->
+    <template if:false={hasParticipants}>
+      <div class="no-participants">
+        <lightning-icon
+          icon-name="utility:user"
+          size="x-small"
+          class="no-participants-icon"
+        ></lightning-icon>
+        <span class="no-participants-text">Sem participantes</span>
+      </div>
+    </template>
+  </div>
+</template>
