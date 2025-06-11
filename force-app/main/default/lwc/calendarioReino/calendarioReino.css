@@ -421,29 +421,38 @@
   background-color: #e1dfdd;
 }
 
-/* Today indicator - distinct from selection */
+/* Today indicator - theme brown/gold color, no border, perfect circular shape */
 .sidebar-day.today {
-  background-color: #e1dfdd;
-  color: #323130;
+  background-color: #926f1b; /* Theme brown/gold color */
+  color: #ffffff; /* White text for contrast */
   font-weight: 600;
-  border: 2px solid #8a8886;
+  border: none; /* Remove border */
+  border-radius: 50%; /* Make today indicator circular */
+  width: 32px; /* Ensure perfect circle */
+  height: 32px; /* Ensure perfect circle */
+  min-width: 32px; /* Prevent stretching */
+  min-height: 32px; /* Prevent stretching */
 }
 
 .sidebar-day.today:hover {
-  background-color: #d2d0ce;
-  border-color: #605e5c;
+  background-color: #7a5e17; /* Darker brown/gold on hover */
 }
 
 .sidebar-day.other-month {
   color: #a19f9d;
 }
 
-/* Selection indicator - distinct brown/gold styling */
+/* Selection indicator - distinct brown/gold styling - perfect circular shape */
 .sidebar-day.selected {
   background-color: #d4c4a0; /* Pastel brown/gold */
   color: #2d2d2d; /* Darker text for better contrast */
   font-weight: 600;
   border: 2px solid #d4c4a0;
+  border-radius: 50%; /* Make selected indicator circular */
+  width: 32px; /* Ensure perfect circle */
+  height: 32px; /* Ensure perfect circle */
+  min-width: 32px; /* Prevent stretching */
+  min-height: 32px; /* Prevent stretching */
 }
 
 .sidebar-day.selected:hover {
@@ -464,23 +473,20 @@
   opacity: 1;
 }
 
-/* Combined styling when a day is both today and selected */
+/* Combined styling when a day is both today and selected - theme brown/gold with selection border */
 .sidebar-day.today.selected {
-  background-color: #926f1b;
-  color: white;
+  background-color: #926f1b; /* Theme brown/gold color */
+  color: #ffffff; /* White text */
   font-weight: 600;
-  border: 2px solid #ffffff;
-  box-shadow:
-    0 0 0 2px #926f1b,
-    0 0 0 4px #8a8886;
+  border: 2px solid #d4c4a0; /* Selection border color */
+  border-radius: 50%; /* Maintain circular shape for combined state */
+  box-shadow: 0 0 0 2px #926f1b; /* Brown/gold shadow */
 }
 
 .sidebar-day.today.selected:hover {
-  background-color: #7a5e17;
-  border-color: #ffffff;
-  box-shadow:
-    0 0 0 2px #7a5e17,
-    0 0 0 4px #605e5c;
+  background-color: #7a5e17; /* Darker brown/gold on hover */
+  border-color: #c7b896;
+  box-shadow: 0 0 0 2px #7a5e17;
 }
 
 /* Update sidebar header for month/year display */
@@ -519,6 +525,13 @@
   align-items: center;
   flex: 1;
   justify-content: center;
+}
+
+/* Navigation arrows container - positioned on the right */
+.nav-arrows-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Lista de calendários */
@@ -788,6 +801,53 @@
 .slot-organizer span {
   font-weight: 400;
   line-height: 1.2;
+}
+
+/* Slot header indicators container */
+.slot-header-indicators {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Meeting type badges in slot cards */
+.slot-meeting-type-badge {
+  display: inline-block;
+  font-size: 10px;
+  line-height: 1;
+  vertical-align: middle;
+  opacity: 0.9;
+  transition: all 0.2s ease;
+  padding: 2px 4px;
+  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  min-width: 14px;
+  text-align: center;
+}
+
+.slot-meeting-type-badge:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Specific badge styling for slot cards */
+.slot-meeting-type-presencial {
+  color: #2d5016; /* Dark green for in-person */
+  background-color: rgba(45, 80, 22, 0.1);
+  border-color: rgba(45, 80, 22, 0.2);
+}
+
+.slot-meeting-type-online {
+  color: #0078d4; /* Blue for online */
+  background-color: rgba(0, 120, 212, 0.1);
+  border-color: rgba(0, 120, 212, 0.2);
+}
+
+.slot-meeting-type-phone {
+  color: #8a8886; /* Gray for phone */
+  background-color: rgba(138, 136, 134, 0.1);
+  border-color: rgba(138, 136, 134, 0.2);
 }
 
 /* Category indicator dot */
@@ -2178,17 +2238,37 @@
 }
 
 .teams-view-menu {
-  --slds-c-button-radius-border: 4px;
-  --slds-c-button-neutral-color-background: #f5f5f5;
-  --slds-c-button-neutral-color-border: #e0e0e0;
-  --slds-c-button-neutral-color-background-hover: #e9e9e9;
+  --slds-c-button-radius-border: 20px;
+  --slds-c-button-neutral-color-background: transparent;
+  --slds-c-button-neutral-color-border: #d0d0d0;
+  --slds-c-button-neutral-color-background-hover: #f8f9fa;
   --slds-c-button-text-color: #252423;
-  --slds-c-button-spacing-block-start: 6px;
-  --slds-c-button-spacing-block-end: 6px;
-  --slds-c-button-spacing-inline-start: 12px;
-  --slds-c-button-spacing-inline-end: 12px;
+  --slds-c-button-spacing-block-start: 8px;
+  --slds-c-button-spacing-block-end: 8px;
+  --slds-c-button-spacing-inline-start: 16px;
+  --slds-c-button-spacing-inline-end: 16px;
   font-size: 14px;
   font-weight: 500;
+}
+
+/* Event Type Filter Styles */
+.teams-event-type-filter {
+  /* No margin - using gap from parent container */
+}
+
+.teams-event-type-menu {
+  --slds-c-button-radius-border: 20px;
+  --slds-c-button-neutral-color-background: transparent;
+  --slds-c-button-neutral-color-border: #d0d0d0;
+  --slds-c-button-neutral-color-background-hover: #f8f9fa;
+  --slds-c-button-text-color: #252423;
+  --slds-c-button-spacing-block-start: 8px;
+  --slds-c-button-spacing-block-end: 8px;
+  --slds-c-button-spacing-inline-start: 16px;
+  --slds-c-button-spacing-inline-end: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 140px;
 }
 
 /* Remover os botões padrão do FullCalendar */
@@ -2512,11 +2592,11 @@
 }
 
 .teams-today-button {
-  --slds-c-button-radius-border: 4px;
-  --slds-c-button-neutral-color-background: #f5f1e8;
-  --slds-c-button-neutral-color-border: transparent;
-  --slds-c-button-neutral-color-background-hover: #e8dcc8;
-  --slds-c-button-text-color: #926f1b;
+  --slds-c-button-radius-border: 20px;
+  --slds-c-button-neutral-color-background: transparent;
+  --slds-c-button-neutral-color-border: #d0d0d0;
+  --slds-c-button-neutral-color-background-hover: #f8f9fa;
+  --slds-c-button-text-color: #252423;
   --slds-c-button-spacing-block-start: 8px;
   --slds-c-button-spacing-block-end: 8px;
   --slds-c-button-spacing-inline-start: 16px;
@@ -2545,39 +2625,22 @@
 }
 
 .teams-search-input {
-  --slds-c-input-radius-border: 4px;
+  --slds-c-input-radius-border: 20px;
   --slds-c-input-color-border: #e0e0e0;
   --slds-c-input-color-background: #ffffff;
-  --slds-c-input-spacing-block: 12px;
-  --slds-c-input-spacing-inline: 16px;
-  --slds-c-input-sizing-min-height: 44px;
   font-size: 14px;
 }
 
 /* Target the actual input element within lightning-input */
 .teams-search-input lightning-input .slds-input {
-  height: 44px !important;
-  min-height: 44px !important;
-  padding: 12px 16px !important;
-  border-radius: 4px !important;
+  border-radius: 20px !important;
   border: 1px solid #e0e0e0 !important;
   background-color: #ffffff !important;
   font-size: 14px !important;
-  line-height: 1.4 !important;
   transition: all 0.2s ease;
 }
 
-/* Target the input container */
-.teams-search-input lightning-input .slds-form-element__control {
-  height: 44px !important;
-  min-height: 44px !important;
-}
-
-/* Target the input wrapper */
-.teams-search-input lightning-input .slds-input__container {
-  height: 44px !important;
-  min-height: 44px !important;
-}
+/* Let SLDS handle container sizing naturally */
 
 /* Focus state for the actual input */
 .teams-search-input lightning-input .slds-input:focus {
@@ -2588,14 +2651,10 @@
 
 /* Alternative targeting for different SLDS versions */
 .teams-search-input input[type="search"] {
-  height: 44px !important;
-  min-height: 44px !important;
-  padding: 12px 16px !important;
-  border-radius: 4px !important;
+  border-radius: 20px !important;
   border: 1px solid #e0e0e0 !important;
   background-color: #ffffff !important;
   font-size: 14px !important;
-  line-height: 1.4 !important;
   transition: all 0.2s ease;
 }
 
@@ -2604,6 +2663,8 @@
   box-shadow: 0 0 0 2px rgba(146, 111, 27, 0.1) !important;
   outline: none !important;
 }
+
+/* Let SLDS handle clear button naturally */
 
 /* Responsive design for search bar */
 @media (max-width: 1200px) {
@@ -2915,12 +2976,16 @@
 }
 
 .teams-new-event-button {
-  --slds-c-button-radius-border: 4px;
+  --slds-c-button-radius-border: 20px;
   --slds-c-button-brand-color-background: #926f1b;
   --slds-c-button-brand-color-border: #926f1b;
   --slds-c-button-brand-color-background-hover: #7a5e17;
-  --slds-c-button-spacing-block: 8px;
-  --slds-c-button-spacing-inline: 8px;
+  --slds-c-button-spacing-block-start: 8px;
+  --slds-c-button-spacing-block-end: 8px;
+  --slds-c-button-spacing-inline-start: 16px;
+  --slds-c-button-spacing-inline-end: 16px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .today-button {
@@ -3171,6 +3236,8 @@
   cursor: default !important; /* Ensure day numbers don't show pointer cursor */
 }
 
+/* Remove override - let today's day number inherit same padding as other days */
+
 /* Month view day cells - enhanced spacing and layout with better horizontal padding */
 :host .fc-month-view .fc-day,
 :host .fc-month-view .fc-day-grid-cell,
@@ -3235,10 +3302,32 @@
   cursor: default !important;
 }
 
-/* Today highlighting with pastel accent */
+/* Today highlighting - remove background, use circular indicator on day number */
 :host .fc-today {
-  background-color: #fffbf0 !important;
-  border-color: #e8dbb8 !important;
+  background-color: #ffffff !important; /* Remove beige background */
+  border-color: #f0f0f0 !important; /* Use standard border */
+}
+
+/* Circular indicator for today's day number using ::after pseudo-element */
+:host .fc-today .fc-day-number {
+  color: #ffffff !important; /* White text for contrast */
+  font-weight: 600 !important;
+  position: relative !important; /* For positioning the ::after element */
+  z-index: 2 !important; /* Ensure text is above the circle */
+}
+
+/* Circle background using ::after pseudo-element */
+:host .fc-today .fc-day-number::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) translateY(1px) !important; /* Center and slight downward adjustment */
+  width: 24px !important;
+  height: 24px !important;
+  background-color: #926f1b !important; /* Theme brown/gold color */
+  border-radius: 50% !important;
+  z-index: -1 !important; /* Behind the text */
 }
 
 /* Day header styling improvements */
@@ -4997,4 +5086,233 @@
 .fc-event.lead-event .fc-time {
   font-weight: 600;
   opacity: 0.9;
+}
+
+/* Meeting Type Badges */
+.meeting-type-badge {
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 10px;
+  line-height: 1;
+  vertical-align: middle;
+  opacity: 0.9;
+  transition: all 0.2s ease;
+  padding: 1px 2px;
+  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  min-width: 14px;
+  text-align: center;
+}
+
+.meeting-type-badge:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Specific badge styling */
+.meeting-type-presencial {
+  color: #2d5016; /* Dark green for in-person */
+  background-color: rgba(45, 80, 22, 0.1);
+  border-color: rgba(45, 80, 22, 0.2);
+}
+
+.meeting-type-online {
+  color: #0078d4; /* Blue for online */
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 1);
+}
+
+.meeting-type-phone {
+  color: #8a8886; /* Gray for phone */
+  background-color: rgba(138, 136, 134, 0.1);
+  border-color: rgba(138, 136, 134, 0.2);
+}
+
+/* Badge styling in different calendar views */
+.fc-month-view .meeting-type-badge {
+  font-size: 9px;
+  padding: 1px;
+  min-width: 12px;
+}
+
+.fc-agendaWeek-view .meeting-type-badge,
+.fc-agendaDay-view .meeting-type-badge {
+  font-size: 10px;
+  padding: 1px 2px;
+  min-width: 14px;
+}
+
+/* Ensure badges don't interfere with event layout */
+.fc-title .meeting-type-badge {
+  margin-right: 3px;
+}
+
+/* Hover effects for better visibility */
+.meeting-type-presencial:hover {
+  background-color: rgba(45, 80, 22, 0.2);
+  border-color: rgba(45, 80, 22, 0.3);
+}
+
+.meeting-type-online:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 1);
+}
+
+.meeting-type-phone:hover {
+  background-color: rgba(138, 136, 134, 0.2);
+  border-color: rgba(138, 136, 134, 0.3);
+}
+
+/* Color Picker Modal - Meeting Details Section */
+.color-picker-meeting-details {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #fafafa;
+}
+
+.meeting-details-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.meeting-type-info,
+.meeting-room-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meeting-detail-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Large Meeting Type Badges for Color Picker - Pill Style */
+.meeting-type-badge-large {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 20px; /* Pill shape */
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #d0d0d0; /* Gray border for all */
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.meeting-type-presencial-large {
+  color: #2d5016;
+}
+
+.meeting-type-online-large {
+  color: #0078d4;
+}
+
+.meeting-type-phone-large {
+  color: #8a8886;
+}
+
+.meeting-type-text {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Meeting Room Badge - Pill Style */
+.meeting-room-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid #d0d0d0; /* Gray border */
+  border-radius: 20px; /* Pill shape */
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.room-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.room-name {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Custom Minimalist Meeting Outcome Buttons */
+.meeting-outcome-buttons-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.custom-outcome-button {
+  padding: 6px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #333;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  min-width: 50px;
+  text-align: center;
+}
+
+.custom-outcome-button:hover {
+  border-color: #4F6BED;
+  background-color: #f8f9ff;
+}
+
+.custom-outcome-button:focus {
+  border-color: #4F6BED;
+  box-shadow: 0 0 0 2px rgba(79, 107, 237, 0.2);
+}
+
+/* Specific colors for Yes/No buttons when selected */
+.custom-outcome-yes.custom-outcome-selected {
+  background-color: #D6F3E4; /* Verde Menta (Aconteceu) */
+  border-color: #4BCA81;
+  color: #2d5016;
+}
+
+.custom-outcome-yes.custom-outcome-selected:hover {
+  background-color: #c8efdb;
+  border-color: #4BCA81;
+}
+
+.custom-outcome-no.custom-outcome-selected {
+  background-color: #F9D6D4; /* Rosa Claro (Não Aconteceu) */
+  border-color: #C0392B;
+  color: #8b1538;
+}
+
+.custom-outcome-no.custom-outcome-selected:hover {
+  background-color: #f5c6c4;
+  border-color: #C0392B;
+}
+
+.custom-outcome-dimmed {
+  opacity: 0.5;
+  background-color: #f5f5f5;
+  color: #999;
+}
+
+.custom-outcome-dimmed:hover {
+  opacity: 0.7;
+  background-color: #f0f0f0;
+  border-color: #ccc;
 }

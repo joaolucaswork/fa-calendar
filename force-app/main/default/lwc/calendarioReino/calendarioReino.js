@@ -57,13 +57,13 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   @track currentDateRangeText = ""; // Texto formatado para o botão de data
   @track isMonthSectionExpanded = false; // Changed: Start with days view (false = show days, true = show months)
   @track isCalendarsSectionExpanded = false; // User calendar selection - collapsed by default
-  @track isFiltersSectionExpanded = true;
+  // isFiltersSectionExpanded removed - filters section removed from sidebar
   @track isRoomsSectionExpanded = true;
   @track isMeetingSuggestionsExpanded = true; // Meeting suggestions section - expanded by default
   @track isColorLegendExpanded = false; // Color legend section - collapsed by default
   @track monthSectionIcon = "utility:chevronright"; // Changed: Start collapsed to show days
   @track calendarsSectionIcon = "utility:chevronright"; // User calendar selection - collapsed by default
-  @track filtersSectionIcon = "utility:chevrondown";
+  // filtersSectionIcon removed - filters section removed from sidebar
   @track roomsSectionIcon = "utility:chevrondown";
   @track meetingSuggestionsIcon = "utility:chevrondown"; // Meeting suggestions icon - expanded by default
   @track colorLegendIcon = "utility:chevronright"; // Color legend icon - collapsed by default
@@ -71,6 +71,15 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   @track sidebarDays = []; // New: Array for sidebar days display
   @track selectedSidebarDate = null; // Track the currently selected day in sidebar
   @track currentViewLabel = "Mês"; // Label para o dropdown de visualização - changed to "Mês" for monthly default view
+
+  // Event Type Filter properties for header dropdown
+  @track currentEventTypeFilterLabel = "Todos os eventos"; // Label for event type filter dropdown
+  @track isEventTypeFilterSelected = {
+    all: true,
+    presencial: false,
+    online: false,
+    telefonica: false
+  };
 
   // Propriedades para o popup de calendário
   @track isDatePickerVisible = false;
@@ -222,7 +231,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   @track selectedLeadId = null;
   @track selectedLeadEventId = null;
   @track leadEvents = [];
-  @track showLeadEvents = true; // Toggle to show/hide Lead events in calendar
+  // Lead events filter removed as requested
 
   // API properties for customization
   @api defaultView = "month"; // Changed back to "month" for monthly default view
@@ -805,6 +814,48 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       // Atualizar o texto de data para refletir a nova visualização
       this.updateCurrentMonthYearText();
     }
+  }
+
+  /**
+   * Handle event type filter change in header dropdown
+   */
+  handleEventTypeFilterChange(event) {
+    const selectedFilter = event.detail.value;
+
+    // Update header filter state
+    this.isEventTypeFilterSelected = {
+      all: selectedFilter === "all",
+      presencial: selectedFilter === "presencial",
+      online: selectedFilter === "online",
+      telefonica: selectedFilter === "telefonica"
+    };
+
+    // Update header filter label
+    const filterLabels = {
+      all: "Todos os eventos",
+      presencial: "Reunião Presencial",
+      online: "Reunião Online",
+      telefonica: "Ligação Telefônica"
+    };
+    this.currentEventTypeFilterLabel = filterLabels[selectedFilter] || "Todos os eventos";
+
+    // Sync with existing sidebar filter state for backward compatibility
+    this.isFilterSelected = { ...this.isEventTypeFilterSelected };
+
+    // Update active filter for existing filter logic
+    if (selectedFilter === "all") {
+      this.activeFilter = "all";
+    } else {
+      const filterMap = {
+        presencial: "Reunião Presencial",
+        online: "Reunião Online",
+        telefonica: "Ligação Telefônica"
+      };
+      this.activeFilter = filterMap[selectedFilter];
+    }
+
+    // Apply filters to calendar
+    this.applyFilters();
   }
 
   /**
@@ -2220,14 +2271,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   // }
 
   /**
-   * Toggle filters section in sidebar
+   * Toggle filters section in sidebar - REMOVED - filters section removed from sidebar
    */
-  toggleFiltersSection() {
-    this.isFiltersSectionExpanded = !this.isFiltersSectionExpanded;
-    this.filtersSectionIcon = this.isFiltersSectionExpanded
-      ? "utility:chevrondown"
-      : "utility:chevronright";
-  }
+  // toggleFiltersSection method removed - filters now in header
 
   /**
    * Handle filter checkbox change in sidebar
@@ -2814,6 +2860,12 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
             const categoryColor = this.getCategoryColorForSlot(conflict);
             const borderColor = this.getBorderColorForBackground(categoryColor);
 
+            // Get meeting type information for badge display
+            const meetingType = conflict.type || conflict.tipoReuniao;
+            const meetingTypeBadge = this.getMeetingTypeBadgeForSlot(meetingType);
+            const meetingTypeBadgeClass = this.getMeetingTypeBadgeClassForSlot(meetingType);
+            const meetingTypeTitle = meetingType || "Tipo não definido";
+
             return {
               id: `${roomValue}-${index}`,
               eventId: conflict.eventId,
@@ -2828,6 +2880,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
               isFirstItem: index === 0, // Mark the first (most recent) item
               slotCardClass: this.getSlotCardClass(isUpcoming, index === 0),
               categoryColor: `background-color: ${categoryColor}; border: 1px solid ${borderColor};`,
+              meetingTypeBadge: meetingTypeBadge,
+              meetingTypeBadgeClass: meetingTypeBadgeClass,
+              meetingTypeTitle: meetingTypeTitle,
               // Store complete event data for modal
               eventData: {
                 id: conflict.eventId,
@@ -2900,6 +2955,40 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       this.eventColorManager?.getColorForCategory("sem-categoria") ||
       "#8a8886"
     );
+  }
+
+  /**
+   * Get meeting type badge for slot display
+   * @param {String} meetingType - The meeting type value
+   * @returns {String} - Meeting type badge emoji/icon
+   */
+  getMeetingTypeBadgeForSlot(meetingType) {
+    if (!meetingType) return "";
+
+    const badgeMap = {
+      "Reunião Presencial": "📍",
+      "Reunião Online": "💻",
+      "Ligação Telefônica": "📞"
+    };
+
+    return badgeMap[meetingType] || "";
+  }
+
+  /**
+   * Get meeting type badge CSS class for slot display
+   * @param {String} meetingType - The meeting type value
+   * @returns {String} - CSS class for meeting type badge
+   */
+  getMeetingTypeBadgeClassForSlot(meetingType) {
+    if (!meetingType) return "";
+
+    const classMap = {
+      "Reunião Presencial": "slot-meeting-type-badge slot-meeting-type-presencial",
+      "Reunião Online": "slot-meeting-type-badge slot-meeting-type-online",
+      "Ligação Telefônica": "slot-meeting-type-badge slot-meeting-type-phone"
+    };
+
+    return classMap[meetingType] || "slot-meeting-type-badge";
   }
 
   // Note: isEventHappeningNow method removed - now handled by happeningNowIndicator component
@@ -5603,18 +5692,16 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       const view = this.calendar ? this.calendar.fullCalendar("getView") : null;
       const isMonthView = view && view.name === "month";
 
-      // Apply custom color if available
+      // Apply color with correct priority hierarchy
       if (event.customColor) {
-        // console.log(
-        //   `🎨 Applying custom color to event ${event.id}: ${event.customColor}`
-        // );
+        // Priority 1: Custom colors have highest priority
         const borderColor = this.getBorderColorForBackground(event.customColor);
         element.css("background-color", event.customColor);
         element.css("border-color", borderColor);
         element.css("border-width", "1px");
         element.css("border-style", "solid");
       } else {
-        // Apply predefined colors based on event category
+        // Get predefined color based on event category (status has priority over room)
         const colorCategory = this.getEventColorCategory(event);
         const mappings = this.getPredefinedColorMappings();
         const predefinedColor = mappings.categoryToColor[colorCategory];
@@ -5624,14 +5711,28 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
         // );
 
         if (predefinedColor) {
-          // console.log(
-          //   `🎨 Applying predefined color to event ${event.id}: ${predefinedColor}`
-          // );
-          const borderColor = this.getBorderColorForBackground(predefinedColor);
-          element.css("background-color", predefinedColor);
-          element.css("border-color", borderColor);
-          element.css("border-width", "1px");
-          element.css("border-style", "solid");
+          // Check if this is an online meeting with only room-based color (not status-based)
+          const isOnlineMeetingWithRoomColor =
+            event.type === "Reunião Online" &&
+            (colorCategory === "sala-principal" || colorCategory === "sala-gabriel");          if (isOnlineMeetingWithRoomColor) {
+            // Online meetings override room colors with light gray
+            const onlineColor = "#e6e6e6"; // Lighter gray for online meetings
+            const borderColor = this.getBorderColorForBackground(onlineColor);
+            element.css("background-color", onlineColor);
+            element.css("border-color", borderColor);
+            element.css("border-width", "1px");
+            element.css("border-style", "solid");
+          } else {
+            // Apply predefined color (status colors are preserved)
+            // console.log(
+            //   `🎨 Applying predefined color to event ${event.id}: ${predefinedColor}`
+            // );
+            const borderColor = this.getBorderColorForBackground(predefinedColor);
+            element.css("background-color", predefinedColor);
+            element.css("border-color", borderColor);
+            element.css("border-width", "1px");
+            element.css("border-style", "solid");
+          }
         } else {
           // Fallback to CSS classes based on event type for default colors
           // console.log(
@@ -5676,6 +5777,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     const room = this.formatMeetingRoom(event.salaReuniao);
     const participants = this.formatParticipants(event);
     const attachment = this.formatAttachment(event);
+    const meetingTypeBadge = this.formatMeetingTypeBadge(event.type);
 
     // Format time for display
     const timeDisplay = this.formatEventTime(event);
@@ -5687,13 +5789,14 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       return `
         <div class="teams-event-content">
           <div class="event-header">
-            <div class="fc-title">${title}</div>
+            <div class="fc-title">
+              ${meetingTypeBadge}${title}
+            </div>
             <button class="event-menu-button" data-event-id="${event.id}" aria-label="Event options" title="Opções do evento">
               <span class="event-menu-dots">⋯</span>
             </button>
           </div>
           ${timeDisplay ? `<div class="fc-time">${timeDisplay}</div>` : ""}
-          ${type ? `<div class="event-type">${type}</div>` : ""}
           ${room ? `<div class="event-room">${room}</div>` : ""}
           ${participants ? `<div class="event-participants">👥 ${participants}</div>` : ""}
           ${attachment ? `<div class="event-attachment">${attachment}</div>` : ""}
@@ -5704,13 +5807,14 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       return `
         <div class="teams-event-content">
           <div class="event-header">
-            <div class="fc-title">${title}</div>
+            <div class="fc-title">
+              ${meetingTypeBadge}${title}
+            </div>
             <button class="event-menu-button" data-event-id="${event.id}" aria-label="Event options" title="Opções do evento">
               <span class="event-menu-dots">⋯</span>
             </button>
           </div>
           ${timeDisplay ? `<div class="fc-time">${timeDisplay}</div>` : ""}
-          ${type ? `<div class="event-type">${type}</div>` : ""}
           ${room ? `<div class="event-room">${room}</div>` : ""}
           ${participants ? `<div class="event-participants">👥 ${participants}</div>` : ""}
           ${attachment ? `<div class="event-attachment">${attachment}</div>` : ""}
@@ -5826,6 +5930,23 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   }
 
   /**
+   * Format meeting type badge for display
+   * @param {String} meetingType - The meeting type value
+   * @returns {String} - Formatted meeting type badge HTML
+   */
+  formatMeetingTypeBadge(meetingType) {
+    if (!meetingType) return "";
+
+    const badgeMap = {
+      "Reunião Presencial": `<span class="meeting-type-badge meeting-type-presencial" title="Reunião Presencial">📍</span>`,
+      "Reunião Online": `<span class="meeting-type-badge meeting-type-online" title="Reunião Online">💻</span>`,
+      "Ligação Telefônica": `<span class="meeting-type-badge meeting-type-phone" title="Ligação Telefônica">📞</span>`
+    };
+
+    return badgeMap[meetingType] || "";
+  }
+
+  /**
    * Add event listeners for the three-dot menu
    * @param {jQuery} element - The event element
    * @param {Object} event - The event data
@@ -5903,7 +6024,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       end: calendarEvent.end,
       gestorName: calendarEvent.gestorName,
       liderComercialName: calendarEvent.liderComercialName,
-      sdrName: calendarEvent.sdrName
+      sdrName: calendarEvent.sdrName,
+      type: calendarEvent.type,
+      tipoReuniao: calendarEvent.tipoReuniao,
+      salaReuniao: calendarEvent.salaReuniao
     };
 
     // Load meeting status for the selected event - use picklist value directly
@@ -6566,6 +6690,14 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     this.selectedColor =
       this.eventColorManager?.getAconteceuColor() || "#D6F3E4";
 
+    // Force UI update by triggering reactive property change
+    this.template.querySelectorAll('.color-option').forEach(option => {
+      option.classList.remove('selected');
+      if (option.dataset.color === this.selectedColor) {
+        option.classList.add('selected');
+      }
+    });
+
     // console.log(
     //   "🎯 Meeting outcome set to Yes (happened), auto-selected green color"
     // );
@@ -6582,6 +6714,17 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   handleMeetingOutcomeNo() {
     this.colorPickerMeetingOutcome = false;
     this.showStatusCombobox = true; // Show combobox to select reason
+
+    // Automatically set pink color for "Não Aconteceu" status
+    this.selectedColor = "#F9D6D4";
+
+    // Force UI update by triggering reactive property change
+    this.template.querySelectorAll('.color-option').forEach(option => {
+      option.classList.remove('selected');
+      if (option.dataset.color === this.selectedColor) {
+        option.classList.add('selected');
+      }
+    });
 
     // console.log("🎯 Meeting outcome set to No (didn't happen)");
 
@@ -7970,6 +8113,33 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   }
 
   /**
+   * Custom minimalist button classes
+   */
+  get customYesButtonClass() {
+    let classes = "custom-outcome-button custom-outcome-yes";
+
+    if (this.colorPickerMeetingOutcome === true) {
+      classes += " custom-outcome-selected";
+    } else if (this.colorPickerMeetingOutcome === false) {
+      classes += " custom-outcome-dimmed";
+    }
+
+    return classes;
+  }
+
+  get customNoButtonClass() {
+    let classes = "custom-outcome-button custom-outcome-no";
+
+    if (this.colorPickerMeetingOutcome === false) {
+      classes += " custom-outcome-selected";
+    } else if (this.colorPickerMeetingOutcome === true) {
+      classes += " custom-outcome-dimmed";
+    }
+
+    return classes;
+  }
+
+  /**
    * Computed properties for color picker event information display
    */
   get colorPickerEventTimeRange() {
@@ -8030,6 +8200,77 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     return this.colorPickerEventData?.sdrName || "";
   }
 
+  // Meeting Type and Room Information Getters
+  get colorPickerMeetingTypeBadge() {
+    // Check both type and tipoReuniao fields
+    const meetingType = this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
+
+    if (!meetingType) return "";
+
+    const badgeMap = {
+      "Reunião Presencial": "📍",
+      "Reunião Online": "💻",
+      "Ligação Telefônica": "📞"
+    };
+
+    return badgeMap[meetingType] || "";
+  }
+
+  get colorPickerMeetingTypeText() {
+    // Check both type and tipoReuniao fields
+    const meetingType = this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
+
+    if (!meetingType) return "Não definido";
+
+    const textMap = {
+      "Reunião Presencial": "Presencial",
+      "Reunião Online": "Online",
+      "Ligação Telefônica": "Telefone"
+    };
+
+    return textMap[meetingType] || meetingType;
+  }
+
+  get colorPickerMeetingTypeBadgeClass() {
+    // Check both type and tipoReuniao fields
+    const meetingType = this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
+
+    if (!meetingType) return "";
+
+    const classMap = {
+      "Reunião Presencial": "meeting-type-presencial-large",
+      "Reunião Online": "meeting-type-online-large",
+      "Ligação Telefônica": "meeting-type-phone-large"
+    };
+
+    return classMap[meetingType] || "";
+  }
+
+  get colorPickerShowRoomInfo() {
+    // Check both type and tipoReuniao fields
+    const meetingType = this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
+
+    // Only show room info for in-person meetings that have a room assigned
+    return meetingType === "Reunião Presencial" && this.colorPickerEventData?.salaReuniao;
+  }
+
+  get colorPickerRoomName() {
+    if (!this.colorPickerEventData?.salaReuniao) return "";
+    return this.formatMeetingRoom(this.colorPickerEventData.salaReuniao);
+  }
+
+  get colorPickerRoomDotStyle() {
+    if (!this.colorPickerEventData?.salaReuniao) return "";
+
+    const roomColorMap = {
+      salaPrincipal: "#D2691E",
+      salaGabriel: "#4F6BED"
+    };
+
+    const color = roomColorMap[this.colorPickerEventData.salaReuniao] || "#8a8886";
+    return `background-color: ${color};`;
+  }
+
   /**
    * Get available colors with selection state and styles
    * Shows all 7 predefined colors plus previously selected custom colors
@@ -8062,19 +8303,11 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
         isPredefined: true
       },
       {
-        label: "Rosa Claro (Não Aconteceu)",
+        label: "Rosa Claro (Não Aconteceu/Cancelado)",
         value: "#F9D6D4",
         class: this.getColorOptionClass("#F9D6D4"),
         swatchStyle: "background-color: #F9D6D4; border: 1px solid #C0392B;",
         isSelected: this.selectedColor === "#F9D6D4",
-        isPredefined: true
-      },
-      {
-        label: "Bege Claro (Cancelado)",
-        value: "#F0E0D5",
-        class: this.getColorOptionClass("#F0E0D5"),
-        swatchStyle: "background-color: #F0E0D5; border: 1px solid #8B4513;",
-        isSelected: this.selectedColor === "#F0E0D5",
         isPredefined: true
       },
       {

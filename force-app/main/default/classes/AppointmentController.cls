@@ -69,35 +69,56 @@ public with sharing class AppointmentController {
       }
 
       // Verificar se o ID pertence a um evento (00U)
-      String sObjectType = eventId.substring(0, 3);
-
-      if (sObjectType == '00U') {
-        // Buscar dados do evento com segurança
-        List<Event> eventos = [
-          SELECT
-            Subject,
-            Description,
-            Location,
-            StartDateTime,
-            EndDateTime,
-            IsAllDayEvent,
-            ActivityDate,
-            WhatId,
-            WhoId,
-            OwnerId,
-            reuniaoCriada__c,
-            gestor__c,
-            liderComercial__c,
-            sdr__c,
-            salaReuniao__c,
-            statusReuniao__c,
-            fase_evento__c,
-            produto_evento__c
-          FROM Event
-          WHERE Id = :eventId
-          WITH SECURITY_ENFORCED
-          LIMIT 1
-        ];
+      String sObjectType = eventId.substring(0, 3);      if (sObjectType == '00U') {
+        // Build dynamic SOQL to only include accessible fields
+        List<String> selectFields = new List<String>{
+          'Subject',
+          'Description', 
+          'Location',
+          'StartDateTime',
+          'EndDateTime', 
+          'IsAllDayEvent',
+          'ActivityDate',
+          'WhatId',
+          'WhoId',
+          'OwnerId'
+        };
+        
+        // Check field permissions before adding custom fields
+        Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Event.fields.getMap();
+        
+        if (fieldMap.containsKey('reuniaoCriada__c') && fieldMap.get('reuniaoCriada__c').getDescribe().isAccessible()) {
+          selectFields.add('reuniaoCriada__c');
+        }
+        if (fieldMap.containsKey('gestor__c') && fieldMap.get('gestor__c').getDescribe().isAccessible()) {
+          selectFields.add('gestor__c');
+        }
+        if (fieldMap.containsKey('liderComercial__c') && fieldMap.get('liderComercial__c').getDescribe().isAccessible()) {
+          selectFields.add('liderComercial__c');
+        }
+        if (fieldMap.containsKey('sdr__c') && fieldMap.get('sdr__c').getDescribe().isAccessible()) {
+          selectFields.add('sdr__c');
+        }
+        if (fieldMap.containsKey('salaReuniao__c') && fieldMap.get('salaReuniao__c').getDescribe().isAccessible()) {
+          selectFields.add('salaReuniao__c');
+        }
+        if (fieldMap.containsKey('statusReuniao__c') && fieldMap.get('statusReuniao__c').getDescribe().isAccessible()) {
+          selectFields.add('statusReuniao__c');
+        }
+        if (fieldMap.containsKey('fase_evento__c') && fieldMap.get('fase_evento__c').getDescribe().isAccessible()) {
+          selectFields.add('fase_evento__c');
+        }
+        if (fieldMap.containsKey('produto_evento__c') && fieldMap.get('produto_evento__c').getDescribe().isAccessible()) {
+          selectFields.add('produto_evento__c');
+        }
+        if (fieldMap.containsKey('tipoReuniao__c') && fieldMap.get('tipoReuniao__c').getDescribe().isAccessible()) {
+          selectFields.add('tipoReuniao__c');
+        }
+        
+        String soqlQuery = 'SELECT ' + String.join(selectFields, ', ') + 
+                          ' FROM Event WHERE Id = :eventId LIMIT 1';
+        
+        List<Event> eventos = Database.query(soqlQuery);
 
         if (eventos.isEmpty()) {
           result.put('errorMessage', 'Evento não encontrado');
@@ -216,25 +237,52 @@ public with sharing class AppointmentController {
           // Log do erro, mas continuar com o que temos
           System.debug(
             'Erro ao buscar informações relacionadas: ' + e.getMessage()
-          );
-        }
-
-        // Os campos gestor__c, liderComercial__c e sdr__c agora armazenam nomes como texto
+          );        }        // Os campos gestor__c, liderComercial__c e sdr__c agora armazenam nomes como texto
         // Não precisamos buscar usuários por ID, apenas retornar os nomes armazenados
-        String gestorName = evento.gestor__c;
-        String liderComercialName = evento.liderComercial__c;
-        String sdrName = evento.sdr__c;
+        // Use the existing fieldMap variable already declared earlier in the method
+        
+        String gestorName = '';
+        String liderComercialName = '';
+        String sdrName = '';
+        
+        if (fieldMap.containsKey('gestor__c') && fieldMap.get('gestor__c').getDescribe().isAccessible()) {
+          gestorName = (String) evento.get('gestor__c');
+        }
+        if (fieldMap.containsKey('liderComercial__c') && fieldMap.get('liderComercial__c').getDescribe().isAccessible()) {
+          liderComercialName = (String) evento.get('liderComercial__c');
+        }
+        if (fieldMap.containsKey('sdr__c') && fieldMap.get('sdr__c').getDescribe().isAccessible()) {
+          sdrName = (String) evento.get('sdr__c');
+        }
 
         // Adicionar dados do evento ao resultado
         result.put('subject', evento.Subject);
         result.put('description', evento.Description);
         result.put('location', evento.Location);
-        result.put('type', null); // Type field removed due to permissions
+        
+        // Safe access to custom fields
+        String tipoReuniao = '';
+        if (fieldMap.containsKey('tipoReuniao__c') && fieldMap.get('tipoReuniao__c').getDescribe().isAccessible()) {
+          tipoReuniao = (String) evento.get('tipoReuniao__c');
+        }
+        result.put('type', tipoReuniao);
+        
         result.put('startDateTime', evento.StartDateTime);
         result.put('endDateTime', evento.EndDateTime);
         result.put('isAllDay', evento.IsAllDayEvent);
-        result.put('reuniaoCriada', evento.reuniaoCriada__c);
-        result.put('statusReuniao', evento.statusReuniao__c);
+        
+        Boolean reuniaoCriada = false;
+        if (fieldMap.containsKey('reuniaoCriada__c') && fieldMap.get('reuniaoCriada__c').getDescribe().isAccessible()) {
+          reuniaoCriada = (Boolean) evento.get('reuniaoCriada__c');
+        }
+        result.put('reuniaoCriada', reuniaoCriada);
+        
+        String statusReuniao = '';
+        if (fieldMap.containsKey('statusReuniao__c') && fieldMap.get('statusReuniao__c').getDescribe().isAccessible()) {
+          statusReuniao = (String) evento.get('statusReuniao__c');
+        }
+        result.put('statusReuniao', statusReuniao);
+        
         result.put('whatType', whatType);
         result.put('whatName', whatName);
         result.put('whoType', whoType);
@@ -242,9 +290,24 @@ public with sharing class AppointmentController {
         result.put('gestorName', gestorName);
         result.put('liderComercialName', liderComercialName);
         result.put('sdrName', sdrName);
-        result.put('salaReuniao', evento.salaReuniao__c);
-        result.put('faseEvento', evento.fase_evento__c);
-        result.put('produtoEvento', evento.produto_evento__c);
+        
+        String salaReuniao = '';
+        if (fieldMap.containsKey('salaReuniao__c') && fieldMap.get('salaReuniao__c').getDescribe().isAccessible()) {
+          salaReuniao = (String) evento.get('salaReuniao__c');
+        }
+        result.put('salaReuniao', salaReuniao);
+        
+        String faseEvento = '';
+        if (fieldMap.containsKey('fase_evento__c') && fieldMap.get('fase_evento__c').getDescribe().isAccessible()) {
+          faseEvento = (String) evento.get('fase_evento__c');
+        }
+        result.put('faseEvento', faseEvento);
+        
+        String produtoEvento = '';
+        if (fieldMap.containsKey('produto_evento__c') && fieldMap.get('produto_evento__c').getDescribe().isAccessible()) {
+          produtoEvento = (String) evento.get('produto_evento__c');
+        }
+        result.put('produtoEvento', produtoEvento);
         // Extract meeting link from Description field using utility class
         String linkReuniao = MeetingLinkUtils.extractLinkFromDescription(
           evento.Description
@@ -320,22 +383,35 @@ public with sharing class AppointmentController {
           '"' + endDateTimeStr + '"',
           Datetime.class
         );
-      }
-
-      newEvent.IsAllDayEvent = (Boolean) eventData.get('isAllDayEvent');
+      }      newEvent.IsAllDayEvent = (Boolean) eventData.get('isAllDayEvent');
       newEvent.Description = (String) eventData.get('description');
 
-      // Set event type if provided (commented out due to permissions)
-      // if (eventData.containsKey('type') && eventData.get('type') != null) {
-      //   newEvent.Type = (String) eventData.get('type');
-      // }
+      // Check field permissions before setting custom fields
+      Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Event.fields.getMap();
+
+      // Set meeting type using tipoReuniao__c field
+      if (eventData.containsKey('tipoReuniao') && eventData.get('tipoReuniao') != null) {
+        if (fieldMap.containsKey('tipoReuniao__c') && 
+            fieldMap.get('tipoReuniao__c').getDescribe().isAccessible() &&
+            fieldMap.get('tipoReuniao__c').getDescribe().isCreateable()) {
+          newEvent.put('tipoReuniao__c', (String) eventData.get('tipoReuniao'));
+        }
+      }
 
       if (eventData.containsKey('reuniaoCriada')) {
-        newEvent.reuniaoCriada__c = (Boolean) eventData.get('reuniaoCriada');
+        if (fieldMap.containsKey('reuniaoCriada__c') && 
+            fieldMap.get('reuniaoCriada__c').getDescribe().isAccessible() &&
+            fieldMap.get('reuniaoCriada__c').getDescribe().isCreateable()) {
+          newEvent.put('reuniaoCriada__c', (Boolean) eventData.get('reuniaoCriada'));
+        }
       }
 
       if (eventData.containsKey('statusReuniao')) {
-        newEvent.statusReuniao__c = (String) eventData.get('statusReuniao');
+        if (fieldMap.containsKey('statusReuniao__c') && 
+            fieldMap.get('statusReuniao__c').getDescribe().isAccessible() &&
+            fieldMap.get('statusReuniao__c').getDescribe().isCreateable()) {
+          newEvent.put('statusReuniao__c', (String) eventData.get('statusReuniao'));
+        }
       }
 
       // Adicionar campos de relacionamento se fornecidos
@@ -351,29 +427,37 @@ public with sharing class AppointmentController {
         if (String.isNotBlank(whatIdStr) && whatIdStr != 'null') {
           newEvent.WhatId = (Id) eventData.get('whatId');
         }
-      }
-
-      // Adicionar campos customizados de participantes obrigatórios (agora como texto)
+      }      // Adicionar campos customizados de participantes obrigatórios (agora como texto)
       if (
         eventData.containsKey('gestorName') &&
         eventData.get('gestorName') != null
       ) {
-        newEvent.gestor__c = (String) eventData.get('gestorName');
+        if (fieldMap.containsKey('gestor__c') && 
+            fieldMap.get('gestor__c').getDescribe().isAccessible() &&
+            fieldMap.get('gestor__c').getDescribe().isCreateable()) {
+          newEvent.put('gestor__c', (String) eventData.get('gestorName'));
+        }
       }
 
       if (
         eventData.containsKey('liderComercialName') &&
         eventData.get('liderComercialName') != null
       ) {
-        newEvent.liderComercial__c = (String) eventData.get(
-          'liderComercialName'
-        );
+        if (fieldMap.containsKey('liderComercial__c') && 
+            fieldMap.get('liderComercial__c').getDescribe().isAccessible() &&
+            fieldMap.get('liderComercial__c').getDescribe().isCreateable()) {
+          newEvent.put('liderComercial__c', (String) eventData.get('liderComercialName'));
+        }
       }
 
       if (
         eventData.containsKey('sdrName') && eventData.get('sdrName') != null
       ) {
-        newEvent.sdr__c = (String) eventData.get('sdrName');
+        if (fieldMap.containsKey('sdr__c') && 
+            fieldMap.get('sdr__c').getDescribe().isAccessible() &&
+            fieldMap.get('sdr__c').getDescribe().isCreateable()) {
+          newEvent.put('sdr__c', (String) eventData.get('sdrName'));
+        }
       }
 
       // Adicionar campo de sala de reunião se fornecido
@@ -381,15 +465,22 @@ public with sharing class AppointmentController {
         eventData.containsKey('salaReuniao') &&
         eventData.get('salaReuniao') != null
       ) {
-        newEvent.salaReuniao__c = (String) eventData.get('salaReuniao');
-      }
+        if (fieldMap.containsKey('salaReuniao__c') && 
+            fieldMap.get('salaReuniao__c').getDescribe().isAccessible() &&
+            fieldMap.get('salaReuniao__c').getDescribe().isCreateable()) {
+          newEvent.put('salaReuniao__c', (String) eventData.get('salaReuniao'));
+        }      }
 
       // Adicionar campo de status da reunião se fornecido
       if (
         eventData.containsKey('statusReuniao') &&
         eventData.get('statusReuniao') != null
       ) {
-        newEvent.statusReuniao__c = (String) eventData.get('statusReuniao');
+        if (fieldMap.containsKey('statusReuniao__c') && 
+            fieldMap.get('statusReuniao__c').getDescribe().isAccessible() &&
+            fieldMap.get('statusReuniao__c').getDescribe().isCreateable()) {
+          newEvent.put('statusReuniao__c', (String) eventData.get('statusReuniao'));
+        }
       }
 
       // Set custom fields for event phase and product (Activity fields)
@@ -397,14 +488,22 @@ public with sharing class AppointmentController {
         eventData.containsKey('faseEvento') &&
         eventData.get('faseEvento') != null
       ) {
-        newEvent.fase_evento__c = (String) eventData.get('faseEvento');
+        if (fieldMap.containsKey('fase_evento__c') && 
+            fieldMap.get('fase_evento__c').getDescribe().isAccessible() &&
+            fieldMap.get('fase_evento__c').getDescribe().isCreateable()) {
+          newEvent.put('fase_evento__c', (String) eventData.get('faseEvento'));
+        }
       }
 
       if (
         eventData.containsKey('produtoEvento') &&
         eventData.get('produtoEvento') != null
       ) {
-        newEvent.produto_evento__c = (String) eventData.get('produtoEvento');
+        if (fieldMap.containsKey('produto_evento__c') && 
+            fieldMap.get('produto_evento__c').getDescribe().isAccessible() &&
+            fieldMap.get('produto_evento__c').getDescribe().isCreateable()) {
+          newEvent.put('produto_evento__c', (String) eventData.get('produtoEvento'));
+        }
       }
 
       // Store meeting link in Description field if provided using utility class
@@ -481,33 +580,59 @@ public with sharing class AppointmentController {
         throw new AuraHandledException(
           'Usuário não tem permissão para atualizar compromissos'
         );
+      }      // Buscar evento existente com verificação de permissões de campo
+      List<String> selectFields = new List<String>{
+        'Id',
+        'Subject',
+        'Location',
+        'StartDateTime',
+        'EndDateTime',
+        'IsAllDayEvent',
+        'Description',
+        'WhoId',
+        'WhatId'
+      };
+      
+      // Check field permissions before adding custom fields
+      Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Event.fields.getMap();
+      
+      if (fieldMap.containsKey('reuniaoCriada__c') && fieldMap.get('reuniaoCriada__c').getDescribe().isAccessible()) {
+        selectFields.add('reuniaoCriada__c');
       }
-
-      // Buscar evento existente
-      Event eventToUpdate = [
-        SELECT
-          Id,
-          Subject,
-          Location,
-          StartDateTime,
-          EndDateTime,
-          IsAllDayEvent,
-          Description,
-          reuniaoCriada__c,
-          statusReuniao__c,
-          WhoId,
-          WhatId,
-          gestor__c,
-          liderComercial__c,
-          sdr__c,
-          salaReuniao__c,
-          fase_evento__c,
-          produto_evento__c
-        FROM Event
-        WHERE Id = :eventId
-        WITH SECURITY_ENFORCED
-        LIMIT 1
-      ];
+      if (fieldMap.containsKey('statusReuniao__c') && fieldMap.get('statusReuniao__c').getDescribe().isAccessible()) {
+        selectFields.add('statusReuniao__c');
+      }
+      if (fieldMap.containsKey('gestor__c') && fieldMap.get('gestor__c').getDescribe().isAccessible()) {
+        selectFields.add('gestor__c');
+      }
+      if (fieldMap.containsKey('liderComercial__c') && fieldMap.get('liderComercial__c').getDescribe().isAccessible()) {
+        selectFields.add('liderComercial__c');
+      }
+      if (fieldMap.containsKey('sdr__c') && fieldMap.get('sdr__c').getDescribe().isAccessible()) {
+        selectFields.add('sdr__c');
+      }
+      if (fieldMap.containsKey('salaReuniao__c') && fieldMap.get('salaReuniao__c').getDescribe().isAccessible()) {
+        selectFields.add('salaReuniao__c');
+      }
+      if (fieldMap.containsKey('fase_evento__c') && fieldMap.get('fase_evento__c').getDescribe().isAccessible()) {
+        selectFields.add('fase_evento__c');
+      }
+      if (fieldMap.containsKey('produto_evento__c') && fieldMap.get('produto_evento__c').getDescribe().isAccessible()) {
+        selectFields.add('produto_evento__c');
+      }
+      if (fieldMap.containsKey('tipoReuniao__c') && fieldMap.get('tipoReuniao__c').getDescribe().isAccessible()) {
+        selectFields.add('tipoReuniao__c');
+      }
+      
+      String soqlQuery = 'SELECT ' + String.join(selectFields, ', ') + 
+                        ' FROM Event WHERE Id = :eventId LIMIT 1';
+      
+      List<Event> events = Database.query(soqlQuery);
+      if (events.isEmpty()) {
+        throw new AuraHandledException('Evento não encontrado');
+      }
+      
+      Event eventToUpdate = events[0];
 
       // Atualizar campos do evento com novos valores
       eventToUpdate.Subject = (String) eventData.get('subject');
@@ -530,26 +655,35 @@ public with sharing class AppointmentController {
           '"' + endDateTimeStr + '"',
           Datetime.class
         );
-      }
-
-      eventToUpdate.IsAllDayEvent = (Boolean) eventData.get('isAllDayEvent');
+      }      eventToUpdate.IsAllDayEvent = (Boolean) eventData.get('isAllDayEvent');
       eventToUpdate.Description = (String) eventData.get('description');
 
-      // Update event type if provided (commented out due to permissions)
-      // if (eventData.containsKey('type') && eventData.get('type') != null) {
-      //   eventToUpdate.Type = (String) eventData.get('type');
-      // }
+      // Update custom fields only if accessible and updateable
+      // Use the existing fieldMap variable already declared earlier in the method
+
+      // Update meeting type using tipoReuniao__c field
+      if (eventData.containsKey('tipoReuniao') && eventData.get('tipoReuniao') != null) {
+        if (fieldMap.containsKey('tipoReuniao__c') && 
+            fieldMap.get('tipoReuniao__c').getDescribe().isAccessible() &&
+            fieldMap.get('tipoReuniao__c').getDescribe().isUpdateable()) {
+          eventToUpdate.put('tipoReuniao__c', (String) eventData.get('tipoReuniao'));
+        }
+      }
 
       if (eventData.containsKey('reuniaoCriada')) {
-        eventToUpdate.reuniaoCriada__c = (Boolean) eventData.get(
-          'reuniaoCriada'
-        );
+        if (fieldMap.containsKey('reuniaoCriada__c') && 
+            fieldMap.get('reuniaoCriada__c').getDescribe().isAccessible() &&
+            fieldMap.get('reuniaoCriada__c').getDescribe().isUpdateable()) {
+          eventToUpdate.put('reuniaoCriada__c', (Boolean) eventData.get('reuniaoCriada'));
+        }
       }
 
       if (eventData.containsKey('statusReuniao')) {
-        eventToUpdate.statusReuniao__c = (String) eventData.get(
-          'statusReuniao'
-        );
+        if (fieldMap.containsKey('statusReuniao__c') && 
+            fieldMap.get('statusReuniao__c').getDescribe().isAccessible() &&
+            fieldMap.get('statusReuniao__c').getDescribe().isUpdateable()) {
+          eventToUpdate.put('statusReuniao__c', (String) eventData.get('statusReuniao'));
+        }
       }
 
       // Atualizar campos de relacionamento se fornecidos
@@ -578,47 +712,70 @@ public with sharing class AppointmentController {
           }
         } else {
           eventToUpdate.WhatId = null;
-        }
-      }
+        }      }
 
       // Atualizar campos customizados de participantes obrigatórios (agora como texto)
       if (eventData.containsKey('gestorName')) {
-        eventToUpdate.gestor__c = (String) eventData.get('gestorName');
+        if (fieldMap.containsKey('gestor__c') && 
+            fieldMap.get('gestor__c').getDescribe().isAccessible() &&
+            fieldMap.get('gestor__c').getDescribe().isUpdateable()) {
+          eventToUpdate.put('gestor__c', (String) eventData.get('gestorName'));
+        }
       }
 
       if (eventData.containsKey('liderComercialName')) {
-        eventToUpdate.liderComercial__c = (String) eventData.get(
-          'liderComercialName'
-        );
+        if (fieldMap.containsKey('liderComercial__c') && 
+            fieldMap.get('liderComercial__c').getDescribe().isAccessible() &&
+            fieldMap.get('liderComercial__c').getDescribe().isUpdateable()) {
+          eventToUpdate.put('liderComercial__c', (String) eventData.get('liderComercialName'));
+        }
       }
 
       if (eventData.containsKey('sdrName')) {
-        eventToUpdate.sdr__c = (String) eventData.get('sdrName');
+        if (fieldMap.containsKey('sdr__c') && 
+            fieldMap.get('sdr__c').getDescribe().isAccessible() &&
+            fieldMap.get('sdr__c').getDescribe().isUpdateable()) {
+          eventToUpdate.put('sdr__c', (String) eventData.get('sdrName'));
+        }
       }
 
       // Atualizar campo de sala de reunião se fornecido
       if (eventData.containsKey('salaReuniao')) {
-        String roomValue = (String) eventData.get('salaReuniao');
-        eventToUpdate.salaReuniao__c = roomValue;
-        // DO NOT clear custom color - let frontend priority hierarchy handle color determination
+        if (fieldMap.containsKey('salaReuniao__c') && 
+            fieldMap.get('salaReuniao__c').getDescribe().isAccessible() &&
+            fieldMap.get('salaReuniao__c').getDescribe().isUpdateable()) {
+          String roomValue = (String) eventData.get('salaReuniao');
+          eventToUpdate.put('salaReuniao__c', roomValue);
+          // DO NOT clear custom color - let frontend priority hierarchy handle color determination
+        }
       }
 
       // Atualizar campo de status da reunião se fornecido
       if (eventData.containsKey('statusReuniao')) {
-        String statusValue = (String) eventData.get('statusReuniao');
-        eventToUpdate.statusReuniao__c = statusValue;
-        // DO NOT clear custom color - let frontend priority hierarchy handle color determination
+        if (fieldMap.containsKey('statusReuniao__c') && 
+            fieldMap.get('statusReuniao__c').getDescribe().isAccessible() &&
+            fieldMap.get('statusReuniao__c').getDescribe().isUpdateable()) {
+          String statusValue = (String) eventData.get('statusReuniao');
+          eventToUpdate.put('statusReuniao__c', statusValue);
+          // DO NOT clear custom color - let frontend priority hierarchy handle color determination
+        }
       }
 
       // Update custom fields for event phase and product (Activity fields)
       if (eventData.containsKey('faseEvento')) {
-        eventToUpdate.fase_evento__c = (String) eventData.get('faseEvento');
+        if (fieldMap.containsKey('fase_evento__c') && 
+            fieldMap.get('fase_evento__c').getDescribe().isAccessible() &&
+            fieldMap.get('fase_evento__c').getDescribe().isUpdateable()) {
+          eventToUpdate.put('fase_evento__c', (String) eventData.get('faseEvento'));
+        }
       }
 
       if (eventData.containsKey('produtoEvento')) {
-        eventToUpdate.produto_evento__c = (String) eventData.get(
-          'produtoEvento'
-        );
+        if (fieldMap.containsKey('produto_evento__c') && 
+            fieldMap.get('produto_evento__c').getDescribe().isAccessible() &&
+            fieldMap.get('produto_evento__c').getDescribe().isUpdateable()) {
+          eventToUpdate.put('produto_evento__c', (String) eventData.get('produtoEvento'));
+        }
       }
 
       // Update meeting link in Description field if provided using utility class

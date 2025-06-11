@@ -1953,7 +1953,7 @@ export default class AppointmentEditor extends NavigationMixin(
       startDateTime: this.eventData.startDateTime,
       endDateTime: this.eventData.endDateTime,
       isAllDayEvent: this.eventData.isAllDayEvent,
-      // type: this.appointmentType, // Type field removed due to permissions
+      tipoReuniao: this.appointmentType, // Use tipoReuniao__c field
       description: this.eventData.description,
       reuniaoCriada: this.eventData.reuniaoCriada,
       statusReuniao: this.statusReuniao,

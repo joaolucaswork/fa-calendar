@@ -52,6 +52,7 @@ public without sharing class CalendarioReinoController {
           customColor__c,
           statusReuniao__c,
           reuniaoAconteceu__c,
+          tipoReuniao__c,
           OwnerId,
           Owner.Name,
           Who.Name
@@ -102,7 +103,7 @@ public without sharing class CalendarioReinoController {
         }
 
         // Add enhanced fields for calendar display
-        eventData.put('type', null); // Type field removed due to permissions
+        eventData.put('type', evt.tipoReuniao__c); // Use tipoReuniao__c field
         eventData.put('salaReuniao', evt.salaReuniao__c);
         eventData.put('customColor', evt.customColor__c);
 

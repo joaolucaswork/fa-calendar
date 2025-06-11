@@ -17,29 +17,31 @@
           <!-- Mini Calendário Section (No longer accordion) -->
           <div class="sidebar-section">
             <div class="mini-calendar-content">
-              <!-- Header showing current month/year with horizontal navigation -->
+              <!-- Header showing current month/year with navigation arrows on the right -->
               <div class="mini-calendar-header" onclick={toggleMonthSection}>
-                <button
-                  class="sidebar-nav-button nav-left"
-                  onclick={navigateToPrevMonth}
-                >
-                  <lightning-icon
-                    icon-name="utility:chevronleft"
-                    size="x-small"
-                  ></lightning-icon>
-                </button>
                 <div class="month-year-display">
                   <span class="sidebar-month-year">{currentMonthYear}</span>
                 </div>
-                <button
-                  class="sidebar-nav-button nav-right"
-                  onclick={navigateToNextMonth}
-                >
-                  <lightning-icon
-                    icon-name="utility:chevronright"
-                    size="x-small"
-                  ></lightning-icon>
-                </button>
+                <div class="nav-arrows-container">
+                  <button
+                    class="sidebar-nav-button nav-left"
+                    onclick={navigateToPrevMonth}
+                  >
+                    <lightning-icon
+                      icon-name="utility:chevronleft"
+                      size="x-small"
+                    ></lightning-icon>
+                  </button>
+                  <button
+                    class="sidebar-nav-button nav-right"
+                    onclick={navigateToNextMonth}
+                  >
+                    <lightning-icon
+                      icon-name="utility:chevronright"
+                      size="x-small"
+                    ></lightning-icon>
+                  </button>
+                </div>
               </div>
 
               <!-- Days view (default) -->
@@ -86,12 +88,12 @@
           <!-- Seção de salas de reunião (moved below Mini Calendar) -->
           <div class="sidebar-section">
             <div class="sidebar-header" onclick={toggleRoomsSection}>
+              <span>Salas de Reunião</span>
               <lightning-icon
                 icon-name={roomsSectionIcon}
                 size="x-small"
                 class="sidebar-toggle-icon"
               ></lightning-icon>
-              <span>Salas de Reunião</span>
             </div>
 
             <div if:true={isRoomsSectionExpanded} class="rooms-list">
@@ -134,11 +136,18 @@
                               >{slot.timeRange} • {slot.dateInfo}</span
                             >
                           </div>
-                          <div
-                            class="slot-category-indicator"
-                            style={slot.categoryColor}
-                            title="Categoria do evento"
-                          ></div>
+                          <div class="slot-header-indicators">
+                            <template if:true={slot.meetingTypeBadge}>
+                              <span class={slot.meetingTypeBadgeClass} title={slot.meetingTypeTitle}>
+                                {slot.meetingTypeBadge}
+                              </span>
+                            </template>
+                            <div
+                              class="slot-category-indicator"
+                              style={slot.categoryColor}
+                              title="Categoria do evento"
+                            ></div>
+                          </div>
                         </div>
                         <div class="slot-card-content">
                           <div class="slot-subject">{slot.subject}</div>
@@ -173,70 +182,7 @@
             </div>
           </div>
 
-          <!-- Seção de filtros -->
-          <div class="sidebar-section">
-            <div class="sidebar-header" onclick={toggleFiltersSection}>
-              <lightning-icon
-                icon-name={filtersSectionIcon}
-                size="x-small"
-                class="sidebar-toggle-icon"
-              ></lightning-icon>
-              <span>Filtros</span>
-            </div>
-
-            <div if:true={isFiltersSectionExpanded} class="filters-list">
-              <div class="filter-item">
-                <lightning-input
-                  type="checkbox"
-                  label="Todos os eventos"
-                  name="all"
-                  checked={isFilterSelected.all}
-                  onchange={handleFilterCheckboxChange}
-                  class="filter-checkbox"
-                ></lightning-input>
-              </div>
-              <div class="filter-item">
-                <lightning-input
-                  type="checkbox"
-                  label="Reunião Presencial"
-                  name="presencial"
-                  checked={isFilterSelected.presencial}
-                  onchange={handleFilterCheckboxChange}
-                  class="filter-checkbox"
-                ></lightning-input>
-              </div>
-              <div class="filter-item">
-                <lightning-input
-                  type="checkbox"
-                  label="Reunião Online"
-                  name="online"
-                  checked={isFilterSelected.online}
-                  onchange={handleFilterCheckboxChange}
-                  class="filter-checkbox"
-                ></lightning-input>
-              </div>
-              <div class="filter-item">
-                <lightning-input
-                  type="checkbox"
-                  label="Ligação Telefônica"
-                  name="telefonica"
-                  checked={isFilterSelected.telefonica}
-                  onchange={handleFilterCheckboxChange}
-                  class="filter-checkbox"
-                ></lightning-input>
-              </div>
-              <div class="filter-item">
-                <lightning-input
-                  type="checkbox"
-                  label="Eventos de Leads"
-                  name="leadEvents"
-                  checked={showLeadEvents}
-                  onchange={handleLeadEventsToggle}
-                  class="filter-checkbox"
-                ></lightning-input>
-              </div>
-            </div>
-          </div>
+          <!-- Seção de filtros removida - filtros agora estão no header -->
         </div>
         <!-- End of sidebar-content -->
       </div>
@@ -324,6 +270,38 @@
                 <lightning-menu-item
                   value="month"
                   label="Mês"
+                ></lightning-menu-item>
+              </lightning-button-menu>
+            </div>
+
+            <!-- Event Type Filter -->
+            <div class="teams-event-type-filter">
+              <lightning-button-menu
+                label={currentEventTypeFilterLabel}
+                variant="neutral"
+                class="teams-event-type-menu"
+                menu-alignment="auto"
+                onselect={handleEventTypeFilterChange}
+              >
+                <lightning-menu-item
+                  value="all"
+                  label="Todos os eventos"
+                  checked={isEventTypeFilterSelected.all}
+                ></lightning-menu-item>
+                <lightning-menu-item
+                  value="presencial"
+                  label="Reunião Presencial"
+                  checked={isEventTypeFilterSelected.presencial}
+                ></lightning-menu-item>
+                <lightning-menu-item
+                  value="online"
+                  label="Reunião Online"
+                  checked={isEventTypeFilterSelected.online}
+                ></lightning-menu-item>
+                <lightning-menu-item
+                  value="telefonica"
+                  label="Ligação Telefônica"
+                  checked={isEventTypeFilterSelected.telefonica}
                 ></lightning-menu-item>
               </lightning-button-menu>
             </div>
@@ -631,9 +609,6 @@
               <h3 class="user-calendar-title">
                 Calendário de {selectedUserName}
               </h3>
-              <p class="user-calendar-subtitle">
-                Visualizando eventos específicos do usuário
-              </p>
             </div>
             <lightning-button
               label="Voltar para Todos"
@@ -802,6 +777,29 @@
           </div>
         </div>
 
+        <!-- Meeting Type and Room Information Section -->
+        <div class="color-picker-meeting-details">
+          <div class="meeting-details-row">
+            <!-- Meeting Type Badge -->
+            <div class="meeting-type-info">
+              <span class="meeting-type-badge-large {colorPickerMeetingTypeBadgeClass}">
+                {colorPickerMeetingTypeBadge}
+                <span class="meeting-type-text">{colorPickerMeetingTypeText}</span>
+              </span>
+            </div>
+
+            <!-- Meeting Room Info (only show for in-person meetings) -->
+            <template if:true={colorPickerShowRoomInfo}>
+              <div class="meeting-room-info">
+                <span class="meeting-room-badge">
+                  <span class="room-dot" style={colorPickerRoomDotStyle}></span>
+                  <span class="room-name">{colorPickerRoomName}</span>
+                </span>
+              </div>
+            </template>
+          </div>
+        </div>
+
         <!-- URL Input Field - Only show for online meetings -->
         <template if:true={showUrlInputField}>
           <div class="color-picker-url-section">
@@ -882,20 +880,22 @@
               <span class="meeting-outcome-label">A reunião aconteceu?</span>
             </div>
 
-            <!-- Yes/No Buttons -->
-            <div class="meeting-outcome-buttons">
-              <lightning-button
-                label="Sim"
-                variant={yesButtonVariant}
+            <!-- Yes/No Buttons - Custom Minimalist -->
+            <div class="meeting-outcome-buttons-custom">
+              <button
+                class={customYesButtonClass}
                 onclick={handleMeetingOutcomeYes}
-                class={yesButtonClass}
-              ></lightning-button>
-              <lightning-button
-                label="Não"
-                variant={noButtonVariant}
+                type="button"
+              >
+                Sim
+              </button>
+              <button
+                class={customNoButtonClass}
                 onclick={handleMeetingOutcomeNo}
-                class={noButtonClass}
-              ></lightning-button>
+                type="button"
+              >
+                Não
+              </button>
             </div>
 
             <!-- Conditional Status Combobox -->

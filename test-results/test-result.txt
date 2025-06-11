@@ -1,0 +1,67 @@
+
+
+=== Test Results
+TEST NAME                                                                 OUTCOME  MESSAGE  RUNTIME (MS)
+────────────────────────────────────────────────────────────────────────  ───────  ───────  ────────────
+AppointmentControllerTest.testCreateAppointment_AllStatusValues           Pass              281         
+AppointmentControllerTest.testCreateAppointment_MissingData               Pass              31          
+AppointmentControllerTest.testCreateAppointment_Success                   Pass              389         
+AppointmentControllerTest.testCreateAppointment_WithStatusReuniao         Pass              233         
+AppointmentControllerTest.testGenerateEventSubject                        Pass              500         
+AppointmentControllerTest.testGenerateEventSubject_NullInput              Pass              25          
+AppointmentControllerTest.testGetAppointmentDetails_InvalidEventId        Pass              22          
+AppointmentControllerTest.testGetAppointmentDetails_NoEventId             Pass              23          
+AppointmentControllerTest.testGetAppointmentDetails_ReturnsStatusReuniao  Pass              153         
+AppointmentControllerTest.testGetAppointmentDetails_ValidEventId          Pass              184         
+AppointmentControllerTest.testGetAppointmentDetails_WhatIdOnly            Pass              83          
+AppointmentControllerTest.testGetAppointmentDetails_WhoIdOnly             Pass              73          
+AppointmentControllerTest.testGetContactInformation_Contact               Pass              56          
+AppointmentControllerTest.testGetContactInformation_Lead                  Pass              81          
+AppointmentControllerTest.testGetOpportunityInformation_Account           Pass              71          
+AppointmentControllerTest.testGetOpportunityInformation_Opportunity       Pass              59          
+AppointmentControllerTest.testGetOptimalMeetingTimes                      Pass              63          
+AppointmentControllerTest.testGetOptimalMeetingTimes_DefaultValues        Pass              69          
+AppointmentControllerTest.testGetOptimalMeetingTimes_InvalidParameters    Pass              22          
+AppointmentControllerTest.testGetOptimalMeetingTimes_InvalidParams        Pass              23          
+AppointmentControllerTest.testGetOptimalMeetingTimes_Success              Pass              60          
+AppointmentControllerTest.testGetUserAvailability_InvalidParameters       Pass              23          
+AppointmentControllerTest.testGetUserAvailability_Success                 Pass              55          
+AppointmentControllerTest.testGetUserAvailability_WithConflicts           Pass              133         
+AppointmentControllerTest.testSearchContacts_EmptySearchTerm              Pass              22          
+AppointmentControllerTest.testSearchContacts_NullMaxResults               Pass              105         
+AppointmentControllerTest.testSearchContacts_ShortSearchTerm              Pass              22          
+AppointmentControllerTest.testSearchContacts_Success                      Pass              78          
+AppointmentControllerTest.testSearchOpportunities_EmptySearchTerm         Pass              23          
+AppointmentControllerTest.testSearchOpportunities_NullMaxResults          Pass              84          
+AppointmentControllerTest.testSearchOpportunities_ShortSearchTerm         Pass              23          
+AppointmentControllerTest.testSearchOpportunities_Success                 Pass              62          
+AppointmentControllerTest.testSearchUsers_NoSearchTerm                    Pass              68          
+AppointmentControllerTest.testSearchUsers_NullMaxResults                  Pass              66          
+AppointmentControllerTest.testSearchUsers_WithSearchTerm                  Pass              51          
+AppointmentControllerTest.testUpdateAppointment_InvalidEventId            Pass              23          
+AppointmentControllerTest.testUpdateAppointment_NoEventId                 Pass              23          
+AppointmentControllerTest.testUpdateAppointment_NullStatusReuniao         Pass              339         
+AppointmentControllerTest.testUpdateAppointment_Success                   Pass              253         
+AppointmentControllerTest.testUpdateAppointment_WithStatusReuniao         Pass              212         
+
+
+=== Test Setup Time by Test Class for Run 707U500000nvi7m
+TEST SETUP METHOD NAME                   SETUP TIME
+───────────────────────────────────────  ──────────
+AppointmentControllerTest.setupTestData  3704      
+
+
+=== Test Summary
+NAME                 VALUE                         
+───────────────────  ──────────────────────────────
+Outcome              Passed                        
+Tests Ran            41                            
+Pass Rate            100%                          
+Fail Rate            0%                            
+Skip Rate            0%                            
+Test Run Id          707U500000nvi7m               
+Test Setup Time      3704 ms                       
+Test Execution Time  4166 ms                       
+Test Total Time      7870 ms                       
+Org Id               00DHp00000DynwYMAR            
+Username             joaosantos@reinocapital.com.br
