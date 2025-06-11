@@ -50,6 +50,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   @track startDate;
   @track endDate;
 
+  // AI Summary Panel properties
+  @track aiSummaryStartDate;
+  @track aiSummaryEndDate;
+
   // Propriedades para a barra lateral estilo Teams
   @track currentYear = new Date().getFullYear();
   @track currentMonth = new Date().getMonth();
@@ -300,6 +304,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
     // Load status picklist options for meeting outcome interface
     this.loadStatusPicklistOptions();
+
+    // Initialize AI Summary Panel date range
+    this.initializeAISummaryDateRange();
   }
 
   // ========================================
@@ -1017,6 +1024,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
           // Force refresh happening now indicators when view changes
           setTimeout(() => this.refreshAllHappeningNowIndicators(), 100);
+
+          // Update AI Summary Panel with new date range
+          setTimeout(() => this.updateAISummaryDateRange(), 150);
 
           // Remover a classe de loading
           this.isLoading = false;
@@ -2013,6 +2023,73 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
         "🔄 CalendarioReino: Error during event elements refresh:",
         error
       );
+    }
+  }
+
+  // ========================================
+  // AI SUMMARY PANEL EVENT HANDLERS
+  // ========================================
+
+  /**
+   * Handle AI refresh calendar event from AI Summary Panel
+   */
+  handleAIRefreshCalendar(event) {
+    // console.log("🤖 CalendarioReino: AI refresh calendar requested");
+
+    // Refresh the calendar to get latest data for AI analysis
+    this.refreshCalendar();
+
+    // Update AI Summary Panel with current date range
+    this.updateAISummaryDateRange();
+  }
+
+  /**
+   * Initialize AI Summary Panel date range with current month
+   */
+  initializeAISummaryDateRange() {
+    try {
+      const today = new Date();
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+      this.aiSummaryStartDate = firstDay.toISOString().split('T')[0];
+      this.aiSummaryEndDate = lastDay.toISOString().split('T')[0];
+
+      // console.log("🤖 CalendarioReino: Initialized AI date range", {
+      //   start: this.aiSummaryStartDate,
+      //   end: this.aiSummaryEndDate
+      // });
+    } catch (error) {
+      console.error("🤖 CalendarioReino: Error initializing AI date range:", error);
+    }
+  }
+
+  /**
+   * Update AI Summary Panel with current calendar date range
+   */
+  updateAISummaryDateRange() {
+    try {
+      if (this.calendar) {
+        const view = this.calendar.fullCalendar('getView');
+        if (view) {
+          // Format dates for AI Summary Panel
+          this.aiSummaryStartDate = view.start.format('YYYY-MM-DD');
+          this.aiSummaryEndDate = view.end.format('YYYY-MM-DD');
+
+          // console.log("🤖 CalendarioReino: Updated AI date range", {
+          //   start: this.aiSummaryStartDate,
+          //   end: this.aiSummaryEndDate
+          // });
+
+          // Notify AI Summary Panel of date range update
+          const aiSummaryPanel = this.template.querySelector('c-ai-summary-panel');
+          if (aiSummaryPanel) {
+            aiSummaryPanel.updateDateRange(this.aiSummaryStartDate, this.aiSummaryEndDate);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("🤖 CalendarioReino: Error updating AI date range:", error);
     }
   }
 
@@ -3554,6 +3631,17 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     this.colorLegendIcon = this.isColorLegendExpanded
       ? "utility:chevrondown"
       : "utility:chevronright";
+  }
+
+  /**
+   * Handle AI Insights modal toggle
+   */
+  handleToggleAIInsights() {
+    const aiSummaryPanel = this.template.querySelector('c-ai-summary-panel');
+    if (aiSummaryPanel) {
+      // Toggle the modal visibility
+      aiSummaryPanel.showModal();
+    }
   }
 
   /**

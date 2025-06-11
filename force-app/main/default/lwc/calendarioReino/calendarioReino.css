@@ -1312,6 +1312,15 @@
   --slds-c-icon-color-foreground-default: #926f1b;
 }
 
+/* AI Insights icon special styling */
+.ai-insights-icon {
+  --slds-c-icon-color-foreground-default: #6264a7 !important;
+}
+
+.right-sidebar-icon:hover .ai-insights-icon {
+  --slds-c-icon-color-foreground-default: #4b4d8c !important;
+}
+
 /* Loading indicator for sidebar icons */
 .sidebar-loading-indicator {
   position: absolute;

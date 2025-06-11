@@ -83,6 +83,8 @@
             </div>
           </div>
 
+
+
           <!-- Seção de salas de reunião (moved below Mini Calendar) -->
           <div class="sidebar-section">
             <div class="sidebar-header" onclick={toggleRoomsSection}>
@@ -653,6 +655,20 @@
 
     <!-- Integrated Right Sidebar -->
     <div class="teams-right-sidebar">
+      <!-- AI Insights Icon -->
+      <div
+        class="right-sidebar-icon"
+        onclick={handleToggleAIInsights}
+        title="Insights IA"
+        data-section="ai-insights"
+      >
+        <lightning-icon
+          icon-name="utility:einstein"
+          size="small"
+          class="sidebar-icon ai-insights-icon"
+        ></lightning-icon>
+      </div>
+
       <!-- Meeting Suggestions Icon -->
       <template if:true={showMeetingSuggestions}>
         <div
@@ -748,6 +764,14 @@
     onmodalclose={handleParticipantModalClose}
     oneventclick={handleParticipantModalEventClick}
   ></c-participant-details-modal>
+
+  <!-- AI Insights Modal -->
+  <c-ai-summary-panel
+    start-date={startDate}
+    end-date={endDate}
+    current-view={currentView}
+    onrefreshcalendar={handleAIRefreshCalendar}
+  ></c-ai-summary-panel>
 
   <!-- Color Picker Modal -->
   <template if:true={showColorPicker}>

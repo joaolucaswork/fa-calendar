@@ -821,7 +821,7 @@ private class ReuniaoControllerTest {
 
       // Caso 2: Mesmo horário, outra sala - deve ser válido
       Map<String, Object> resultado2 = ReuniaoController.validarDisponibilidadeSala(
-        'salaExecutiva',
+        'salaGabriel',
         dataInicioStr,
         dataFimStr,
         null

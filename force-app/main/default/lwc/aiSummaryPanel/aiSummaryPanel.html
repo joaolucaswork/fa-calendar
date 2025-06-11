@@ -1,0 +1,261 @@
+<template>
+    <!-- AI Insights Draggable Modal -->
+    <template if:true={isModalVisible}>
+        <div class={modalClass} style={modalStyle}>
+            <div class="popup-arrow"></div>
+            <div class="popup-header">
+                <div class="popup-title-section">
+                    <lightning-icon
+                        icon-name={pinIcon}
+                        size="x-small"
+                        class="popup-title-pin-icon"
+                        onclick={handleTogglePin}
+                        title={pinTitle}
+                    ></lightning-icon>
+                    <lightning-icon
+                        icon-name="utility:einstein"
+                        size="x-small"
+                        class="ai-icon"
+                    ></lightning-icon>
+                    <span class="popup-title">Insights IA</span>
+
+                    <!-- Connection Status -->
+                    <div class="connection-status">
+                        <lightning-icon
+                            icon-name={connectionIcon}
+                            size="xx-small"
+                            variant={connectionIconVariant}
+                            title={connectionText}
+                        ></lightning-icon>
+                    </div>
+                </div>
+                <div class="popup-header-actions">
+                    <!-- Refresh Button -->
+                    <lightning-button
+                        icon-name="utility:refresh"
+                        variant="neutral"
+                        size="small"
+                        onclick={handleRefresh}
+                        title="Atualizar resumo"
+                        disabled={isLoading}
+                    ></lightning-button>
+                    <!-- Close Button -->
+                    <button
+                        class="popup-close-button"
+                        onclick={handleCloseModal}
+                        title="Fechar"
+                    >
+                        ×
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="popup-content">
+                
+                <!-- Connection Error State -->
+                <template if:true={showConnectionError}>
+                    <div class="connection-error">
+                        <div class="error-icon">
+                            <lightning-icon
+                                icon-name="utility:warning"
+                                size="small"
+                                variant="warning"
+                            ></lightning-icon>
+                        </div>
+                        <div class="error-content">
+                            <p class="error-title">IA Indisponível</p>
+                            <p class="error-message">Não foi possível conectar com o serviço de IA.</p>
+                            <button 
+                                class="retry-button slds-button slds-button_neutral slds-button_small"
+                                onclick={handleRetryConnection}
+                            >
+                                Tentar Novamente
+                            </button>
+                        </div>
+                    </div>
+                </template>
+                
+                <!-- Loading State -->
+                <template if:true={isLoading}>
+                    <div class="loading-container">
+                        <lightning-spinner
+                            alternative-text="Gerando resumo..."
+                            size="small"
+                        ></lightning-spinner>
+                        <p class="loading-text">Analisando eventos com IA...</p>
+                    </div>
+                </template>
+                
+                <!-- Main Content -->
+                <template if:true={showContent}>
+                    
+                    <!-- Summary Type Selector -->
+                    <div class="summary-controls">
+                        <lightning-combobox
+                            name="summaryType"
+                            label="Tipo de Resumo"
+                            value={selectedSummaryType}
+                            placeholder="Selecione o tipo"
+                            options={summaryTypes}
+                            onchange={handleSummaryTypeChange}
+                            variant="label-hidden"
+                            class="summary-type-selector"
+                        ></lightning-combobox>
+                    </div>
+                    
+                    <!-- Content Tabs -->
+                    <div class="slds-tabs_default ai-tabs">
+                        <!-- Tab Navigation -->
+                        <ul class="slds-tabs_default__nav" role="tablist">
+                            <li class={tabClasses.summary} role="presentation">
+                                <a
+                                    class="slds-tabs_default__link"
+                                    href="#"
+                                    role="tab"
+                                    data-tab="summary"
+                                    onclick={handleTabClick}
+                                >Resumo</a>
+                            </li>
+                            <li class={tabClasses.insights} role="presentation">
+                                <a
+                                    class="slds-tabs_default__link"
+                                    href="#"
+                                    role="tab"
+                                    data-tab="insights"
+                                    onclick={handleTabClick}
+                                >Insights</a>
+                            </li>
+                            <li class={tabClasses.suggestions} role="presentation">
+                                <a
+                                    class="slds-tabs_default__link"
+                                    href="#"
+                                    role="tab"
+                                    data-tab="suggestions"
+                                    onclick={handleTabClick}
+                                >Sugestões</a>
+                            </li>
+                        </ul>
+                        
+                        <!-- Tab Content -->
+                        <div class="slds-tabs_default__content ai-tab-content">
+                            
+                            <!-- Summary Tab -->
+                            <template if:true={isSummaryTabActive}>
+                                <div class="tab-content">
+                                    <template if:true={hasSummary}>
+                                        <div class="summary-content">
+                                            <div class="summary-text">{summaryData.summary}</div>
+                                            <button class="summary-copy-button" onclick={handleCopySummary} data-summary-text={summaryData.summary} title="Copiar resumo">
+                                                Copiar
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template if:false={hasSummary}>
+                                        <div class="no-data-container">
+                                            <lightning-icon
+                                                icon-name="utility:info"
+                                                size="small"
+                                                variant="inverse"
+                                            ></lightning-icon>
+                                            <p class="no-data-text">Nenhum resumo disponível</p>
+                                            <p class="no-data-subtitle">Selecione um período com eventos</p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <!-- Insights Tab -->
+                            <template if:true={isInsightsTabActive}>
+                                <div class="tab-content">
+                                    <template if:true={hasInsights}>
+                                        <ul class="insights-list">
+                                            <template for:each={summaryData.insights} for:item="insight" for:index="index">
+                                                <li key={insight} class="insight-item">
+                                                    <div class="insight-icon">
+                                                        <lightning-icon
+                                                            icon-name="utility:light_bulb"
+                                                            size="xx-small"
+                                                            variant="brand"
+                                                        ></lightning-icon>
+                                                    </div>
+                                                    <div class="insight-content">
+                                                        <span class="insight-text">{insight}</span>
+                                                    </div>
+                                                    <button class="insight-copy-button" onclick={handleCopyInsight} data-insight-text={insight} title="Copiar insight">
+                                                        Copiar
+                                                    </button>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </template>
+                                    <template if:false={hasInsights}>
+                                        <div class="no-data-container">
+                                            <lightning-icon
+                                                icon-name="utility:light_bulb"
+                                                size="small"
+                                                variant="inverse"
+                                            ></lightning-icon>
+                                            <p class="no-data-text">Nenhum insight disponível</p>
+                                            <p class="no-data-subtitle">Gere um resumo primeiro</p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <!-- Suggestions Tab -->
+                            <template if:true={isSuggestionsTabActive}>
+                                <div class="tab-content">
+                                    <template if:true={hasRecommendations}>
+                                        <ul class="recommendations-list">
+                                            <template for:each={summaryData.recommendations} for:item="recommendation" for:index="index">
+                                                <li key={recommendation} class="recommendation-item">
+                                                    <div class="recommendation-icon">
+                                                        <lightning-icon
+                                                            icon-name="utility:trending"
+                                                            size="xx-small"
+                                                            variant="success"
+                                                        ></lightning-icon>
+                                                    </div>
+                                                    <span class="recommendation-text">{recommendation}</span>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </template>
+                                    <template if:false={hasRecommendations}>
+                                        <div class="no-data-container">
+                                            <lightning-icon
+                                                icon-name="utility:trending"
+                                                size="small"
+                                                variant="inverse"
+                                            ></lightning-icon>
+                                            <p class="no-data-text">Nenhuma sugestão disponível</p>
+                                            <p class="no-data-subtitle">Aguarde análise dos dados</p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+
+                        </div>
+                    </div>
+
+                </template>
+
+                <!-- Error State -->
+                <template if:true={error}>
+                    <template if:false={showConnectionError}>
+                        <div class="error-container">
+                            <lightning-icon
+                                icon-name="utility:error"
+                                size="small"
+                                variant="error"
+                            ></lightning-icon>
+                            <p class="error-text">{error}</p>
+                        </div>
+                    </template>
+                </template>
+
+            </div>
+        </div>
+    </template>
+</template>
