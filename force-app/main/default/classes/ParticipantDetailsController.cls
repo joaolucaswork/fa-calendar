@@ -168,7 +168,6 @@ public with sharing class ParticipantDetailsController {
           StartDateTime,
           EndDateTime,
           Location,
-          Type,
           salaReuniao__c,
           gestor__c,
           liderComercial__c,
@@ -260,7 +259,7 @@ public with sharing class ParticipantDetailsController {
     eventData.put('startDateTime', evt.StartDateTime);
     eventData.put('endDateTime', evt.EndDateTime);
     eventData.put('location', evt.Location);
-    eventData.put('type', evt.Type);
+    eventData.put('type', null); // Type field removed due to permissions
     eventData.put('salaReuniao', evt.salaReuniao__c);
     eventData.put('customColor', evt.customColor__c);
     eventData.put('statusReuniao', evt.statusReuniao__c);

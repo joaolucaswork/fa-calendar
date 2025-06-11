@@ -6,7 +6,7 @@ import { FlowNavigationNextEvent } from "lightning/flowSupport";
 
 // Schema imports for Event object
 import EVENT_OBJECT from "@salesforce/schema/Event";
-import TYPE_FIELD from "@salesforce/schema/Event.Type";
+// import TYPE_FIELD from "@salesforce/schema/Event.Type"; // Commented out due to permissions
 
 // Apex methods
 import getAppointmentDetails from "@salesforce/apex/AppointmentController.getAppointmentDetails";
@@ -82,12 +82,12 @@ export default class AppointmentEditor extends NavigationMixin(
   @wire(getObjectInfo, { objectApiName: EVENT_OBJECT })
   eventObjectInfo;
 
-  // Para os valores do campo Type
-  @wire(getPicklistValues, {
-    recordTypeId: "$eventObjectInfo.data.defaultRecordTypeId",
-    fieldApiName: TYPE_FIELD
-  })
-  typePicklistValues;
+  // Para os valores do campo Type (commented out due to permissions)
+  // @wire(getPicklistValues, {
+  //   recordTypeId: "$eventObjectInfo.data.defaultRecordTypeId",
+  //   fieldApiName: TYPE_FIELD
+  // })
+  // typePicklistValues;
 
   // Options for Fase Evento (updated to match current picklist values)
   faseEventoOptions = [
@@ -766,7 +766,7 @@ export default class AppointmentEditor extends NavigationMixin(
       startDateTime: now.toISOString(),
       endDateTime: oneHourLater.toISOString(),
       isAllDayEvent: false,
-      type: "", // No default type - user must select
+      // type: "", // Type field removed due to permissions
       description: "",
       whoId: this.whoId || null,
       whatId: this.whatId || null,
@@ -822,7 +822,7 @@ export default class AppointmentEditor extends NavigationMixin(
       startDateTime: formattedStartDate,
       endDateTime: formattedEndDate,
       isAllDayEvent: false,
-      type: "Reunião Presencial", // Set default type when dates are pre-selected
+      // type: "Reunião Presencial", // Type field removed due to permissions
       description: "",
       whoId: this.whoId || null,
       whatId: this.whatId || null,
@@ -1234,7 +1234,7 @@ export default class AppointmentEditor extends NavigationMixin(
       const suggestedMeetingType =
         this.suggestionData.meetingType || "Reunião Presencial";
       this.appointmentType = suggestedMeetingType;
-      this.eventData.type = suggestedMeetingType;
+      // this.eventData.type = suggestedMeetingType; // Type field removed due to permissions
 
       // console.log("AppointmentEditor: Suggestion data processed successfully", {
       //   subject: this.eventData.subject,
@@ -1287,7 +1287,7 @@ export default class AppointmentEditor extends NavigationMixin(
         startDateTime: startDateTime,
         endDateTime: endDateTime,
         isAllDayEvent: this.selectedEventData.allDay || false,
-        type: "Reunião Presencial", // Default type, will be updated by Apex call
+        // type: "Reunião Presencial", // Type field removed due to permissions
         description: this.selectedEventData.description || "",
         whoId: this.selectedEventData.whoId || null,
         whatId: this.selectedEventData.whatId || null,
@@ -1320,7 +1320,7 @@ export default class AppointmentEditor extends NavigationMixin(
       .then((result) => {
         if (result.success) {
           // Update only the fields not available from calendar data
-          this.eventData.type = result.type || "Reunião Presencial";
+          // this.eventData.type = result.type || "Reunião Presencial"; // Type field removed due to permissions
           this.eventData.reuniaoCriada = result.reuniaoCriada || false;
           this.eventData.statusReuniao =
             result.statusReuniao !== undefined ? result.statusReuniao : null;
@@ -1370,7 +1370,7 @@ export default class AppointmentEditor extends NavigationMixin(
               result.endDateTime ||
               new Date(Date.now() + 3600000).toISOString(),
             isAllDayEvent: result.isAllDay || false,
-            type: result.type || "Reunião Presencial",
+            // type: result.type || "Reunião Presencial", // Type field removed due to permissions
             description: result.description || "",
             whoId: result.whoId || null,
             whatId: result.whatId || null,
@@ -1759,7 +1759,7 @@ export default class AppointmentEditor extends NavigationMixin(
   handleTypeCardClick(event) {
     const selectedType = event.currentTarget.dataset.type;
     this.appointmentType = selectedType;
-    this.eventData.type = selectedType;
+    // this.eventData.type = selectedType; // Type field removed due to permissions
 
     // Generate subject when appointment type changes
     this.generateSubject();
@@ -1953,7 +1953,7 @@ export default class AppointmentEditor extends NavigationMixin(
       startDateTime: this.eventData.startDateTime,
       endDateTime: this.eventData.endDateTime,
       isAllDayEvent: this.eventData.isAllDayEvent,
-      type: this.appointmentType,
+      // type: this.appointmentType, // Type field removed due to permissions
       description: this.eventData.description,
       reuniaoCriada: this.eventData.reuniaoCriada,
       statusReuniao: this.statusReuniao,

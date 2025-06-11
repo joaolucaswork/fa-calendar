@@ -215,20 +215,20 @@ public with sharing class ReuniaoController {
       evento.Description = (String) eventoData.get('descricao');
       evento.Location = (String) eventoData.get('localizacao');
 
-      // Campos para o tipo de reunião e link
-      if (eventoData.containsKey('tipo')) {
-        String tipo = (String) eventoData.get('tipo');
-        // Usar os valores personalizados em português que já existem na org
-        if (tipo == 'reuniaoOnline') {
-          evento.Type = 'Reunião Online'; // Valor personalizado em português
-        } else if (tipo == 'reuniaoPresencial') {
-          evento.Type = 'Presencial'; // Valor personalizado em português
-        } else if (tipo == 'reuniaoTelefone') {
-          evento.Type = 'Telefone'; // Valor personalizado em português
-        } else {
-          evento.Type = 'Outro'; // Valor personalizado em português
-        }
-      }
+      // Campos para o tipo de reunião e link (commented out due to permissions)
+      // if (eventoData.containsKey('tipo')) {
+      //   String tipo = (String) eventoData.get('tipo');
+      //   // Usar os valores personalizados em português que já existem na org
+      //   if (tipo == 'reuniaoOnline') {
+      //     evento.Type = 'Reunião Online'; // Valor personalizado em português
+      //   } else if (tipo == 'reuniaoPresencial') {
+      //     evento.Type = 'Presencial'; // Valor personalizado em português
+      //   } else if (tipo == 'reuniaoTelefone') {
+      //     evento.Type = 'Telefone'; // Valor personalizado em português
+      //   } else {
+      //     evento.Type = 'Outro'; // Valor personalizado em português
+      //   }
+      // }
 
       // Campo para sala de reunião
       if (eventoData.containsKey('salaReuniao')) {
@@ -297,7 +297,6 @@ public with sharing class ReuniaoController {
       'Location',
       'StartDateTime',
       'EndDateTime',
-      'Type',
       'Description',
       'OwnerId',
       'Owner.Name',
@@ -322,7 +321,6 @@ public with sharing class ReuniaoController {
           Location,
           StartDateTime,
           EndDateTime,
-          Type,
           Description,
           OwnerId,
           Owner.Name,
@@ -360,7 +358,6 @@ public with sharing class ReuniaoController {
             Location,
             StartDateTime,
             EndDateTime,
-            Type,
             Description,
             OwnerId,
             Owner.Name,

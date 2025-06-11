@@ -2045,7 +2045,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
           allDay: event.allDay,
           whoId: event.whoId,
           whatId: event.whatId,
-          type: event.type,
+          type: event.type || null, // Type field may be null due to permissions
           salaReuniao: event.salaReuniao,
           gestorName: event.gestorName,
           liderComercialName: event.liderComercialName,
@@ -2325,7 +2325,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
       if (selectedTypes.length > 0) {
         filteredEvents = filteredEvents.filter((event) =>
-          selectedTypes.includes(event.type)
+          event.type && selectedTypes.includes(event.type)
         );
       }
     }
@@ -2372,7 +2372,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
         // Additional logic for online meetings and other locations
         const matchesOnlineType =
-          selectedRooms.includes("online") && event.type === "Reunião Online";
+         selectedRooms.includes("online") && event.type && event.type === "Reunião Online";
         const matchesOtherLocation =
           selectedRooms.includes("Outra") &&
           (!eventRoom || eventRoom === "Outra");
@@ -2836,7 +2836,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
                 startDateTime: conflict.startDateTime,
                 endDateTime: conflict.endDateTime,
                 location: conflict.location,
-                type: conflict.type,
+                type: conflict.type || null,
                 salaReuniao: conflict.salaReuniao,
                 gestorName: conflict.gestorName,
                 liderComercialName: conflict.liderComercialName,
@@ -3023,7 +3023,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       startDateTime: slotData.eventData.startDateTime,
       endDateTime: slotData.eventData.endDateTime,
       location: slotData.eventData.location,
-      type: slotData.eventData.type,
+      type: slotData.eventData.type || null,
       salaReuniao: slotData.eventData.salaReuniao,
       gestorName: slotData.eventData.gestorName,
       liderComercialName: slotData.eventData.liderComercialName,
@@ -4596,7 +4596,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
               whoId: event.whoId,
               whatId: event.whatId,
               // Enhanced fields for display
-              type: event.type,
+              type: event.type || null, // Type field may be null due to permissions
               salaReuniao: event.salaReuniao,
               gestorName: event.gestorName,
               liderComercialName: event.liderComercialName,
@@ -5637,7 +5637,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
           // console.log(
           //   `🎨 No predefined color for event ${event.id}, using CSS class fallback`
           // );
-          if (event.type) {
+          if (event.type && typeof event.type === 'string') {
             element.addClass(
               `reino-event-type-${event.type.toLowerCase().replace(/\s+/g, "-")}`
             );

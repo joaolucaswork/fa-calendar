@@ -305,13 +305,15 @@ export default class ParticipantDetailsModal extends LightningElement {
 
     this.participantName = participantName;
     this.triggerElement = triggerElement;
-    this.isVisible = true;
     this.error = null;
 
-    // Use Floating UI for positioning
+    // Set visible first to render the modal
+    this.isVisible = true;
+
+    // Wait for DOM to render, then position with Floating UI
     setTimeout(() => {
       this.setupFloatingUIPositioning();
-    }, 10);
+    }, 50);
 
     // Load participant details
     this.loadParticipantDetails();
@@ -320,7 +322,7 @@ export default class ParticipantDetailsModal extends LightningElement {
     setTimeout(() => {
       // console.log("🔧 Recalculating position after content load");
       this.recalculatePosition();
-    }, 100);
+    }, 200);
   }
 
   @api
@@ -437,72 +439,101 @@ export default class ParticipantDetailsModal extends LightningElement {
 
   async setupFloatingUIPositioning() {
     if (!this.triggerElement || !this.isVisible) {
+      console.warn("🔧 ParticipantDetailsModal: Missing triggerElement or modal not visible");
       return;
     }
 
     // Wait for modal to be rendered
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const modal = this.template.querySelector('.participant-details-modal');
-    if (!modal || !window.FloatingUIDOM) {
-      console.error("🔧 Modal element or Floating UI not available - cannot position modal");
+    if (!modal) {
+      console.error("🔧 ParticipantDetailsModal: Modal element not found in DOM");
       return;
     }
+
+    if (!window.FloatingUIDOM) {
+      console.error("🔧 ParticipantDetailsModal: Floating UI library not loaded");
+      return;
+    }
+
+    // console.log("🔧 ParticipantDetailsModal: Setting up Floating UI positioning");
+    // console.log("🔧 Trigger element:", this.triggerElement);
+    // console.log("🔧 Modal element:", modal);
 
     this.setupFloatingUI(modal);
   }
 
   setupFloatingUI(modal) {
-    const { computePosition, flip, shift, offset, autoUpdate, hide } = window.FloatingUIDOM;
+    try {
+      const { computePosition, flip, shift, offset, autoUpdate, hide } = window.FloatingUIDOM;
 
-    // Clean up any existing auto-update
-    this.cleanupFloatingUI();
-
-    // Set up auto-updating position with smart placement
-    this.floatingUICleanup = autoUpdate(
-      this.triggerElement,
-      modal,
-      async () => {
-        const { x, y, placement } = await computePosition(
-          this.triggerElement,
-          modal,
-          {
-            placement: 'right-start', // Start with right to avoid covering trigger
-            middleware: [
-              offset(20), // Offset from trigger element
-              flip({
-                // Comprehensive fallback placements - prioritize sides over top/bottom
-                fallbackPlacements: [
-                  'left-start',    // Try left side first
-                  'right-end',     // Try right-bottom
-                  'left-end',      // Try left-bottom
-                  'bottom-start',  // Try below
-                  'bottom-end',    // Try below-right
-                  'top-start',     // Try above (last resort)
-                  'top-end'        // Try above-right (last resort)
-                ]
-              }),
-              shift({
-                padding: 20,     // Padding from viewport edges
-                crossAxis: true, // Allow shifting on cross axis
-                limiter: 'auto'  // Auto limit shifting
-              }),
-              hide() // Hide if no good position is available
-            ]
-          }
-        );
-
-        // Apply modal position
-        Object.assign(modal.style, {
-          left: `${x}px`,
-          top: `${y}px`,
-          visibility: 'visible'
-        });
-
-        // Debug: Log placement for troubleshooting
-        // console.log('🔧 Modal placement:', placement, 'Position:', { x, y });
+      // Validate that all required functions are available
+      if (!computePosition || !flip || !shift || !offset || !autoUpdate || !hide) {
+        console.error("🔧 ParticipantDetailsModal: Missing Floating UI functions");
+        this.fallbackPositioning(modal);
+        return;
       }
-    );
+
+      // Clean up any existing auto-update
+      this.cleanupFloatingUI();
+
+      // Set up auto-updating position with smart placement
+      this.floatingUICleanup = autoUpdate(
+        this.triggerElement,
+        modal,
+        async () => {
+          try {
+            const { x, y, placement } = await computePosition(
+              this.triggerElement,
+              modal,
+              {
+                placement: 'right-start', // Start with right to avoid covering trigger
+                middleware: [
+                  offset(20), // Offset from trigger element
+                  flip({
+                    // Comprehensive fallback placements - prioritize sides over top/bottom
+                    fallbackPlacements: [
+                      'left-start',    // Try left side first
+                      'right-end',     // Try right-bottom
+                      'left-end',      // Try left-bottom
+                      'bottom-start',  // Try below
+                      'bottom-end',    // Try below-right
+                      'top-start',     // Try above (last resort)
+                      'top-end'        // Try above-right (last resort)
+                    ]
+                  }),
+                  shift({
+                    padding: 20,     // Padding from viewport edges
+                    crossAxis: true, // Allow shifting on cross axis
+                    limiter: 'auto'  // Auto limit shifting
+                  }),
+                  hide() // Hide if no good position is available
+                ]
+              }
+            );
+
+            // Apply modal position and make visible
+            Object.assign(modal.style, {
+              left: `${x}px`,
+              top: `${y}px`,
+              visibility: 'visible'
+            });
+
+            // Debug: Log placement for troubleshooting
+            // console.log('🔧 ParticipantDetailsModal: Positioned at', { x, y, placement });
+          } catch (positionError) {
+            console.error('🔧 ParticipantDetailsModal: Error in computePosition:', positionError);
+            // Fallback positioning
+            this.fallbackPositioning(modal);
+          }
+        }
+      );
+    } catch (error) {
+      console.error('🔧 ParticipantDetailsModal: Error setting up Floating UI:', error);
+      // Fallback positioning
+      this.fallbackPositioning(modal);
+    }
   }
 
   cleanupFloatingUI() {
@@ -511,6 +542,50 @@ export default class ParticipantDetailsModal extends LightningElement {
       this.floatingUICleanup = null;
       // console.log("🔧 Floating UI cleanup completed");
     }
+  }
+
+  fallbackPositioning(modal) {
+    console.log('🔧 ParticipantDetailsModal: Using fallback positioning');
+
+    if (!this.triggerElement) {
+      // Center the modal if no trigger element
+      Object.assign(modal.style, {
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        visibility: 'visible'
+      });
+      return;
+    }
+
+    // Position relative to trigger element
+    const triggerRect = this.triggerElement.getBoundingClientRect();
+    const modalRect = modal.getBoundingClientRect();
+
+    // Try to position to the right of the trigger
+    let left = triggerRect.right + 20;
+    let top = triggerRect.top;
+
+    // Check if modal would go off-screen and adjust
+    if (left + modalRect.width > window.innerWidth) {
+      left = triggerRect.left - modalRect.width - 20; // Position to the left
+    }
+
+    if (top + modalRect.height > window.innerHeight) {
+      top = window.innerHeight - modalRect.height - 20; // Move up
+    }
+
+    if (top < 20) {
+      top = 20; // Don't go above viewport
+    }
+
+    Object.assign(modal.style, {
+      left: `${left}px`,
+      top: `${top}px`,
+      visibility: 'visible'
+    });
+
+    console.log('🔧 ParticipantDetailsModal: Fallback positioned at', { left, top });
   }
 
   // Helper methods
@@ -660,8 +735,13 @@ export default class ParticipantDetailsModal extends LightningElement {
    * Floating UI handles this automatically via autoUpdate
    */
   recalculatePosition() {
-    // Floating UI handles positioning automatically via autoUpdate
-    // No manual recalculation needed
-    // console.log("🔧 recalculatePosition: Floating UI handling automatically");
+    if (this.floatingUICleanup && this.isVisible) {
+      // Floating UI handles positioning automatically via autoUpdate
+      // console.log("🔧 ParticipantDetailsModal: Position recalculation triggered");
+    } else if (this.isVisible) {
+      // If Floating UI isn't set up yet, try to set it up now
+      // console.log("🔧 ParticipantDetailsModal: Floating UI not set up, attempting setup");
+      this.setupFloatingUIPositioning();
+    }
   }
 }

@@ -151,8 +151,8 @@ public with sharing class HappeningNowController {
             DateTime now = DateTime.now();
             
             happeningEvents = [
-                SELECT Id, Subject, StartDateTime, EndDateTime, Location, 
-                       salaReuniao__c, Type, Owner.Name
+                SELECT Id, Subject, StartDateTime, EndDateTime, Location,
+                       salaReuniao__c, Owner.Name
                 FROM Event
                 WHERE salaReuniao__c = :roomValue
                 AND StartDateTime <= :now

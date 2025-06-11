@@ -78,7 +78,6 @@ public with sharing class AppointmentController {
             Subject,
             Description,
             Location,
-            Type,
             StartDateTime,
             EndDateTime,
             IsAllDayEvent,
@@ -230,7 +229,7 @@ public with sharing class AppointmentController {
         result.put('subject', evento.Subject);
         result.put('description', evento.Description);
         result.put('location', evento.Location);
-        result.put('type', evento.Type);
+        result.put('type', null); // Type field removed due to permissions
         result.put('startDateTime', evento.StartDateTime);
         result.put('endDateTime', evento.EndDateTime);
         result.put('isAllDay', evento.IsAllDayEvent);
@@ -326,10 +325,10 @@ public with sharing class AppointmentController {
       newEvent.IsAllDayEvent = (Boolean) eventData.get('isAllDayEvent');
       newEvent.Description = (String) eventData.get('description');
 
-      // Set event type if provided
-      if (eventData.containsKey('type') && eventData.get('type') != null) {
-        newEvent.Type = (String) eventData.get('type');
-      }
+      // Set event type if provided (commented out due to permissions)
+      // if (eventData.containsKey('type') && eventData.get('type') != null) {
+      //   newEvent.Type = (String) eventData.get('type');
+      // }
 
       if (eventData.containsKey('reuniaoCriada')) {
         newEvent.reuniaoCriada__c = (Boolean) eventData.get('reuniaoCriada');
@@ -490,7 +489,6 @@ public with sharing class AppointmentController {
           Id,
           Subject,
           Location,
-          Type,
           StartDateTime,
           EndDateTime,
           IsAllDayEvent,
@@ -537,10 +535,10 @@ public with sharing class AppointmentController {
       eventToUpdate.IsAllDayEvent = (Boolean) eventData.get('isAllDayEvent');
       eventToUpdate.Description = (String) eventData.get('description');
 
-      // Update event type if provided
-      if (eventData.containsKey('type') && eventData.get('type') != null) {
-        eventToUpdate.Type = (String) eventData.get('type');
-      }
+      // Update event type if provided (commented out due to permissions)
+      // if (eventData.containsKey('type') && eventData.get('type') != null) {
+      //   eventToUpdate.Type = (String) eventData.get('type');
+      // }
 
       if (eventData.containsKey('reuniaoCriada')) {
         eventToUpdate.reuniaoCriada__c = (Boolean) eventData.get(

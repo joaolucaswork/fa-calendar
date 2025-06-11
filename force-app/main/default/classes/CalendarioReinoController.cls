@@ -45,7 +45,6 @@ public without sharing class CalendarioReinoController {
           WhoId,
           WhatId,
           IsAllDayEvent,
-          Type,
           salaReuniao__c,
           gestor__c,
           liderComercial__c,
@@ -103,7 +102,7 @@ public without sharing class CalendarioReinoController {
         }
 
         // Add enhanced fields for calendar display
-        eventData.put('type', evt.Type);
+        eventData.put('type', null); // Type field removed due to permissions
         eventData.put('salaReuniao', evt.salaReuniao__c);
         eventData.put('customColor', evt.customColor__c);
 
@@ -567,7 +566,6 @@ public without sharing class CalendarioReinoController {
           EndDateTime,
           Location,
           salaReuniao__c,
-          Type,
           gestor__c,
           liderComercial__c,
           sdr__c,
@@ -606,7 +604,7 @@ public without sharing class CalendarioReinoController {
         conflictInfo.put('startDateTime', evt.StartDateTime);
         conflictInfo.put('endDateTime', evt.EndDateTime);
         conflictInfo.put('location', evt.Location);
-        conflictInfo.put('type', evt.Type);
+        conflictInfo.put('type', null); // Type field removed due to permissions
         conflictInfo.put('organizer', evt.Owner.Name);
         conflictInfo.put('ownerId', evt.OwnerId);
         conflictInfo.put('gestorName', evt.gestor__c);

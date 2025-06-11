@@ -24,7 +24,7 @@
 
 /* Modal Container */
 .participant-details-modal {
-  position: absolute; /* Changed from fixed to absolute for Floating UI */
+  position: fixed; /* Fixed positioning for Floating UI to work properly */
   width: 420px;
   max-width: 90vw;
   max-height: 80vh;
@@ -38,6 +38,9 @@
   opacity: 0;
   visibility: hidden;
   transform: scale(0.95);
+  /* Initial positioning off-screen until Floating UI positions it */
+  left: -9999px;
+  top: -9999px;
   transition:
     opacity 0.3s ease,
     visibility 0.3s ease,
