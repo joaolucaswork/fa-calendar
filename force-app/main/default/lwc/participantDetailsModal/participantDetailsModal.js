@@ -64,9 +64,7 @@ export default class ParticipantDetailsModal extends LightningElement {
   }
 
   get backdropClass() {
-    let classes = "modal-backdrop";
-    if (this.isVisible) classes += " visible";
-    return classes;
+    return "modal-backdrop";
   }
 
   get headerClass() {

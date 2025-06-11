@@ -1,6 +1,7 @@
 <template>
-  <!-- Modal Backdrop -->
-  <div class={backdropClass} onclick={handleBackdropClick}>
+  <!-- Modal Backdrop - Only render when visible -->
+  <template if:true={isVisible}>
+    <div class={backdropClass} onclick={handleBackdropClick}>
     <!-- Modal Container -->
     <div class={modalClass} onclick={handleModalClick}>
       <!-- Modal Header -->
@@ -225,5 +226,6 @@
         </button>
       </div>
     </div>
-  </div>
+    </div>
+  </template>
 </template>

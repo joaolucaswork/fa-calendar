@@ -192,10 +192,11 @@ public class AppointmentControllerTest {
       result.get('location'),
       'Should return correct location'
     );
+    // Type field removed due to permissions
     System.assertEquals(
-      'Meeting',
+      null,
       result.get('type'),
-      'Should return correct type'
+      'Should return null for type field'
     );
     System.assertEquals(
       true,
@@ -435,11 +436,12 @@ public class AppointmentControllerTest {
         createdEvent.Location,
         'Should create event with correct location'
       );
-      System.assertEquals(
-        'Call',
-        createdEvent.Type,
-        'Should create event with correct type'
-      );
+      // Type field removed due to permissions
+      // System.assertEquals(
+      //   'Call',
+      //   createdEvent.Type,
+      //   'Should create event with correct type'
+      // );
     }
   }
 
@@ -540,7 +542,8 @@ public class AppointmentControllerTest {
       updatedEvent.Location,
       'Should update event location'
     );
-    System.assertEquals('Email', updatedEvent.Type, 'Should update event type');
+    // Type field removed due to permissions
+    // System.assertEquals('Email', updatedEvent.Type, 'Should update event type');
     System.assertEquals(
       'Updated Gestor',
       updatedEvent.gestor__c,
