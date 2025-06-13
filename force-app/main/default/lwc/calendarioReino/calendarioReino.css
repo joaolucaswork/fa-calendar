@@ -3319,7 +3319,7 @@
 
 /* Circle background using ::after pseudo-element */
 :host .fc-today .fc-day-number::after {
-  content: '' !important;
+  content: "" !important;
   position: absolute !important;
   top: 50% !important;
   left: 50% !important;
@@ -3808,12 +3808,12 @@
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
   transform: scale(1.08) !important;
   /* Default fallback colors */
-  --highlight-color: #8A8886;
+  --highlight-color: #8a8886;
   --highlight-rgb: 138, 136, 134;
 }
 
 :host .event-highlighted::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -5px;
   left: -5px;
@@ -3827,16 +3827,18 @@
 }
 
 @keyframes constantBreathing {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.8;
   }
   50% {
-    opacity: 1.0;
+    opacity: 1;
   }
 }
 
 @keyframes highlightPulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow:
       0 0 0 1px rgba(68, 68, 68, 0.3),
       0 0 12px rgba(0, 0, 0, 0.4),
@@ -3887,7 +3889,9 @@
   animation: colorPickerSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   overflow: visible;
   /* Floating UI handles positioning - smooth transitions for Floating UI updates */
-  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+  transition:
+    transform 0.15s ease-out,
+    opacity 0.15s ease-out;
   /* Remove manual positioning constraints - Floating UI handles all positioning */
 }
 
@@ -5274,36 +5278,36 @@
 }
 
 .custom-outcome-button:hover {
-  border-color: #4F6BED;
+  border-color: #4f6bed;
   background-color: #f8f9ff;
 }
 
 .custom-outcome-button:focus {
-  border-color: #4F6BED;
+  border-color: #4f6bed;
   box-shadow: 0 0 0 2px rgba(79, 107, 237, 0.2);
 }
 
 /* Specific colors for Yes/No buttons when selected */
 .custom-outcome-yes.custom-outcome-selected {
-  background-color: #D6F3E4; /* Verde Menta (Aconteceu) */
-  border-color: #4BCA81;
+  background-color: #d6f3e4; /* Verde Menta (Aconteceu) */
+  border-color: #4bca81;
   color: #2d5016;
 }
 
 .custom-outcome-yes.custom-outcome-selected:hover {
   background-color: #c8efdb;
-  border-color: #4BCA81;
+  border-color: #4bca81;
 }
 
 .custom-outcome-no.custom-outcome-selected {
-  background-color: #F9D6D4; /* Rosa Claro (Não Aconteceu) */
-  border-color: #C0392B;
+  background-color: #f9d6d4; /* Rosa Claro (Não Aconteceu) */
+  border-color: #c0392b;
   color: #8b1538;
 }
 
 .custom-outcome-no.custom-outcome-selected:hover {
   background-color: #f5c6c4;
-  border-color: #C0392B;
+  border-color: #c0392b;
 }
 
 .custom-outcome-dimmed {
@@ -5316,4 +5320,226 @@
   opacity: 0.7;
   background-color: #f0f0f0;
   border-color: #ccc;
+}
+
+/* ===== COMPACT APPOINTMENT MODAL STYLES ===== */
+/* Compact appointment modal styles (same pattern as color-picker-modal) */
+:host .compact-appointment-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent; /* No backdrop for mini-modal */
+  z-index: 9999;
+  pointer-events: none; /* Allow clicks through backdrop */
+}
+
+:host .compact-appointment-modal {
+  position: fixed;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e5ee;
+  z-index: 10000;
+  min-width: 400px;
+  max-width: 500px;
+  pointer-events: auto; /* Enable clicks on modal */
+  /* Start invisible to prevent flash at (0,0) - Floating UI will make it visible */
+  visibility: hidden;
+}
+
+:host .compact-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e5ee;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+}
+
+:host .header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+:host .header-icon {
+  color: #0176d3;
+}
+
+:host .header-text {
+  font-weight: 600;
+  font-size: 14px;
+  color: #181818;
+}
+
+:host .close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #706e6b;
+  transition: all 0.2s ease;
+}
+
+:host .close-button:hover {
+  background-color: #f3f2f2;
+  color: #181818;
+}
+
+:host .compact-modal-content {
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+:host .loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+:host .error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #fef7f7;
+  border: 1px solid #ea001e;
+  border-radius: 4px;
+  color: #ea001e;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+:host .error-icon {
+  color: #ea001e;
+}
+
+:host .subject-display {
+  margin-bottom: 20px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #e0e5ee;
+}
+
+:host .subject-label {
+  font-size: 12px;
+  color: #706e6b;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+:host .subject-value {
+  font-size: 14px;
+  color: #181818;
+  font-weight: 600;
+}
+
+:host .appointment-type-section {
+  margin-bottom: 20px;
+}
+
+:host .section-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #181818;
+  margin-bottom: 12px;
+}
+
+:host .appointment-type-cards {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+:host .appointment-type-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 2px solid #e0e5ee;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+  font-size: 14px;
+  color: #181818;
+  min-width: 120px;
+  justify-content: center;
+}
+
+:host .appointment-type-card:hover {
+  border-color: #0176d3;
+  background-color: #f8f9fa;
+}
+
+:host .appointment-type-card.selected {
+  border-color: #0176d3;
+  background-color: #e8f4fd;
+  color: #0176d3;
+  font-weight: 600;
+}
+
+:host .datetime-section {
+  margin-bottom: 16px;
+}
+
+:host .datetime-row {
+  display: flex;
+  gap: 12px;
+}
+
+:host .datetime-field {
+  flex: 1;
+}
+
+:host .field-section {
+  margin-bottom: 16px;
+}
+
+:host .field-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #181818;
+  margin-bottom: 8px;
+}
+
+:host .modal-actions {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e5ee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+:host .save-button {
+  background-color: #0176d3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+:host .save-button:hover:not(:disabled) {
+  background-color: #014486;
+}
+
+:host .save-button:disabled {
+  background-color: #dddbda;
+  color: #706e6b;
+  cursor: not-allowed;
 }

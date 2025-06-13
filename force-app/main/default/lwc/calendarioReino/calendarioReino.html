@@ -727,6 +727,8 @@
     oneventclick={handleParticipantModalEventClick}
   ></c-participant-details-modal>
 
+  <!-- Compact Appointment Modal is now embedded directly above -->
+
   <!-- Color Picker Modal -->
   <template if:true={showColorPicker}>
     <div class="color-picker-backdrop" onclick={handleBackdropClick}>
@@ -938,6 +940,216 @@
               </button>
             </template>
           </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Compact Appointment Modal (embedded like color-picker-modal) -->
+  <template if:true={showCompactAppointmentModal}>
+    <div
+      class="compact-appointment-backdrop"
+      onclick={handleCompactModalBackdropClick}
+    >
+      <div
+        class={compactAppointmentModalClass}
+        onclick={handleCompactModalClick}
+      >
+        <!-- Modal Header -->
+        <div class="compact-modal-header">
+          <div class="header-title">
+            <lightning-icon
+              icon-name="standard:event"
+              size="x-small"
+              class="header-icon"
+            ></lightning-icon>
+            <span class="header-text">Novo Compromisso</span>
+          </div>
+          <button
+            class="close-button"
+            onclick={closeCompactAppointmentModal}
+            title="Fechar"
+          >
+            <lightning-icon
+              icon-name="utility:close"
+              size="x-small"
+            ></lightning-icon>
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="compact-modal-content">
+          <template if:true={compactModalLoading}>
+            <div class="loading-container">
+              <lightning-spinner
+                variant="brand"
+                size="small"
+                alternative-text="Carregando..."
+              >
+              </lightning-spinner>
+            </div>
+          </template>
+
+          <template if:true={compactModalError}>
+            <div class="error-message">
+              <lightning-icon
+                icon-name="utility:error"
+                size="x-small"
+                class="error-icon"
+              ></lightning-icon>
+              <span>{compactModalError}</span>
+            </div>
+          </template>
+
+          <template if:false={compactModalLoading}>
+            <!-- Auto-generated Subject Display -->
+            <div class="subject-display">
+              <div class="subject-label">Assunto (Gerado Automaticamente)</div>
+              <div class="subject-value">{compactEventData.subject}</div>
+            </div>
+
+            <!-- Appointment Type Selection -->
+            <div class="appointment-type-section">
+              <div class="section-label">Tipo de Compromisso *</div>
+              <div class="appointment-type-cards">
+                <div
+                  class={reuniaoPresencialClass}
+                  data-type="Reunião Presencial"
+                  onclick={handleCompactTypeCardClick}
+                >
+                  <lightning-icon
+                    icon-name="standard:location"
+                    size="x-small"
+                  ></lightning-icon>
+                  <span>Presencial</span>
+                </div>
+                <div
+                  class={reuniaoOnlineClass}
+                  data-type="Reunião Online"
+                  onclick={handleCompactTypeCardClick}
+                >
+                  <lightning-icon
+                    icon-name="standard:video"
+                    size="x-small"
+                  ></lightning-icon>
+                  <span>Online</span>
+                </div>
+                <div
+                  class={ligacaoTelefonicaClass}
+                  data-type="Ligação Telefônica"
+                  onclick={handleCompactTypeCardClick}
+                >
+                  <lightning-icon
+                    icon-name="standard:call"
+                    size="x-small"
+                  ></lightning-icon>
+                  <span>Telefone</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Date/Time Fields (shown after type selection) -->
+            <template if:true={showCompactDateTimeFields}>
+              <div class="datetime-section">
+                <div class="datetime-row">
+                  <div class="datetime-field">
+                    <label class="field-label">Data/Hora Início *</label>
+                    <lightning-input
+                      type="datetime-local"
+                      name="startDateTime"
+                      value={compactEventData.startDateTime}
+                      onchange={handleCompactFieldChange}
+                      required
+                    ></lightning-input>
+                  </div>
+                  <div class="datetime-field">
+                    <label class="field-label">Data/Hora Fim *</label>
+                    <lightning-input
+                      type="datetime-local"
+                      name="endDateTime"
+                      value={compactEventData.endDateTime}
+                      onchange={handleCompactFieldChange}
+                      required
+                    ></lightning-input>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Location Field -->
+              <div class="field-section">
+                <label class="field-label">Local</label>
+                <lightning-input
+                  type="text"
+                  name="location"
+                  value={compactEventData.location}
+                  onchange={handleCompactFieldChange}
+                  placeholder="Digite o local do compromisso"
+                ></lightning-input>
+              </div>
+
+              <!-- Description Field -->
+              <div class="field-section">
+                <label class="field-label">Descrição</label>
+                <lightning-textarea
+                  name="description"
+                  value={compactEventData.description}
+                  onchange={handleCompactFieldChange}
+                  placeholder="Digite uma descrição para o compromisso"
+                  rows="3"
+                ></lightning-textarea>
+              </div>
+
+              <!-- Fase Evento -->
+              <div class="field-section">
+                <label class="field-label">Fase do Evento</label>
+                <lightning-combobox
+                  name="faseEvento"
+                  value={compactEventData.faseEvento}
+                  placeholder="Selecione a fase"
+                  options={compactFaseEventoOptions}
+                  onchange={handleCompactFieldChange}
+                ></lightning-combobox>
+              </div>
+
+              <!-- Produto Evento -->
+              <div class="field-section">
+                <label class="field-label">Produto do Evento</label>
+                <lightning-combobox
+                  name="produtoEvento"
+                  value={compactEventData.produtoEvento}
+                  placeholder="Selecione o produto"
+                  options={compactProdutoEventoOptions}
+                  onchange={handleCompactFieldChange}
+                ></lightning-combobox>
+              </div>
+
+              <!-- Status -->
+              <div class="field-section">
+                <label class="field-label">Status da Reunião</label>
+                <lightning-combobox
+                  name="statusReuniao"
+                  value={compactStatusReuniao}
+                  placeholder="Selecione o status"
+                  options={compactStatusOptions}
+                  onchange={handleCompactStatusChange}
+                ></lightning-combobox>
+              </div>
+
+              <!-- Save Button -->
+              <div class="modal-actions">
+                <button
+                  class="save-button"
+                  onclick={handleCompactSave}
+                  disabled={compactModalLoading}
+                >
+                  <template if:true={compactModalLoading}>Salvando...</template>
+                  <template if:false={compactModalLoading}
+                    >Salvar Compromisso</template
+                  >
+                </button>
+              </div>
+            </template>
+          </template>
         </div>
       </div>
     </div>

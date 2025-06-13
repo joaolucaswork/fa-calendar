@@ -12,6 +12,7 @@ import saveEventMeetingRoom from "@salesforce/apex/CalendarioReinoController.sav
 import getRoomAvailability from "@salesforce/apex/CalendarioReinoController.getRoomAvailability";
 import getStatusPicklistValues from "@salesforce/apex/CalendarioReinoController.getStatusPicklistValues";
 import searchUsers from "@salesforce/apex/AppointmentController.searchUsers";
+import createAppointment from "@salesforce/apex/AppointmentController.createAppointment";
 // Lead Event integration
 import getLeadEvents from "@salesforce/apex/LeadEventController.getLeadEvents";
 
@@ -104,6 +105,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   @track selectedStartDate = null;
   @track selectedEndDate = null;
   @track selectedEventData = null;
+
+  // Compact Appointment Editor properties (now embedded in template)
+  // Removed: showCompactAppointmentEditor and compactEditorTriggerElement
+  // Using embedded compact modal instead
 
   // Search and Filter properties
   @track searchTerm = "";
@@ -225,6 +230,40 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   @track colorPickerMeetingOutcome = null; // Track meeting outcome (reuniaoAconteceu__c checkbox)
   @track showStatusCombobox = false; // Control visibility of status combobox
   @track statusPicklistOptions = []; // Options for statusReuniao__c combobox
+
+  // Compact appointment modal properties (embedded like color-picker-modal)
+  @track showCompactAppointmentModal = false;
+  @track compactModalLoading = false;
+  @track compactModalError = null;
+  compactModalTriggerElement = null;
+  compactModalFloatingUICleanup = null;
+  @track compactAppointmentType = "";
+  @track compactStatusReuniao = null;
+  @track compactEventData = {
+    subject: "",
+    startDateTime: "",
+    endDateTime: "",
+    location: "",
+    description: "",
+    faseEvento: "",
+    produtoEvento: ""
+  };
+
+  // Compact modal options
+  @track compactFaseEventoOptions = [
+    { label: "Primeira Reunião", value: "Primeira Reunião" },
+    { label: "Devolutiva", value: "Devolutiva" },
+    { label: "Negociação", value: "Negociação" },
+    { label: "Cliente", value: "Cliente" }
+  ];
+
+  @track compactProdutoEventoOptions = [
+    { label: "Liquidação Otimizada", value: "Liquidação Otimizada" },
+    { label: "Consultoria Societária", value: "Consultoria Societária" },
+    { label: "Gestão de Patrimônio", value: "Gestão de Patrimônio" }
+  ];
+
+  @track compactStatusOptions = [];
 
   // Lead Event properties
   @track showLeadEventEditor = false;
@@ -1056,7 +1095,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
               target.closest(".fc-day-number");
 
             if (!isDayNumber) {
-              this.handleDayClick(date);
+              this.handleDayClick(date, jsEvent);
             }
           }
         },
@@ -4013,9 +4052,11 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     this.showAppointmentEditor = true;
   }
 
-  handleDayClick(date) {
-    // Handle day clicks in month view to create new appointments
-    // console.log("🗓️ CalendarioReino: Day clicked in month view");
+  handleDayClick(date, jsEvent) {
+    // Handle day clicks in month view to create new appointments using compact modal
+    console.log("🗓️ CalendarioReino: Day clicked in month view");
+    console.log("🗓️ CalendarioReino: Original date object:", date);
+    console.log("🗓️ CalendarioReino: jsEvent target:", jsEvent?.target);
 
     // Clear any existing event data for new appointment
     this.selectedEventId = null;
@@ -4025,41 +4066,47 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
     try {
       // FullCalendar v3 date objects are often Moment objects
-      // Ensure we're working with a proper Date or Moment object
+      // Fix: Ensure we're working with the correct date without timezone shifts
       let dateMoment;
+
       if (moment.isMoment(date)) {
-        // If it's already a moment object, clone it to avoid mutations
-        dateMoment = moment(date);
-        // console.log("🗓️ CalendarioReino: Using provided moment object");
+        // If it's already a moment object, use it directly but ensure local timezone
+        dateMoment = moment(date).local();
+        console.log("🗓️ CalendarioReino: Using provided moment object (local)");
       } else if (date && typeof date.toDate === "function") {
         // If it's a moment-like object with toDate method
-        dateMoment = moment(date.toDate());
-        // console.log(
-        //   "🗓️ CalendarioReino: Converted object with toDate() to moment"
-        // );
+        dateMoment = moment(date.toDate()).local();
+        console.log(
+          "🗓️ CalendarioReino: Converted object with toDate() to moment (local)"
+        );
+      } else if (date instanceof Date) {
+        // If it's a native Date object, create moment in local timezone
+        dateMoment = moment(date).local();
+        console.log(
+          "🗓️ CalendarioReino: Created moment from Date object (local)"
+        );
       } else {
-        // Create a moment from whatever we received
-        dateMoment = moment(date);
-        // console.log("🗓️ CalendarioReino: Created new moment from date object");
+        // Create a moment from whatever we received, ensuring local timezone
+        dateMoment = moment(date).local();
+        console.log(
+          "🗓️ CalendarioReino: Created new moment from date object (local)"
+        );
       }
 
-      // Log for debugging
-      // console.log(
-      //   "🗓️ CalendarioReino: Date clicked:",
-      //   dateMoment.format("YYYY-MM-DD")
-      // );
-      // console.log(
-      //   "🗓️ CalendarioReino: Browser timezone offset (minutes):",
-      //   new Date().getTimezoneOffset()
-      // );
-      // console.log("🗓️ CalendarioReino: Original date object:", date);
-      // console.log(
-      //   "🗓️ CalendarioReino: Moment date object:",
-      //   dateMoment.toString()
-      // );
+      // Critical fix: Use startOf('day') to ensure we get the exact day clicked
+      // This prevents the "previous day" issue
+      dateMoment = dateMoment.startOf("day");
 
-      // Create start date at 9:00 AM on the SAME DAY that was clicked
-      // Critical fix: use the dateMoment object directly, preserving the correct date
+      console.log(
+        "🗓️ CalendarioReino: Processed date:",
+        dateMoment.format("YYYY-MM-DD")
+      );
+      console.log(
+        "🗓️ CalendarioReino: Browser timezone offset (minutes):",
+        new Date().getTimezoneOffset()
+      );
+
+      // Create start date at 9:00 AM on the EXACT DAY that was clicked
       const startDate = moment(dateMoment)
         .hour(9)
         .minute(0)
@@ -4070,37 +4117,21 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       const endDate = moment(startDate).add(1, "hour");
 
       // Store the selected date range for the appointment editor
-      // For proper timezone handling, use ISO format for lightning-input datetime compatibility
-      // Ensure we're generating proper ISO 8601 strings with the format YYYY-MM-DDTHH:mm:ss.sssZ
       this.selectedStartDate = startDate.toISOString();
       this.selectedEndDate = endDate.toISOString();
 
-      // Validate that we have proper ISO strings with time component
-      if (
-        !this.selectedStartDate.includes("T") ||
-        !this.selectedEndDate.includes("T")
-      ) {
-        console.error("🗓️ CalendarioReino: Invalid ISO string format detected");
-        // Force proper ISO format if missing
-        this.selectedStartDate = `${startDate.format("YYYY-MM-DD")}T${startDate.format("HH:mm:ss")}.000Z`;
-        this.selectedEndDate = `${endDate.format("YYYY-MM-DD")}T${endDate.format("HH:mm:ss")}.000Z`;
-      }
-
-      // Log the processed dates for debugging
-      // console.log(
-      //   "🗓️ CalendarioReino: Selected Date (YYYY-MM-DD):",
-      //   startDate.format("YYYY-MM-DD")
-      // );
-      // console.log(
-      //   "🗓️ CalendarioReino: Start DateTime:",
-      //   startDate.format("YYYY-MM-DD HH:mm:ss")
-      // );
-      // console.log(
-      //   "🗓️ CalendarioReino: End DateTime:",
-      //   endDate.format("YYYY-MM-DD HH:mm:ss")
-      // );
-      // console.log("🗓️ CalendarioReino: ISO Start:", this.selectedStartDate);
-      // console.log("🗓️ CalendarioReino: ISO End:", this.selectedEndDate);
+      console.log(
+        "🗓️ CalendarioReino: Final selected date:",
+        startDate.format("YYYY-MM-DD")
+      );
+      console.log(
+        "🗓️ CalendarioReino: Start DateTime:",
+        startDate.format("YYYY-MM-DD HH:mm:ss")
+      );
+      console.log(
+        "🗓️ CalendarioReino: End DateTime:",
+        endDate.format("YYYY-MM-DD HH:mm:ss")
+      );
     } catch (error) {
       console.error("🗓️ CalendarioReino: Error processing day click:", error);
 
@@ -4115,17 +4146,67 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       );
     }
 
-    // Ensure we have a small delay before opening the modal to allow the DOM to update
-    setTimeout(() => {
-      // Open the appointment editor modal
-      this.showAppointmentEditor = true;
+    // Get the trigger element from jsEvent for positioning - improved logic
+    let triggerElement = null;
+    if (jsEvent && jsEvent.target) {
+      const target = jsEvent.target;
+      console.log("🗓️ CalendarioReino: Click target:", target);
 
-      // Log modal state for debugging
-      // console.log("🗓️ CalendarioReino: Opening appointment editor modal");
-      // console.log("   showAppointmentEditor:", this.showAppointmentEditor);
-      // console.log("   selectedStartDate:", this.selectedStartDate);
-      // console.log("   selectedEndDate:", this.selectedEndDate);
-    }, 100);
+      // Improved trigger element detection - follow color-picker-modal pattern
+      // Look for the actual calendar cell that was clicked
+      triggerElement =
+        target.closest("td.fc-day") || // Month view day cell
+        target.closest(".fc-day-top") || // Day top container
+        target.closest(".fc-day") || // Any day element
+        target.closest("td[data-date]") || // Cell with date attribute
+        target.closest(".fc-content") || // Event content area
+        target.closest(".fc-day-number"); // Day number
+
+      console.log("🗓️ CalendarioReino: Found trigger element:", triggerElement);
+
+      // If we still don't have a good trigger element, search in calendar container
+      if (!triggerElement || triggerElement.tagName === "C-CALENDARIO-REINO") {
+        const calendarContainer = this.template.querySelector(
+          ".calendar-container"
+        );
+        if (calendarContainer) {
+          // Try to find the specific day cell by date
+          const dateStr = moment(date).format("YYYY-MM-DD");
+          triggerElement =
+            calendarContainer.querySelector(`td[data-date="${dateStr}"]`) ||
+            calendarContainer.querySelector(`[data-date="${dateStr}"]`) ||
+            calendarContainer.querySelector(".fc-day.fc-today") ||
+            calendarContainer.querySelector("td.fc-day") ||
+            calendarContainer.querySelector(".fc-day") ||
+            calendarContainer.querySelector("td");
+
+          console.log(
+            "🗓️ CalendarioReino: Fallback trigger element:",
+            triggerElement
+          );
+        }
+      }
+    }
+
+    // Open the embedded compact appointment modal with improved timing
+    setTimeout(() => {
+      this.openCompactAppointmentModal(
+        triggerElement,
+        this.selectedStartDate
+      ).catch((error) => {
+        console.error("Error opening compact modal:", error);
+      });
+
+      // Enhanced logging for debugging
+      console.log(
+        "🗓️ CalendarioReino: Opening embedded compact appointment modal"
+      );
+      console.log("   selectedStartDate:", this.selectedStartDate);
+      console.log("   selectedEndDate:", this.selectedEndDate);
+      console.log("   triggerElement:", triggerElement);
+      console.log("   triggerElement type:", triggerElement?.constructor?.name);
+      console.log("   triggerElement tagName:", triggerElement?.tagName);
+    }, 50); // Reduced timeout for better responsiveness
   }
 
   /**
@@ -8110,6 +8191,41 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   }
 
   /**
+   * Get the CSS class for the compact appointment modal - Floating UI handles positioning
+   */
+  get compactAppointmentModalClass() {
+    return "compact-appointment-modal";
+  }
+
+  /**
+   * Show date/time fields after type selection
+   */
+  get showCompactDateTimeFields() {
+    return !!this.compactAppointmentType;
+  }
+
+  /**
+   * Computed classes for appointment type cards
+   */
+  get reuniaoPresencialClass() {
+    return this.compactAppointmentType === "Reunião Presencial"
+      ? "appointment-type-card selected"
+      : "appointment-type-card";
+  }
+
+  get reuniaoOnlineClass() {
+    return this.compactAppointmentType === "Reunião Online"
+      ? "appointment-type-card selected"
+      : "appointment-type-card";
+  }
+
+  get ligacaoTelefonicaClass() {
+    return this.compactAppointmentType === "Ligação Telefônica"
+      ? "appointment-type-card selected"
+      : "appointment-type-card";
+  }
+
+  /**
    * Computed properties for meeting outcome buttons
    */
   get yesButtonVariant() {
@@ -8496,6 +8612,512 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       variant: variant || "info"
     });
     this.dispatchEvent(evt);
+  }
+
+  // ===== COMPACT APPOINTMENT MODAL METHODS =====
+
+  /**
+   * Open compact appointment modal (embedded like color-picker-modal)
+   */
+  async openCompactAppointmentModal(triggerElement, selectedDate) {
+    try {
+      console.log("🎨 CalendarioReino: Opening embedded compact modal");
+      console.log("🎨 CalendarioReino: Trigger element:", triggerElement);
+      console.log(
+        "🎨 CalendarioReino: Trigger element type:",
+        triggerElement?.constructor?.name
+      );
+      console.log(
+        "🎨 CalendarioReino: Trigger element tagName:",
+        triggerElement?.tagName
+      );
+      console.log("🎨 CalendarioReino: Selected date:", selectedDate);
+
+      // Validate and store trigger element for positioning
+      if (triggerElement && triggerElement instanceof Element) {
+        this.compactModalTriggerElement = triggerElement;
+        console.log("✅ Valid trigger element stored for positioning");
+      } else {
+        console.warn(
+          "⚠️ Invalid trigger element received, will use fallback positioning"
+        );
+        this.compactModalTriggerElement = null;
+      }
+
+      // Initialize form data with selected date
+      this.initializeCompactModalData(selectedDate);
+
+      // Load status options with error handling
+      await this.loadCompactStatusOptions().catch((error) => {
+        console.error("Error loading status options:", error);
+        // Continue with default options
+      });
+
+      // Show the modal
+      this.showCompactAppointmentModal = true;
+      console.log(
+        "🎨 Modal state set to true:",
+        this.showCompactAppointmentModal
+      );
+
+      // Position modal after render using Floating UI - increased timeout for proper rendering
+      setTimeout(() => {
+        console.log("🎨 Starting modal positioning...");
+        this.calculateCompactModalPosition().catch((error) => {
+          console.error("Error positioning compact modal:", error);
+        });
+      }, 100);
+    } catch (error) {
+      console.error("Error opening compact modal:", error);
+      this.compactModalError = "Erro ao abrir modal de compromisso";
+    }
+  }
+
+  /**
+   * Initialize compact modal form data
+   */
+  initializeCompactModalData(selectedDate) {
+    if (selectedDate) {
+      try {
+        // Handle ISO string from calendarioReino
+        const startDate = new Date(selectedDate);
+
+        // Validate the date
+        if (isNaN(startDate.getTime())) {
+          console.error("Invalid date received:", selectedDate);
+          return;
+        }
+
+        const endDate = new Date(startDate);
+        endDate.setHours(startDate.getHours() + 1); // Default 1 hour duration
+
+        // Format for lightning-input datetime-local (YYYY-MM-DDTHH:mm)
+        const formatForInput = (date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+          const hours = String(date.getHours()).padStart(2, "0");
+          const minutes = String(date.getMinutes()).padStart(2, "0");
+          return `${year}-${month}-${day}T${hours}:${minutes}`;
+        };
+
+        this.compactEventData = {
+          ...this.compactEventData,
+          startDateTime: formatForInput(startDate),
+          endDateTime: formatForInput(endDate),
+          subject: "Novo Compromisso"
+        };
+      } catch (error) {
+        console.error("Error initializing compact modal data:", error);
+      }
+    }
+  }
+
+  /**
+   * Load status options for compact modal
+   */
+  async loadCompactStatusOptions() {
+    try {
+      const statusData = await getStatusPicklistValues();
+      this.compactStatusOptions = [
+        { label: "Não definido", value: null },
+        ...(statusData || [])
+      ];
+    } catch (error) {
+      console.error("Error loading compact status options:", error);
+      this.compactStatusOptions = [
+        { label: "Não definido", value: null },
+        { label: "Cancelado", value: "Cancelado" },
+        { label: "Adiado", value: "Adiado" },
+        { label: "Reagendado", value: "Reagendado" }
+      ];
+    }
+  }
+
+  /**
+   * Calculate compact modal position using Floating UI (same as color-picker-modal)
+   */
+  async calculateCompactModalPosition() {
+    // Wait for modal to be rendered with multiple attempts
+    let modal = null;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    while (!modal && attempts < maxAttempts) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      modal = this.template.querySelector(".compact-appointment-modal");
+      attempts++;
+
+      if (!modal) {
+        console.log(
+          `🔍 Attempt ${attempts}: Modal element not found yet, retrying...`
+        );
+      }
+    }
+
+    if (!modal) {
+      console.error(
+        "❌ Compact modal element not found after",
+        maxAttempts,
+        "attempts"
+      );
+      console.error("Available elements:", this.template.querySelectorAll("*"));
+      console.error(
+        "showCompactAppointmentModal:",
+        this.showCompactAppointmentModal
+      );
+      return;
+    }
+
+    console.log("✅ Modal element found:", modal);
+
+    // Always make modal visible first, then position it
+    modal.style.visibility = "visible";
+    modal.style.zIndex = "9999";
+
+    if (!this.compactModalTriggerElement) {
+      console.error("No trigger element for positioning - centering modal");
+      // Center the modal if no trigger element
+      Object.assign(modal.style, {
+        position: "fixed",
+        left: "50%",
+        top: "50%",
+        transform: "translate(-50%, -50%)"
+      });
+      return;
+    }
+
+    // Use ONLY Floating UI - same pattern as color-picker-modal
+    if (window.FloatingUIDOM) {
+      this.setupCompactModalFloatingUI(modal);
+    } else {
+      console.error(
+        "❌ Floating UI not available - using fallback positioning"
+      );
+      this.fallbackPositioning(modal);
+    }
+  }
+
+  /**
+   * Setup Floating UI for compact modal (exact same pattern as color-picker-modal)
+   */
+  setupCompactModalFloatingUI(modal) {
+    // Extract Floating UI functions - EXACT same pattern as color-picker-modal
+    const { computePosition, flip, shift, offset, autoUpdate, hide } =
+      window.FloatingUIDOM;
+
+    // Validate elements - improved validation
+    if (!this.compactModalTriggerElement) {
+      console.error("❌ No trigger element for compact modal");
+      this.fallbackPositioning(modal);
+      return;
+    }
+
+    if (!modal) {
+      console.error("❌ No modal element for compact modal");
+      return;
+    }
+
+    // Validate trigger element is a proper DOM element
+    if (!(this.compactModalTriggerElement instanceof Element)) {
+      console.error(
+        "❌ Trigger element is not a valid DOM element:",
+        this.compactModalTriggerElement
+      );
+      this.fallbackPositioning(modal);
+      return;
+    }
+
+    // Clean up any existing auto-update
+    this.cleanupCompactModalFloatingUI();
+
+    console.log("🎨 Setting up Floating UI for compact modal");
+    console.log("🎨 Trigger element:", this.compactModalTriggerElement);
+    console.log(
+      "🎨 Trigger element type:",
+      this.compactModalTriggerElement.constructor.name
+    );
+    console.log(
+      "🎨 Trigger element tagName:",
+      this.compactModalTriggerElement.tagName
+    );
+    console.log("🎨 Modal element:", modal);
+
+    // Set up auto-updating position with smart placement - EXACT same pattern as color-picker-modal
+    this.compactModalFloatingUICleanup = autoUpdate(
+      this.compactModalTriggerElement,
+      modal,
+      async () => {
+        const { x, y, placement } = await computePosition(
+          this.compactModalTriggerElement,
+          modal,
+          {
+            placement: "right-start", // Start with right to avoid covering event
+            middleware: [
+              offset(40), // Same offset as color-picker-modal
+              flip({
+                // Same fallback placements as color-picker-modal
+                fallbackPlacements: [
+                  "left-start", // Try left side first
+                  "right-end", // Try right-bottom
+                  "left-end", // Try left-bottom
+                  "bottom-start", // Try below
+                  "bottom-end", // Try below-right
+                  "top-start", // Try above (last resort)
+                  "top-end" // Try above-right (last resort)
+                ]
+              }),
+              shift({
+                padding: 40, // Same padding as color-picker-modal
+                crossAxis: true, // Allow shifting on cross axis
+                limiter: "auto" // Auto limit shifting
+              }),
+              hide() // Hide if no good position is available
+            ]
+          }
+        );
+
+        // Apply modal position - EXACT same pattern as color-picker-modal
+        Object.assign(modal.style, {
+          position: "fixed",
+          left: `${x}px`,
+          top: `${y}px`,
+          visibility: "visible",
+          zIndex: "9999"
+        });
+
+        // Debug: Log placement for troubleshooting
+        console.log("🎨 Compact Modal placement:", placement, "Position:", {
+          x,
+          y
+        });
+        console.log(
+          "🎯 Trigger element:",
+          this.compactModalTriggerElement.getBoundingClientRect()
+        );
+        console.log("🎯 Modal element:", modal.getBoundingClientRect());
+
+        // Check if modal is covering the trigger - same as color-picker-modal
+        const triggerRect =
+          this.compactModalTriggerElement.getBoundingClientRect();
+        const modalRect = modal.getBoundingClientRect();
+        const isOverlapping = !(
+          modalRect.right < triggerRect.left ||
+          modalRect.left > triggerRect.right ||
+          modalRect.bottom < triggerRect.top ||
+          modalRect.top > triggerRect.bottom
+        );
+
+        if (isOverlapping) {
+          console.log("⚠️ Compact modal is still overlapping trigger element!");
+        } else {
+          console.log("✅ Compact modal positioned correctly, no overlap");
+        }
+      }
+    );
+  }
+
+  /**
+   * Fallback positioning when Floating UI fails
+   */
+  fallbackPositioning(modal) {
+    try {
+      if (this.compactModalTriggerElement) {
+        const triggerRect =
+          this.compactModalTriggerElement.getBoundingClientRect();
+        Object.assign(modal.style, {
+          position: "fixed",
+          left: `${Math.min(triggerRect.right + 20, window.innerWidth - 400)}px`,
+          top: `${Math.max(triggerRect.top, 20)}px`,
+          visibility: "visible",
+          zIndex: "9999"
+        });
+        console.log("🎨 Using fallback positioning for compact modal");
+      } else {
+        // Center the modal
+        Object.assign(modal.style, {
+          position: "fixed",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          visibility: "visible",
+          zIndex: "9999"
+        });
+        console.log("🎨 Centering compact modal (no trigger element)");
+      }
+    } catch (fallbackError) {
+      console.error("Error in fallback positioning:", fallbackError);
+    }
+  }
+
+  /**
+   * Clean up compact modal Floating UI
+   */
+  cleanupCompactModalFloatingUI() {
+    if (this.compactModalFloatingUICleanup) {
+      this.compactModalFloatingUICleanup();
+      this.compactModalFloatingUICleanup = null;
+    }
+  }
+
+  /**
+   * Close compact appointment modal
+   */
+  closeCompactAppointmentModal() {
+    this.showCompactAppointmentModal = false;
+    this.cleanupCompactModalFloatingUI();
+    this.compactModalTriggerElement = null;
+    this.compactModalError = null;
+    this.compactAppointmentType = "";
+    this.compactStatusReuniao = null;
+    this.compactEventData = {
+      subject: "",
+      startDateTime: "",
+      endDateTime: "",
+      location: "",
+      description: "",
+      faseEvento: "",
+      produtoEvento: ""
+    };
+  }
+
+  /**
+   * Handle compact modal backdrop click
+   */
+  handleCompactModalBackdropClick() {
+    this.closeCompactAppointmentModal();
+  }
+
+  /**
+   * Handle compact modal click (prevent closing when clicking inside)
+   */
+  handleCompactModalClick(event) {
+    event.stopPropagation();
+  }
+
+  /**
+   * Handle compact modal field changes
+   */
+  handleCompactFieldChange(event) {
+    const field = event.target.name;
+    const value = event.target.value;
+
+    this.compactEventData = {
+      ...this.compactEventData,
+      [field]: value
+    };
+
+    // Update subject when key fields change
+    this.updateCompactSubject();
+  }
+
+  /**
+   * Handle compact modal type card click
+   */
+  handleCompactTypeCardClick(event) {
+    this.compactAppointmentType = event.currentTarget.dataset.type;
+    this.updateCompactSubject();
+  }
+
+  /**
+   * Handle compact modal status change
+   */
+  handleCompactStatusChange(event) {
+    this.compactStatusReuniao = event.detail.value;
+  }
+
+  /**
+   * Update auto-generated subject for compact modal
+   */
+  updateCompactSubject() {
+    let subject = "";
+
+    if (this.compactAppointmentType) {
+      subject += this.compactAppointmentType;
+    }
+
+    if (this.compactEventData.faseEvento) {
+      subject += subject
+        ? ` - ${this.compactEventData.faseEvento}`
+        : this.compactEventData.faseEvento;
+    }
+
+    if (this.compactEventData.produtoEvento) {
+      subject += subject
+        ? ` - ${this.compactEventData.produtoEvento}`
+        : this.compactEventData.produtoEvento;
+    }
+
+    this.compactEventData = {
+      ...this.compactEventData,
+      subject: subject || "Novo Compromisso"
+    };
+  }
+
+  /**
+   * Handle compact modal save
+   */
+  async handleCompactSave() {
+    try {
+      this.compactModalLoading = true;
+      this.compactModalError = null;
+
+      // Validate required fields
+      if (!this.compactAppointmentType) {
+        throw new Error("Selecione o tipo de compromisso");
+      }
+
+      if (
+        !this.compactEventData.startDateTime ||
+        !this.compactEventData.endDateTime
+      ) {
+        throw new Error("Defina as datas de início e término");
+      }
+
+      // Prepare event data for save (same format as appointmentEditor)
+      const eventToSave = {
+        subject: this.compactEventData.subject,
+        location: this.compactEventData.location,
+        startDateTime: this.compactEventData.startDateTime,
+        endDateTime: this.compactEventData.endDateTime,
+        isAllDayEvent: false,
+        tipoReuniao: this.compactAppointmentType,
+        description: this.compactEventData.description,
+        reuniaoCriada: false,
+        statusReuniao: this.compactStatusReuniao,
+        whoId: null,
+        whatId: null,
+        gestorName: "",
+        liderComercialName: "",
+        sdrName: "",
+        linkReuniao: "",
+        salaReuniao: "",
+        faseEvento: this.compactEventData.faseEvento,
+        produtoEvento: this.compactEventData.produtoEvento
+      };
+
+      // Use createAppointment method
+      const result = await createAppointment({ eventData: eventToSave });
+
+      if (!result.success) {
+        throw new Error(result.errorMessage || "Erro ao criar compromisso");
+      }
+
+      // Show success message
+      this.showToast("Sucesso", "Compromisso criado com sucesso!", "success");
+
+      // Close modal
+      this.closeCompactAppointmentModal();
+
+      // Refresh calendar to show new event
+      this.refreshCalendar();
+    } catch (error) {
+      console.error("Error saving compact appointment:", error);
+      this.compactModalError =
+        error.body?.message || error.message || "Erro ao salvar compromisso";
+    } finally {
+      this.compactModalLoading = false;
+    }
   }
 
   /**
