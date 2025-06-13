@@ -439,9 +439,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
         if (popupHeaders.length > 0) {
           popupHeaders.forEach((header) => {
             // Only initialize if not already draggable
-            if (!header.hasAttribute('data-draggable-initialized')) {
+            if (!header.hasAttribute("data-draggable-initialized")) {
               this.makeDraggable(header);
-              header.setAttribute('data-draggable-initialized', 'true');
+              header.setAttribute("data-draggable-initialized", "true");
             }
           });
         }
@@ -837,7 +837,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       online: "Reunião Online",
       telefonica: "Ligação Telefônica"
     };
-    this.currentEventTypeFilterLabel = filterLabels[selectedFilter] || "Todos os eventos";
+    this.currentEventTypeFilterLabel =
+      filterLabels[selectedFilter] || "Todos os eventos";
 
     // Sync with existing sidebar filter state for backward compatibility
     this.isFilterSelected = { ...this.isEventTypeFilterSelected };
@@ -2370,8 +2371,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       }
 
       if (selectedTypes.length > 0) {
-        filteredEvents = filteredEvents.filter((event) =>
-          event.type && selectedTypes.includes(event.type)
+        filteredEvents = filteredEvents.filter(
+          (event) => event.type && selectedTypes.includes(event.type)
         );
       }
     }
@@ -2418,7 +2419,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
         // Additional logic for online meetings and other locations
         const matchesOnlineType =
-         selectedRooms.includes("online") && event.type && event.type === "Reunião Online";
+          selectedRooms.includes("online") &&
+          event.type &&
+          event.type === "Reunião Online";
         const matchesOtherLocation =
           selectedRooms.includes("Outra") &&
           (!eventRoom || eventRoom === "Outra");
@@ -2862,8 +2865,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
             // Get meeting type information for badge display
             const meetingType = conflict.type || conflict.tipoReuniao;
-            const meetingTypeBadge = this.getMeetingTypeBadgeForSlot(meetingType);
-            const meetingTypeBadgeClass = this.getMeetingTypeBadgeClassForSlot(meetingType);
+            const meetingTypeBadge =
+              this.getMeetingTypeBadgeForSlot(meetingType);
+            const meetingTypeBadgeClass =
+              this.getMeetingTypeBadgeClassForSlot(meetingType);
             const meetingTypeTitle = meetingType || "Tipo não definido";
 
             return {
@@ -2983,7 +2988,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     if (!meetingType) return "";
 
     const classMap = {
-      "Reunião Presencial": "slot-meeting-type-badge slot-meeting-type-presencial",
+      "Reunião Presencial":
+        "slot-meeting-type-badge slot-meeting-type-presencial",
       "Reunião Online": "slot-meeting-type-badge slot-meeting-type-online",
       "Ligação Telefônica": "slot-meeting-type-badge slot-meeting-type-phone"
     };
@@ -4133,23 +4139,32 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       attempts++;
 
       // Wait for DOM to be ready
-      setTimeout(() => {
-        const popupHeaders = this.template.querySelectorAll(".popup-header");
+      setTimeout(
+        () => {
+          const popupHeaders = this.template.querySelectorAll(".popup-header");
 
-        if (popupHeaders.length > 0) {
-          // Success - initialize dragging
-          popupHeaders.forEach((header) => {
-            this.makeDraggable(header);
-          });
-          console.log(`🎯 Drag functionality initialized on attempt ${attempts}`);
-        } else if (attempts < maxAttempts) {
-          // Retry with longer delay
-          console.log(`🔄 Retrying drag initialization (attempt ${attempts}/${maxAttempts})`);
-          tryInitialize();
-        } else {
-          console.warn('❌ Failed to initialize drag functionality after max attempts');
-        }
-      }, attempts === 1 ? 100 : 200 * attempts); // Increasing delay for retries
+          if (popupHeaders.length > 0) {
+            // Success - initialize dragging
+            popupHeaders.forEach((header) => {
+              this.makeDraggable(header);
+            });
+            console.log(
+              `🎯 Drag functionality initialized on attempt ${attempts}`
+            );
+          } else if (attempts < maxAttempts) {
+            // Retry with longer delay
+            console.log(
+              `🔄 Retrying drag initialization (attempt ${attempts}/${maxAttempts})`
+            );
+            tryInitialize();
+          } else {
+            console.warn(
+              "❌ Failed to initialize drag functionality after max attempts"
+            );
+          }
+        },
+        attempts === 1 ? 100 : 200 * attempts
+      ); // Increasing delay for retries
     };
 
     tryInitialize();
@@ -4178,7 +4193,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     if (!popup) return;
 
     // Mark as initialized to prevent duplicate initialization
-    headerElement.setAttribute('data-draggable-initialized', 'true');
+    headerElement.setAttribute("data-draggable-initialized", "true");
 
     let isDragging = false;
     let offsetX = 0; // Mouse offset from popup's top-left corner
@@ -5714,7 +5729,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
           // Check if this is an online meeting with only room-based color (not status-based)
           const isOnlineMeetingWithRoomColor =
             event.type === "Reunião Online" &&
-            (colorCategory === "sala-principal" || colorCategory === "sala-gabriel");          if (isOnlineMeetingWithRoomColor) {
+            (colorCategory === "sala-principal" ||
+              colorCategory === "sala-gabriel");
+          if (isOnlineMeetingWithRoomColor) {
             // Online meetings override room colors with light gray
             const onlineColor = "#e6e6e6"; // Lighter gray for online meetings
             const borderColor = this.getBorderColorForBackground(onlineColor);
@@ -5727,7 +5744,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
             // console.log(
             //   `🎨 Applying predefined color to event ${event.id}: ${predefinedColor}`
             // );
-            const borderColor = this.getBorderColorForBackground(predefinedColor);
+            const borderColor =
+              this.getBorderColorForBackground(predefinedColor);
             element.css("background-color", predefinedColor);
             element.css("border-color", borderColor);
             element.css("border-width", "1px");
@@ -5738,7 +5756,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
           // console.log(
           //   `🎨 No predefined color for event ${event.id}, using CSS class fallback`
           // );
-          if (event.type && typeof event.type === 'string') {
+          if (event.type && typeof event.type === "string") {
             element.addClass(
               `reino-event-type-${event.type.toLowerCase().replace(/\s+/g, "-")}`
             );
@@ -6091,16 +6109,16 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
    */
   async calculateColorPickerPosition() {
     // Wait for modal to be rendered
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
-    const modal = this.template.querySelector('.color-picker-modal');
+    const modal = this.template.querySelector(".color-picker-modal");
     if (!modal || !this.colorPickerTriggerElement) return;
 
     // Use ONLY Floating UI - no custom positioning fallback
     if (window.FloatingUIDOM) {
       this.setupFloatingUI(modal);
     } else {
-      console.error('❌ Floating UI not available - cannot position modal');
+      console.error("❌ Floating UI not available - cannot position modal");
     }
   }
 
@@ -6108,7 +6126,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
    * Set up Floating UI positioning with smart placement (no arrow)
    */
   setupFloatingUI(modal) {
-    const { computePosition, flip, shift, offset, autoUpdate, hide } = window.FloatingUIDOM;
+    const { computePosition, flip, shift, offset, autoUpdate, hide } =
+      window.FloatingUIDOM;
 
     // Clean up any existing auto-update
     if (this.floatingUICleanup) {
@@ -6124,25 +6143,25 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
           this.colorPickerTriggerElement,
           modal,
           {
-            placement: 'right-start', // Start with right to avoid covering event
+            placement: "right-start", // Start with right to avoid covering event
             middleware: [
               offset(40), // Very large offset to ensure no covering
               flip({
                 // Comprehensive fallback placements - prioritize sides over top/bottom
                 fallbackPlacements: [
-                  'left-start',    // Try left side first
-                  'right-end',     // Try right-bottom
-                  'left-end',      // Try left-bottom
-                  'bottom-start',  // Try below
-                  'bottom-end',    // Try below-right
-                  'top-start',     // Try above (last resort)
-                  'top-end'        // Try above-right (last resort)
+                  "left-start", // Try left side first
+                  "right-end", // Try right-bottom
+                  "left-end", // Try left-bottom
+                  "bottom-start", // Try below
+                  "bottom-end", // Try below-right
+                  "top-start", // Try above (last resort)
+                  "top-end" // Try above-right (last resort)
                 ]
               }),
               shift({
-                padding: 40,     // Large padding from viewport edges
+                padding: 40, // Large padding from viewport edges
                 crossAxis: true, // Allow shifting on cross axis
-                limiter: 'auto'  // Auto limit shifting
+                limiter: "auto" // Auto limit shifting
               }),
               hide() // Hide if no good position is available
             ]
@@ -6153,26 +6172,32 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
         Object.assign(modal.style, {
           left: `${x}px`,
           top: `${y}px`,
-          visibility: 'visible'
+          visibility: "visible"
         });
 
         // Debug: Log placement for troubleshooting
-        console.log('🎨 Modal placement:', placement, 'Position:', { x, y });
-        console.log('🎯 Trigger element:', this.colorPickerTriggerElement.getBoundingClientRect());
-        console.log('🎯 Modal element:', modal.getBoundingClientRect());
+        console.log("🎨 Modal placement:", placement, "Position:", { x, y });
+        console.log(
+          "🎯 Trigger element:",
+          this.colorPickerTriggerElement.getBoundingClientRect()
+        );
+        console.log("🎯 Modal element:", modal.getBoundingClientRect());
 
         // Check if modal is covering the trigger
-        const triggerRect = this.colorPickerTriggerElement.getBoundingClientRect();
+        const triggerRect =
+          this.colorPickerTriggerElement.getBoundingClientRect();
         const modalRect = modal.getBoundingClientRect();
-        const isOverlapping = !(modalRect.right < triggerRect.left ||
-                               modalRect.left > triggerRect.right ||
-                               modalRect.bottom < triggerRect.top ||
-                               modalRect.top > triggerRect.bottom);
+        const isOverlapping = !(
+          modalRect.right < triggerRect.left ||
+          modalRect.left > triggerRect.right ||
+          modalRect.bottom < triggerRect.top ||
+          modalRect.top > triggerRect.bottom
+        );
 
         if (isOverlapping) {
-          console.log('⚠️ Modal is still overlapping trigger element!');
+          console.log("⚠️ Modal is still overlapping trigger element!");
         } else {
-          console.log('✅ Modal positioned correctly, no overlap');
+          console.log("✅ Modal positioned correctly, no overlap");
         }
       }
     );
@@ -6185,19 +6210,22 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
    */
   findEventElement(button) {
     // Find the event element - try multiple selectors
-    let eventElement = button.closest('.fc-event') ||
-                      button.closest('.reino-event') ||
-                      button.closest('[data-event-id]') ||
-                      button.closest('.fc-day-grid-event') ||
-                      button.closest('.fc-time-grid-event');
+    let eventElement =
+      button.closest(".fc-event") ||
+      button.closest(".reino-event") ||
+      button.closest("[data-event-id]") ||
+      button.closest(".fc-day-grid-event") ||
+      button.closest(".fc-time-grid-event");
 
     // If still not found, try going up the DOM tree
     if (!eventElement) {
       let parent = button.parentElement;
-      while (parent && !parent.classList.contains('fc-view')) {
-        if (parent.classList.contains('fc-event') ||
-            parent.classList.contains('reino-event') ||
-            parent.hasAttribute('data-event-id')) {
+      while (parent && !parent.classList.contains("fc-view")) {
+        if (
+          parent.classList.contains("fc-event") ||
+          parent.classList.contains("reino-event") ||
+          parent.hasAttribute("data-event-id")
+        ) {
           eventElement = parent;
           break;
         }
@@ -6230,13 +6258,13 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       // Force a reflow to ensure the animation triggers
       eventElement.offsetHeight;
 
-      console.log('🎯 Event highlighted:', {
+      console.log("🎯 Event highlighted:", {
         eventElement: eventElement.getBoundingClientRect(),
         eventColor,
         className: eventElement.className
       });
     } else {
-      console.log('❌ Could not find event element to highlight');
+      console.log("❌ Could not find event element to highlight");
     }
   }
 
@@ -6251,7 +6279,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
     // Priority 2-4: Use eventColorManager to determine color
     if (this.eventColorManager) {
-      const colorCategory = this.eventColorManager.getEventColorCategory(calendarEvent);
+      const colorCategory =
+        this.eventColorManager.getEventColorCategory(calendarEvent);
       const color = this.eventColorManager.getColorForCategory(colorCategory);
       if (color) {
         return color;
@@ -6259,21 +6288,24 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     }
 
     // Fallback: Default gray
-    return '#8A8886';
+    return "#8A8886";
   }
 
   /**
    * Apply dynamic highlight with event's color
    */
   applyDynamicHighlight(eventElement, eventColor) {
-    eventElement.classList.add('event-highlighted');
+    eventElement.classList.add("event-highlighted");
 
     // Convert hex to RGB for alpha manipulation
     const rgb = this.hexToRgb(eventColor);
     if (rgb) {
       // Create CSS custom properties for the highlight color
-      eventElement.style.setProperty('--highlight-color', eventColor);
-      eventElement.style.setProperty('--highlight-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+      eventElement.style.setProperty("--highlight-color", eventColor);
+      eventElement.style.setProperty(
+        "--highlight-rgb",
+        `${rgb.r}, ${rgb.g}, ${rgb.b}`
+      );
     }
   }
 
@@ -6282,11 +6314,13 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
    */
   hexToRgb(hex) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : null;
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16)
+        }
+      : null;
   }
 
   /**
@@ -6295,16 +6329,21 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   removeEventHighlight() {
     if (this.highlightedEventElement) {
       // Add fade-out class for smooth transition
-      this.highlightedEventElement.classList.add('event-highlight-fadeout');
+      this.highlightedEventElement.classList.add("event-highlight-fadeout");
 
       // Remove highlight after animation
       setTimeout(() => {
         if (this.highlightedEventElement) {
-          this.highlightedEventElement.classList.remove('event-highlighted', 'event-highlight-fadeout');
+          this.highlightedEventElement.classList.remove(
+            "event-highlighted",
+            "event-highlight-fadeout"
+          );
 
           // Clean up custom properties
-          this.highlightedEventElement.style.removeProperty('--highlight-color');
-          this.highlightedEventElement.style.removeProperty('--highlight-rgb');
+          this.highlightedEventElement.style.removeProperty(
+            "--highlight-color"
+          );
+          this.highlightedEventElement.style.removeProperty("--highlight-rgb");
 
           this.highlightedEventElement = null;
         }
@@ -6321,8 +6360,6 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       this.floatingUICleanup = null;
     }
   }
-
-
 
   /**
    * Handle color selection with auto-save functionality
@@ -6691,10 +6728,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       this.eventColorManager?.getAconteceuColor() || "#D6F3E4";
 
     // Force UI update by triggering reactive property change
-    this.template.querySelectorAll('.color-option').forEach(option => {
-      option.classList.remove('selected');
+    this.template.querySelectorAll(".color-option").forEach((option) => {
+      option.classList.remove("selected");
       if (option.dataset.color === this.selectedColor) {
-        option.classList.add('selected');
+        option.classList.add("selected");
       }
     });
 
@@ -6719,10 +6756,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     this.selectedColor = "#F9D6D4";
 
     // Force UI update by triggering reactive property change
-    this.template.querySelectorAll('.color-option').forEach(option => {
-      option.classList.remove('selected');
+    this.template.querySelectorAll(".color-option").forEach((option) => {
+      option.classList.remove("selected");
       if (option.dataset.color === this.selectedColor) {
-        option.classList.add('selected');
+        option.classList.add("selected");
       }
     });
 
@@ -8203,7 +8240,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   // Meeting Type and Room Information Getters
   get colorPickerMeetingTypeBadge() {
     // Check both type and tipoReuniao fields
-    const meetingType = this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
+    const meetingType =
+      this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
 
     if (!meetingType) return "";
 
@@ -8218,7 +8256,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
   get colorPickerMeetingTypeText() {
     // Check both type and tipoReuniao fields
-    const meetingType = this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
+    const meetingType =
+      this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
 
     if (!meetingType) return "Não definido";
 
@@ -8233,7 +8272,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
   get colorPickerMeetingTypeBadgeClass() {
     // Check both type and tipoReuniao fields
-    const meetingType = this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
+    const meetingType =
+      this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
 
     if (!meetingType) return "";
 
@@ -8248,10 +8288,14 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
   get colorPickerShowRoomInfo() {
     // Check both type and tipoReuniao fields
-    const meetingType = this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
+    const meetingType =
+      this.colorPickerEventData?.type || this.colorPickerEventData?.tipoReuniao;
 
     // Only show room info for in-person meetings that have a room assigned
-    return meetingType === "Reunião Presencial" && this.colorPickerEventData?.salaReuniao;
+    return (
+      meetingType === "Reunião Presencial" &&
+      this.colorPickerEventData?.salaReuniao
+    );
   }
 
   get colorPickerRoomName() {
@@ -8267,7 +8311,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       salaGabriel: "#4F6BED"
     };
 
-    const color = roomColorMap[this.colorPickerEventData.salaReuniao] || "#8a8886";
+    const color =
+      roomColorMap[this.colorPickerEventData.salaReuniao] || "#8a8886";
     return `background-color: ${color};`;
   }
 
@@ -8363,7 +8408,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
    */
   handleBackdropClick(event) {
     // Only close if clicking directly on backdrop, not on modal
-    if (event.target.classList.contains('color-picker-backdrop')) {
+    if (event.target.classList.contains("color-picker-backdrop")) {
       this.closeColorPicker();
     }
   }

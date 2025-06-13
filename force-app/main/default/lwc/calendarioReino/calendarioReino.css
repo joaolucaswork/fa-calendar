@@ -318,6 +318,7 @@
 }
 
 .sidebar-toggle-icon {
+  margin-left: 8px; /* Adicionado para espaçamento entre texto e ícone */
   margin-right: 8px;
 }
 

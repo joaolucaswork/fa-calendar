@@ -138,7 +138,10 @@
                           </div>
                           <div class="slot-header-indicators">
                             <template if:true={slot.meetingTypeBadge}>
-                              <span class={slot.meetingTypeBadgeClass} title={slot.meetingTypeTitle}>
+                              <span
+                                class={slot.meetingTypeBadgeClass}
+                                title={slot.meetingTypeTitle}
+                              >
                                 {slot.meetingTypeBadge}
                               </span>
                             </template>
@@ -727,10 +730,7 @@
   <!-- Color Picker Modal -->
   <template if:true={showColorPicker}>
     <div class="color-picker-backdrop" onclick={handleBackdropClick}>
-      <div
-        class={colorPickerModalClass}
-        onclick={handleColorPickerClick}
-      >
+      <div class={colorPickerModalClass} onclick={handleColorPickerClick}>
         <div class="color-picker-header">
           <div class="header-time">
             <span class="header-time-text">{colorPickerEventTimeAndDate}</span>
@@ -782,9 +782,13 @@
           <div class="meeting-details-row">
             <!-- Meeting Type Badge -->
             <div class="meeting-type-info">
-              <span class="meeting-type-badge-large {colorPickerMeetingTypeBadgeClass}">
+              <span
+                class="meeting-type-badge-large {colorPickerMeetingTypeBadgeClass}"
+              >
                 {colorPickerMeetingTypeBadge}
-                <span class="meeting-type-text">{colorPickerMeetingTypeText}</span>
+                <span class="meeting-type-text"
+                  >{colorPickerMeetingTypeText}</span
+                >
               </span>
             </div>
 
