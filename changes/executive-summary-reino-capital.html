@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reino Capital - Nova Versão do Sistema de Vendas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.3;
+            color: #2c3e50;
+            margin: 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 210mm;
+            margin: 0 auto;
+            border: 2px solid #e8f4fd;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 24px;
+            margin: 0 0 15px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        h2 {
+            color: #2980b9;
+            font-size: 16px;
+            margin: 15px 0 8px 0;
+            padding: 8px 12px;
+            background: linear-gradient(90deg, #e8f4fd, #ffffff);
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        h3 {
+            color: #34495e;
+            font-size: 14px;
+            margin: 10px 0 5px 0;
+        }
+        h4 {
+            color: #34495e;
+            font-size: 13px;
+            margin: 8px 0 4px 0;
+        }
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #e8f4fd, #f8fbff);
+            border: 1px solid #3498db;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .success-box {
+            background: linear-gradient(135deg, #d5f4e6, #f0fdf4);
+            border: 1px solid #27ae60;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .error-box {
+            background: linear-gradient(135deg, #fadbd8, #fef2f2);
+            border: 1px solid #e74c3c;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .comparison-table th, .comparison-table td {
+            border: none;
+            padding: 8px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            font-weight: 600;
+        }
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .comparison-table tr:hover {
+            background-color: #e8f4fd;
+        }
+        .flow-diagram {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        ul, ol {
+            padding-left: 18px;
+            margin: 5px 0;
+        }
+        li {
+            margin-bottom: 3px;
+            font-size: 13px;
+        }
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .benefit-item {
+            background: linear-gradient(135deg, #f0f9ff, #ffffff);
+            border: 1px solid #bfdbfe;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        .footer {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px solid #e8f4fd;
+            text-align: center;
+            color: #64748b;
+            font-size: 11px;
+        }
+        .compact-list {
+            margin: 5px 0;
+            padding-left: 15px;
+        }
+        .compact-list li {
+            margin-bottom: 2px;
+            font-size: 12px;
+        }
+        @media print {
+            body {
+                background: white !important;
+                padding: 10px !important;
+            }
+            .container {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 20px !important;
+            }
+            h1 {
+                background: #2c3e50 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+            }
+            h2 {
+                background: #e8f4fd !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .highlight-box, .success-box, .error-box {
+                -webkit-print-color-adjust: exact;
+            }
+            .comparison-table th {
+                background: #3498db !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Reino Capital - Nova Versão do Sistema de Vendas</h1>
+
+        <div class="highlight-box">
+            <h3>🎯 Objetivo</h3>
+            <p>Combinar <strong>design moderno do calendário</strong> (produção) + <strong>nova lógica de leads</strong> (sandbox) = Sistema que <strong>não perde leads</strong> e oferece <strong>melhor experiência visual</strong>.</p>
+        </div>
+
+        <div class="two-column">
+            <div class="error-box">
+                <h3>🔴 VERSÃO ATUAL</h3>
+                <h4>Fluxo:</h4>
+                <ol class="compact-list">
+                    <li>Vendedor liga para lead</li>
+                    <li>Marca como "Interessado"</li>
+                    <li><strong>Lead é convertido automaticamente</strong></li>
+                    <li><strong>Lead desaparece da lista</strong></li>
+                    <li>Cria oportunidade para novo cliente</li>
+                </ol>
+                <h4>❌ Problemas:</h4>
+                <ul class="compact-list">
+                    <li>Perda do lead da lista</li>
+                    <li>Histórico comprometido</li>
+                    <li>Rastreabilidade perdida</li>
+                </ul>
+            </div>
+
+            <div class="success-box">
+                <h3>🟢 NOVA VERSÃO</h3>
+                <h4>Fluxo:</h4>
+                <ol class="compact-list">
+                    <li>Vendedor liga para lead</li>
+                    <li>Marca como "Interessado"</li>
+                    <li><strong>Lead permanece na lista</strong> ✅</li>
+                    <li><strong>Cria oportunidade automaticamente</strong> ✅</li>
+                    <li><strong>Cria evento automaticamente</strong> ✅</li>
+                </ol>
+                <h4>✅ Benefícios:</h4>
+                <ul class="compact-list">
+                    <li>Lead sempre visível</li>
+                    <li>Rastreabilidade completa</li>
+                    <li>Automação inteligente</li>
+                    <li>Design moderno</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>🏆 Principais Melhorias</h2>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Aspecto</th>
+                    <th>Antes</th>
+                    <th>Depois</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Controle</strong></td>
+                    <td>Lead desaparecia</td>
+                    <td>Lead sempre visível</td>
+                </tr>
+                <tr>
+                    <td><strong>Rastreabilidade</strong></td>
+                    <td>Origem perdida</td>
+                    <td>Origem sempre conhecida</td>
+                </tr>
+                <tr>
+                    <td><strong>Automação</strong></td>
+                    <td>Só criava oportunidade</td>
+                    <td>Cria oportunidade + evento</td>
+                </tr>
+                <tr>
+                    <td><strong>Interface</strong></td>
+                    <td>Design básico</td>
+                    <td>Design moderno</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="two-column">
+            <div class="flow-diagram">
+                <h4>📋 FLUXO ATUAL</h4>
+                <p style="font-size: 11px;">Lead → "Interessado" → <span style="color: red;">Convertido</span> → Oportunidade</p>
+                <p style="color: red; font-weight: bold; font-size: 11px;">❌ LEAD PERDIDO</p>
+            </div>
+
+            <div class="flow-diagram" style="background: linear-gradient(135deg, #d5f4e6, #f0fdf4);">
+                <h4>📋 NOVO FLUXO</h4>
+                <p style="font-size: 11px;">Lead → "Interessado" → <span style="color: green;">Mantido</span> → Oportunidade + Evento</p>
+                <p style="color: green; font-weight: bold; font-size: 11px;">✅ LEAD PRESERVADO</p>
+            </div>
+        </div>
+
+        <h2>📈 Impacto nos Resultados</h2>
+
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <strong>⬆️ Eficiência</strong><br>
+                • Menos leads perdidos<br>
+                • Melhor acompanhamento<br>
+                • Automação de tarefas
+            </div>
+            <div class="benefit-item">
+                <strong>😊 Experiência</strong><br>
+                • Interface moderna<br>
+                • Processos mais rápidos<br>
+                • Foco na venda
+            </div>
+            <div class="benefit-item">
+                <strong>📊 Controle</strong><br>
+                • Visibilidade completa<br>
+                • Relatórios precisos<br>
+                • Métricas confiáveis
+            </div>
+            <div class="benefit-item">
+                <strong>🎯 Resultados</strong><br>
+                • Maior conversão<br>
+                • Melhor previsibilidade<br>
+                • ROI otimizado
+            </div>
+        </div>
+
+        <div class="two-column">
+            <div>
+                <h2>📋 Implementação</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Fase</th>
+                            <th>Atividades</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. Preparação</strong></td>
+                            <td>Backup e preparação</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. Migração</strong></td>
+                            <td>Novo calendário + lógica</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. Testes</strong></td>
+                            <td>Validação completa</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. Treinamento</strong></td>
+                            <td>Capacitação da equipe</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <h2>💰 ROI</h2>
+                <div class="success-box">
+                    <h4>Benefícios Imediatos:</h4>
+                    <ul class="compact-list">
+                        <li>Leads não perdidos</li>
+                        <li>Processos automatizados</li>
+                        <li>Melhor rastreabilidade</li>
+                        <li>Interface moderna</li>
+                    </ul>
+                </div>
+                <div class="highlight-box">
+                    <h4>ROI Esperado:</h4>
+                    <ul class="compact-list">
+                        <li><strong>Curto prazo</strong>: Melhor controle</li>
+                        <li><strong>Médio prazo</strong>: ↑ Conversão</li>
+                        <li><strong>Longo prazo</strong>: Otimização total</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <h2>✅ Aprovação</h2>
+        <div class="highlight-box">
+            <div class="two-column">
+                <div>
+                    <h4>Checklist:</h4>
+                    <ul class="compact-list">
+                        <li>☐ Revisar documento</li>
+                        <li>☐ Aprovar implementação</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Próximos Passos:</h4>
+                    <ul class="compact-list">
+                        <li>☐ Definir data</li>
+                        <li>☐ Comunicar equipe</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="footer">
+            <p><strong>📅 Data do Documento</strong>: 16 de Junho de 2025</p>
+            <p><strong>👥 Destinatários</strong>: Liderança Reino Capital</p>
+        </div>
+    </div>
+</body>
+</html>

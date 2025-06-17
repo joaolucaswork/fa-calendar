@@ -4,9 +4,9 @@
  * without being converted, maintaining them in Lead status until they become actual customers
  * @author Cascade
  *
- * COMMENTED OUT - PAUSED LEAD EVENT MANAGEMENT SYSTEM
+ * REACTIVATED - LEAD EVENT MANAGEMENT SYSTEM
  * This system automatically creates Events and Opportunities when Tasks are marked as "Interessado"
- * Will be reactivated later
+ * System is now active and functional
  */
 public with sharing class LeadEventController {
   // Central Account name for holding Lead-stage opportunities
@@ -18,25 +18,15 @@ public with sharing class LeadEventController {
    * @param taskId The Task ID that triggered this (optional)
    * @return Map containing the created Event and Opportunity IDs
    *
-   * COMMENTED OUT - PAUSED LEAD EVENT MANAGEMENT SYSTEM
+   * REACTIVATED - LEAD EVENT MANAGEMENT SYSTEM
    */
   @AuraEnabled
   public static Map<String, Object> createLeadEventAndOpportunity(
     String leadId,
     String taskId
   ) {
-    // COMMENTED OUT - Lead Event Management System paused
-    /*
+    // REACTIVATED - Lead Event Management System
     return createLeadEventAndOpportunityInternal(leadId, taskId, true);
-    */
-
-    // Return empty success response when paused
-    return new Map<String, Object>{
-      'success' => false,
-      'message' => 'Sistema de Lead Events pausado temporariamente',
-      'eventId' => null,
-      'opportunityId' => null
-    };
   }
 
   /**
@@ -46,15 +36,14 @@ public with sharing class LeadEventController {
    * @param throwAuraException Whether to throw AuraHandledException or regular Exception
    * @return Map containing the created Event and Opportunity IDs
    *
-   * COMMENTED OUT - PAUSED LEAD EVENT MANAGEMENT SYSTEM
+   * REACTIVATED - LEAD EVENT MANAGEMENT SYSTEM
    */
   public static Map<String, Object> createLeadEventAndOpportunityInternal(
     String leadId,
     String taskId,
     Boolean throwAuraException
   ) {
-    // COMMENTED OUT - Lead Event Management System paused
-    /*
+    // REACTIVATED - Lead Event Management System
     try {
       // Get Lead details
       Lead lead = [
@@ -135,7 +124,7 @@ public with sharing class LeadEventController {
         leadOpportunity = new Opportunity(
           Name = 'Lead: ' + leadFullName + ' - ' + lead.Company,
           StageName = 'Primeiro Contato',
-          CloseDate = Date.today().addDays(30),
+          CloseDate = Date.today().addMonths(1), // 1 month from today instead of 30 days
           AccountId = centralAccount.Id,
           OwnerId = lead.OwnerId,
           Nome_do_Lead__c = leadFullName,
@@ -148,8 +137,10 @@ public with sharing class LeadEventController {
             '\n' +
             'Empresa: ' +
             lead.Company,
-          Type = 'Lead em Prospecção'
-          // Probabilidade_da_Oportunidade__c = 'dez' // Removed due to invalid picklist value
+          Type = 'Lead em Prospecção',
+          // Tipo_de_produto__c will use default value from field definition
+          Probabilidade_da_Oportunidade__c = 'treze', // Default probability 13%
+          Amount = 50000.00 // Default amount R$ 50,000
         );
         insert leadOpportunity;
 
@@ -190,15 +181,6 @@ public with sharing class LeadEventController {
         );
       }
     }
-    */
-
-    // Return empty success response when paused
-    return new Map<String, Object>{
-      'success' => false,
-      'message' => 'Sistema de Lead Events pausado temporariamente',
-      'eventId' => null,
-      'opportunityId' => null
-    };
   }
 
   /**
@@ -235,15 +217,14 @@ public with sharing class LeadEventController {
    * @param newStage The new stage value
    * @return Success message
    *
-   * COMMENTED OUT - PAUSED LEAD EVENT MANAGEMENT SYSTEM
+   * REACTIVATED - LEAD EVENT MANAGEMENT SYSTEM
    */
   @AuraEnabled
   public static String updateLeadOpportunityStage(
     String opportunityId,
     String newStage
   ) {
-    // COMMENTED OUT - Lead Event Management System paused
-    /*
+    // REACTIVATED - Lead Event Management System
     try {
       Opportunity opp = [
         SELECT Id, StageName
@@ -266,15 +247,11 @@ public with sharing class LeadEventController {
         'Erro ao atualizar stage da oportunidade: ' + e.getMessage()
       );
     }
-    */
-
-    // Return empty success response when paused
-    return 'Sistema de Lead Events pausado temporariamente';
   }
 
   /**
    * @description Updates multiple fields of an Opportunity for a Lead
-   * @param opportunityId The Opportunity ID
+   * @param opportunityId The Opportunity ID (optional if included in opportunityData)
    * @param opportunityData Map with field values to update
    * @return Success message
    */
@@ -283,9 +260,17 @@ public with sharing class LeadEventController {
     String opportunityId,
     Map<String, Object> opportunityData
   ) {
-    // COMMENTED OUT - Lead Event Management System paused
-    /*
+    // REACTIVATED - Lead Event Management System
     try {
+      // If opportunityId is not provided as parameter, try to get it from data
+      if (String.isBlank(opportunityId) && opportunityData.containsKey('opportunityId')) {
+        opportunityId = (String) opportunityData.get('opportunityId');
+      }
+
+      if (String.isBlank(opportunityId)) {
+        throw new AuraHandledException('ID da oportunidade é obrigatório');
+      }
+
       Opportunity opp = [
         SELECT
           Id,
@@ -293,6 +278,7 @@ public with sharing class LeadEventController {
           Probabilidade_da_Oportunidade__c,
           CloseDate,
           Type,
+          Tipo_de_produto__c,
           Amount
         FROM Opportunity
         WHERE Id = :opportunityId
@@ -300,29 +286,34 @@ public with sharing class LeadEventController {
         LIMIT 1
       ];
 
-      // Update fields if provided
+      // Update fields if provided - support both naming conventions
       if (opportunityData.containsKey('stageName')) {
         opp.StageName = (String) opportunityData.get('stageName');
+      } else if (opportunityData.containsKey('stage')) {
+        opp.StageName = (String) opportunityData.get('stage');
       }
+
       if (opportunityData.containsKey('probability')) {
-        opp.Probabilidade_da_Oportunidade__c = (String) opportunityData.get(
-          'probability'
-        );
+        opp.Probabilidade_da_Oportunidade__c = (String) opportunityData.get('probability');
       }
+
       if (opportunityData.containsKey('closeDate')) {
         String closeDateStr = (String) opportunityData.get('closeDate');
         if (String.isNotBlank(closeDateStr)) {
           opp.CloseDate = Date.valueOf(closeDateStr);
         }
       }
+
       if (opportunityData.containsKey('type')) {
-        opp.Type = (String) opportunityData.get('type');
+        // Support both Type and Tipo_de_produto__c fields
+        String typeValue = (String) opportunityData.get('type');
+        opp.Type = typeValue;
+        opp.Tipo_de_produto__c = typeValue;
       }
+
       if (opportunityData.containsKey('amount')) {
         Object amountValue = opportunityData.get('amount');
-        if (
-          amountValue != null && String.isNotBlank(String.valueOf(amountValue))
-        ) {
+        if (amountValue != null && String.isNotBlank(String.valueOf(amountValue))) {
           opp.Amount = Decimal.valueOf(String.valueOf(amountValue));
         }
       }
@@ -335,10 +326,6 @@ public with sharing class LeadEventController {
         'Erro ao atualizar oportunidade: ' + e.getMessage()
       );
     }
-    */
-
-    // Return empty success response when paused
-    return 'Sistema de Lead Events pausado temporariamente';
   }
 
   /**
@@ -689,6 +676,128 @@ public with sharing class LeadEventController {
       );
     }
   }
+
+  /**
+   * @description Gets Lead Event and Opportunity details by Event ID for AppointmentEditor
+   * @param eventId The Event ID
+   * @return Map containing Lead, Event, and Opportunity details
+   */
+  @AuraEnabled(cacheable=true)
+  public static Map<String, Object> getLeadEventDetailsByEventId(String eventId) {
+    try {
+      Map<String, Object> result = new Map<String, Object>();
+      result.put('hasLeadInfo', false);
+
+      // Get Event details
+      List<Event> events = [
+        SELECT
+          Id,
+          Subject,
+          StartDateTime,
+          EndDateTime,
+          Description,
+          Location,
+          WhoId,
+          WhatId,
+          OwnerId,
+          Owner.Name
+        FROM Event
+        WHERE Id = :eventId
+        WITH SECURITY_ENFORCED
+        LIMIT 1
+      ];
+
+      if (events.isEmpty()) {
+        return result;
+      }
+
+      Event evt = events[0];
+      result.put('event', evt);
+
+      // Check if this is a Lead Event (WhoId starts with '00Q')
+      if (evt.WhoId == null || !String.valueOf(evt.WhoId).startsWith('00Q')) {
+        return result;
+      }
+
+      // Get Lead details
+      List<Lead> leads = [
+        SELECT
+          Id,
+          Name,
+          FirstName,
+          LastName,
+          Company,
+          Email,
+          Phone,
+          Status,
+          OwnerId,
+          Owner.Name
+        FROM Lead
+        WHERE Id = :evt.WhoId
+        WITH SECURITY_ENFORCED
+        LIMIT 1
+      ];
+
+      if (leads.isEmpty()) {
+        return result;
+      }
+
+      Lead lead = leads[0];
+      result.put('hasLeadInfo', true);
+      result.put('leadName', lead.Name);
+      result.put('leadCompany', lead.Company);
+      result.put('leadEmail', lead.Email);
+      result.put('leadPhone', lead.Phone);
+      result.put('leadStatus', lead.Status);
+
+      // Get related Opportunities (through central Account)
+      Account centralAccount = getCentralAccount();
+      String leadFullName = getLeadFullName(lead);
+      List<Opportunity> opportunities = [
+        SELECT
+          Id,
+          Name,
+          StageName,
+          CloseDate,
+          Amount,
+          Type,
+          Probabilidade_da_Oportunidade__c,
+          Tipo_de_produto__c,
+          AccountId,
+          Account.Name,
+          Nome_do_Lead__c,
+          OwnerId,
+          Owner.Name,
+          Description
+        FROM Opportunity
+        WHERE Nome_do_Lead__c = :leadFullName AND AccountId = :centralAccount.Id
+        ORDER BY CreatedDate DESC
+        LIMIT 1
+      ];
+
+      if (!opportunities.isEmpty()) {
+        Opportunity opp = opportunities[0];
+        result.put('opportunityId', opp.Id);
+        result.put('opportunityName', opp.Name);
+        result.put('opportunityStage', opp.StageName);
+        result.put('opportunityProbability', opp.Probabilidade_da_Oportunidade__c);
+        result.put('opportunityCloseDate', opp.CloseDate?.format());
+        result.put('opportunityType', opp.Tipo_de_produto__c);
+        result.put('opportunityAmount', opp.Amount);
+        result.put('opportunityOwner', opp.Owner.Name);
+        result.put('opportunityAccount', opp.Account.Name);
+        result.put('opportunityDescription', opp.Description);
+      }
+
+      return result;
+    } catch (Exception e) {
+      throw new AuraHandledException(
+        'Erro ao recuperar detalhes do Lead Event: ' + e.getMessage()
+      );
+    }
+  }
+
+
 
   /**
    * @description Gets the full name for a Lead, handling personal accounts
