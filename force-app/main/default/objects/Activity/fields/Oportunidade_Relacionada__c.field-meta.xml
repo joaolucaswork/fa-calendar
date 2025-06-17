@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Oportunidade_Relacionada__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Oportunidade associada a este evento quando o evento está vinculado a um Lead através do campo WhoId. Este campo permite que eventos tenham relacionamentos duplos com Leads e Oportunidades simultaneamente.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Esta oportunidade está relacionada ao Lead deste evento</inlineHelpText>
+    <label>Oportunidade Relacionada</label>
+    <referenceTo>Opportunity</referenceTo>
+    <relationshipLabel>Eventos Relacionados</relationshipLabel>
+    <relationshipName>Eventos_Relacionados</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Lookup</type>
+</CustomField>

@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>produto_evento__c</fullName>
-    <label>Produto</label>
+    <label>Produto do Evento</label>
     <required>false</required>
-    <type>Picklist</type>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
     <valueSet>
         <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
                 <fullName>Gestão de Patrimônio</fullName>
-                <default>false</default>
+                <default>true</default>
                 <label>Gestão de Patrimônio</label>
             </value>
             <value>
-                <fullName>Liquidação Otimizada</fullName>
+                <fullName>Liquidação Negociada</fullName>
                 <default>false</default>
-                <label>Liquidação Otimizada</label>
+                <label>Liquidação Negociada</label>
             </value>
             <value>
                 <fullName>Consultoria Societária</fullName>
@@ -25,4 +27,5 @@
             </value>
         </valueSetDefinition>
     </valueSet>
+    <visibleLines>3</visibleLines>
 </CustomField>

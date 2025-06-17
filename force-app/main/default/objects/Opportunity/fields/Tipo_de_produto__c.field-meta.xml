@@ -4,6 +4,7 @@
     <label>Tipo de produto</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
     <type>MultiselectPicklist</type>
     <valueSet>
         <restricted>true</restricted>
@@ -15,9 +16,9 @@
                 <label>Gestão de Patrimônio</label>
             </value>
             <value>
-                <fullName>Liquidação Negociada</fullName>
+                <fullName>Liquidação Otimizada</fullName>
                 <default>false</default>
-                <label>Liquidação Negociada</label>
+                <label>Liquidação Otimizada</label>
             </value>
             <value>
                 <fullName>Consultoria Societária</fullName>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sorted>false</sorted>
+    <standardValue>
+        <fullName>Reunião Agendada</fullName>
+        <default>true</default>
+        <label>Reunião Agendada</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>13</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Primeira Reunião</fullName>
+        <default>false</default>
+        <label>Primeira Reunião</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>13</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Devolutiva</fullName>
+        <default>false</default>
+        <label>Devolutiva</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>13</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Análise contratual</fullName>
+        <default>false</default>
+        <label>Análise contratual</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>13</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Convertido</fullName>
+        <default>false</default>
+        <label>Convertido</label>
+        <closed>true</closed>
+        <forecastCategory>Closed</forecastCategory>
+        <probability>80</probability>
+        <won>true</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Não evoluiu</fullName>
+        <default>false</default>
+        <label>Não evoluiu</label>
+        <closed>true</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <probability>13</probability>
+        <won>false</won>
+    </standardValue>
+</StandardValueSet>

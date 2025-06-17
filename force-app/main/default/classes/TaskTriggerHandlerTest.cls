@@ -53,7 +53,7 @@ public class TaskTriggerHandlerTest {
     Test.stopTest();
 
     // Verify Event was created
-    List<Event> events = [SELECT Id, Subject FROM Event WHERE WhoId = :testLead.Id];
+    List<Event> events = [SELECT Id, Subject, WhoId, Oportunidade_Relacionada__c FROM Event WHERE WhoId = :testLead.Id];
     System.assertEquals(
       1,
       events.size(),
@@ -62,6 +62,18 @@ public class TaskTriggerHandlerTest {
     System.assert(
       events[0].Subject.contains('Lead:'),
       'Event subject should contain Lead prefix'
+    );
+
+    // NEW: Verify dual relationship - Event should be linked to both Lead and Opportunity
+    System.assertEquals(
+      testLead.Id,
+      events[0].WhoId,
+      'Event should be linked to Lead via WhoId'
+    );
+    System.assertNotEquals(
+      null,
+      events[0].Oportunidade_Relacionada__c,
+      'Event should be linked to Opportunity via custom field'
     );
 
     // Verify Opportunity was created
@@ -284,6 +296,71 @@ public class TaskTriggerHandlerTest {
       5,
       opportunities.size(),
       'Opportunities should be created for all leads'
+    );
+  }
+
+  @isTest
+  static void testEventOpportunityDualRelationship() {
+    // Test the dual relationship functionality specifically
+    Lead testLead = [SELECT Id, Name FROM Lead LIMIT 1];
+
+    Test.startTest();
+
+    // Create Task with "Interessado" classification
+    Task testTask = new Task(
+      Subject = 'Ligação para Lead - Dual Relationship Test',
+      TaskSubtype = 'Call',
+      WhoId = testLead.Id,
+      classificacaoLeadAtividade__c = 'Interessado',
+      Status = 'Completed'
+    );
+    insert testTask;
+
+    Test.stopTest();
+
+    // Verify Event was created with dual relationship
+    List<Event> events = [
+      SELECT Id, Subject, WhoId, Oportunidade_Relacionada__c, Description
+      FROM Event
+      WHERE WhoId = :testLead.Id
+    ];
+    System.assertEquals(1, events.size(), 'Should create exactly one Event');
+
+    Event createdEvent = events[0];
+
+    // Verify Lead relationship (WhoId)
+    System.assertEquals(
+      testLead.Id,
+      createdEvent.WhoId,
+      'Event should be linked to Lead via WhoId'
+    );
+
+    // Verify Opportunity relationship (custom field)
+    System.assertNotEquals(
+      null,
+      createdEvent.Oportunidade_Relacionada__c,
+      'Event should be linked to Opportunity via custom field'
+    );
+
+    // Verify description contains dual relationship marker
+    System.assert(
+      createdEvent.Description.contains('[DUAL_RELATIONSHIP:Lead+Opportunity]'),
+      'Event description should indicate dual relationship'
+    );
+
+    // Verify Opportunity was created and linked
+    List<Opportunity> opportunities = [
+      SELECT Id, Name, Nome_do_Lead__c
+      FROM Opportunity
+      WHERE Nome_do_Lead__c = :testLead.Name
+    ];
+    System.assertEquals(1, opportunities.size(), 'Should create exactly one Opportunity');
+
+    // Verify the Event's custom field points to the created Opportunity
+    System.assertEquals(
+      opportunities[0].Id,
+      createdEvent.Oportunidade_Relacionada__c,
+      'Event custom field should point to created Opportunity'
     );
   }
 

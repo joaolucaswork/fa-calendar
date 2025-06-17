@@ -114,8 +114,11 @@ public with sharing class AppointmentController {
         if (fieldMap.containsKey('tipoReuniao__c') && fieldMap.get('tipoReuniao__c').getDescribe().isAccessible()) {
           selectFields.add('tipoReuniao__c');
         }
-        
-        String soqlQuery = 'SELECT ' + String.join(selectFields, ', ') + 
+        if (fieldMap.containsKey('Criado_Por_Automacao__c') && fieldMap.get('Criado_Por_Automacao__c').getDescribe().isAccessible()) {
+          selectFields.add('Criado_Por_Automacao__c');
+        }
+
+        String soqlQuery = 'SELECT ' + String.join(selectFields, ', ') +
                           ' FROM Event WHERE Id = :eventId LIMIT 1';
         
         List<Event> eventos = Database.query(soqlQuery);
@@ -188,12 +191,13 @@ public with sharing class AppointmentController {
                   Id,
                   Name,
                   Amount,
-                  Type,
                   Probabilidade_da_Oportunidade__c,
                   AccountId,
                   Account.Name,
                   StageName,
-                  CloseDate
+                  CloseDate,
+                  Tipo_de_produto__c,
+                  Nome_do_Lead__c
                 FROM Opportunity
                 WHERE Id = :eventWhatId
                 WITH SECURITY_ENFORCED
@@ -205,7 +209,6 @@ public with sharing class AppointmentController {
               opportunityInfo.put('id', o.Id);
               opportunityInfo.put('name', o.Name);
               opportunityInfo.put('amount', o.Amount);
-              opportunityInfo.put('type', o.Type);
               opportunityInfo.put(
                 'probability',
                 o.Probabilidade_da_Oportunidade__c
@@ -214,6 +217,8 @@ public with sharing class AppointmentController {
               opportunityInfo.put('accountName', o.Account?.Name);
               opportunityInfo.put('stageName', o.StageName);
               opportunityInfo.put('closeDate', o.CloseDate);
+              opportunityInfo.put('Tipo_de_produto__c', o.Tipo_de_produto__c);
+              opportunityInfo.put('Nome_do_Lead__c', o.Nome_do_Lead__c);
             } else if (whatType == 'Account') {
               Account a = [
                 SELECT Id, Name, Type, Industry, Phone, Website
@@ -308,6 +313,14 @@ public with sharing class AppointmentController {
           produtoEvento = (String) evento.get('produto_evento__c');
         }
         result.put('produtoEvento', produtoEvento);
+
+        // Check if event was created by automation
+        Boolean criadoPorAutomacao = false;
+        if (fieldMap.containsKey('Criado_Por_Automacao__c') && fieldMap.get('Criado_Por_Automacao__c').getDescribe().isAccessible()) {
+          criadoPorAutomacao = (Boolean) evento.get('Criado_Por_Automacao__c');
+        }
+        result.put('criadoPorAutomacao', criadoPorAutomacao);
+
         // Extract meeting link from Description field using utility class
         String linkReuniao = MeetingLinkUtils.extractLinkFromDescription(
           evento.Description
@@ -318,9 +331,33 @@ public with sharing class AppointmentController {
         // This will store the actual meeting description/details separately from the link
         // result.put('detalhesReuniao', evento.detalhesReuniao__c);
 
-        // Add detailed contact and opportunity information
+        // Process lead information if WhoId is a Lead
+        Map<String, Object> leadInfo = new Map<String, Object>();
+        if (evento.WhoId != null && String.valueOf(evento.WhoId).startsWith('00Q')) {
+          try {
+            Lead lead = [
+              SELECT Id, Name, FirstName, LastName, Company, Email, Phone, Status
+              FROM Lead
+              WHERE Id = :evento.WhoId
+              WITH SECURITY_ENFORCED
+              LIMIT 1
+            ];
+
+            leadInfo.put('id', lead.Id);
+            leadInfo.put('name', lead.Name);
+            leadInfo.put('company', lead.Company);
+            leadInfo.put('email', lead.Email);
+            leadInfo.put('phone', lead.Phone);
+            leadInfo.put('status', lead.Status);
+          } catch (Exception e) {
+            System.debug('Error loading lead information: ' + e.getMessage());
+          }
+        }
+
+        // Add detailed contact, opportunity, and lead information
         result.put('contactInfo', contactInfo);
         result.put('opportunityInfo', opportunityInfo);
+        result.put('leadInfo', leadInfo);
         result.put('whoId', evento.WhoId);
         result.put('whatId', evento.WhatId);
 
@@ -339,6 +376,62 @@ public with sharing class AppointmentController {
     }
 
     return result;
+  }
+
+  /**
+   * Busca os valores de picklist do campo StageName da Opportunity
+   * @return Lista de opções de estágio da oportunidade
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<Map<String, String>> getOpportunityStageOptions() {
+    List<Map<String, String>> options = new List<Map<String, String>>();
+
+    try {
+      // Get the picklist values for Opportunity.StageName
+      Schema.DescribeFieldResult fieldResult = Opportunity.StageName.getDescribe();
+      List<Schema.PicklistEntry> picklistValues = fieldResult.getPicklistValues();
+
+      for (Schema.PicklistEntry entry : picklistValues) {
+        if (entry.isActive()) {
+          Map<String, String> option = new Map<String, String>();
+          option.put('label', entry.getLabel());
+          option.put('value', entry.getValue());
+          options.add(option);
+        }
+      }
+    } catch (Exception e) {
+      System.debug('Error getting opportunity stage options: ' + e.getMessage());
+    }
+
+    return options;
+  }
+
+  /**
+   * Busca os valores de picklist do campo fase_evento__c do Activity/Event
+   * @return Lista de opções de fase do evento
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<Map<String, String>> getEventPhaseOptions() {
+    List<Map<String, String>> options = new List<Map<String, String>>();
+
+    try {
+      // Get the picklist values for Activity.fase_evento__c
+      Schema.DescribeFieldResult fieldResult = Schema.SObjectType.Event.fields.getMap().get('fase_evento__c').getDescribe();
+      List<Schema.PicklistEntry> picklistValues = fieldResult.getPicklistValues();
+
+      for (Schema.PicklistEntry entry : picklistValues) {
+        if (entry.isActive()) {
+          Map<String, String> option = new Map<String, String>();
+          option.put('label', entry.getLabel());
+          option.put('value', entry.getValue());
+          options.add(option);
+        }
+      }
+    } catch (Exception e) {
+      System.debug('Error getting event phase options: ' + e.getMessage());
+    }
+
+    return options;
   }
 
   /**
@@ -1266,7 +1359,9 @@ public with sharing class AppointmentController {
             AccountId,
             Account.Name,
             StageName,
-            CloseDate
+            CloseDate,
+            Tipo_de_produto__c,
+            Nome_do_Lead__c
           FROM Opportunity
           WHERE Id = :recordId
           WITH SECURITY_ENFORCED
@@ -1288,6 +1383,8 @@ public with sharing class AppointmentController {
         opportunityInfo.put('accountName', o.Account?.Name);
         opportunityInfo.put('stageName', o.StageName);
         opportunityInfo.put('closeDate', o.CloseDate);
+        opportunityInfo.put('Tipo_de_produto__c', o.Tipo_de_produto__c);
+        opportunityInfo.put('Nome_do_Lead__c', o.Nome_do_Lead__c);
       } else if (sObjectType == 'Account') {
         System.debug('Processing Account in getOpportunityInformation');
         List<Account> accounts = [
@@ -1329,12 +1426,14 @@ public with sharing class AppointmentController {
    * Search for contacts and leads based on search term
    * @param searchTerm The search term to match against name, email, etc.
    * @param maxResults Maximum number of results to return
+   * @param leadsOnly If true, search only leads; if false, search both contacts and leads
    * @return List of contact/lead records with basic information
    */
   @AuraEnabled(cacheable=true)
   public static List<Map<String, Object>> searchContacts(
     String searchTerm,
-    Integer maxResults
+    Integer maxResults,
+    Boolean leadsOnly
   ) {
     List<Map<String, Object>> results = new List<Map<String, Object>>();
 
@@ -1346,41 +1445,49 @@ public with sharing class AppointmentController {
       maxResults = 10;
     }
 
+    // Default leadsOnly to false if not provided
+    if (leadsOnly == null) {
+      leadsOnly = false;
+    }
+
     String searchPattern = '%' + String.escapeSingleQuotes(searchTerm) + '%';
 
     try {
-      // Search Contacts
-      List<Contact> contacts = [
-        SELECT Id, Name, Title, Email, Phone, Account.Name
-        FROM Contact
-        WHERE
-          (Name LIKE :searchPattern
-          OR Email LIKE :searchPattern)
-          AND IsDeleted = FALSE
-        WITH SECURITY_ENFORCED
-        ORDER BY Name ASC
-        LIMIT :maxResults
-      ];
+      // Search Contacts (only if not searching leads only)
+      if (!leadsOnly) {
+        List<Contact> contacts = [
+          SELECT Id, Name, Title, Email, Phone, Account.Name
+          FROM Contact
+          WHERE
+            (Name LIKE :searchPattern
+            OR Email LIKE :searchPattern)
+            AND IsDeleted = FALSE
+          WITH SECURITY_ENFORCED
+          ORDER BY Name ASC
+          LIMIT :maxResults
+        ];
 
-      for (Contact c : contacts) {
-        Map<String, Object> contactMap = new Map<String, Object>();
-        contactMap.put('Id', c.Id);
-        contactMap.put('Name', c.Name);
-        contactMap.put('Title', c.Title);
-        contactMap.put('Email', c.Email);
-        contactMap.put('Phone', c.Phone);
-        contactMap.put('AccountName', c.Account?.Name);
-        contactMap.put('Type', 'Contact');
-        contactMap.put(
-          'DisplayName',
-          c.Name + (c.Account?.Name != null ? ' (' + c.Account.Name + ')' : '')
-        );
-        results.add(contactMap);
+        for (Contact c : contacts) {
+          Map<String, Object> contactMap = new Map<String, Object>();
+          contactMap.put('Id', c.Id);
+          contactMap.put('Name', c.Name);
+          contactMap.put('Title', c.Title);
+          contactMap.put('Email', c.Email);
+          contactMap.put('Phone', c.Phone);
+          contactMap.put('AccountName', c.Account?.Name);
+          contactMap.put('Type', 'Contact');
+          contactMap.put('IconName', 'standard:contact'); // Add missing IconName
+          contactMap.put(
+            'DisplayName',
+            c.Name + (c.Account?.Name != null ? ' (' + c.Account.Name + ')' : '')
+          );
+          results.add(contactMap);
+        }
       }
 
-      // Search Leads if we have room for more results
-      if (results.size() < maxResults) {
-        Integer remainingSlots = maxResults - results.size();
+      // Search Leads (if leadsOnly is true, or if we have room for more results)
+      Integer leadLimit = leadsOnly ? maxResults : (maxResults - results.size());
+      if (leadLimit > 0) {
         List<Lead> leads = [
           SELECT Id, Name, Title, Email, Phone, Company
           FROM Lead
@@ -1391,7 +1498,7 @@ public with sharing class AppointmentController {
             AND IsConverted = FALSE
           WITH SECURITY_ENFORCED
           ORDER BY Name ASC
-          LIMIT :remainingSlots
+          LIMIT :leadLimit
         ];
 
         for (Lead l : leads) {
@@ -1403,6 +1510,7 @@ public with sharing class AppointmentController {
           leadMap.put('Phone', l.Phone);
           leadMap.put('Company', l.Company);
           leadMap.put('Type', 'Lead');
+          leadMap.put('IconName', 'standard:lead'); // Add missing IconName
           leadMap.put(
             'DisplayName',
             l.Name + (l.Company != null ? ' (' + l.Company + ')' : '')

@@ -426,7 +426,7 @@
 /* Contact and Opportunity Information Cards */
 .contact-opportunity-info-section {
   margin: 16px 0;
-  padding: 0;
+  padding: 0 12px;
 }
 
 .contact-opportunity-layout {
@@ -440,6 +440,7 @@
 
 .contact-opportunity-layout.full-width {
   flex-direction: column;
+  align-items: flex-start; /* Prevent stretching */
 }
 
 /* Info Cards */
@@ -449,6 +450,7 @@
   border-radius: 6px;
   overflow: hidden;
   transition: all 0.2s ease;
+  align-self: flex-start; /* Prevent cards from stretching */
 }
 
 .info-card:hover {
@@ -465,11 +467,31 @@
   width: 100%;
 }
 
+/* Lead card specific styling when positioned outside grid */
+.lead-card.full-width {
+  width: 100%;
+  margin: 0; /* Remove any inherited margins */
+}
+
+/* Search field styling within Lead section */
+.lead-section .slds-form-element {
+  margin-bottom: 1rem;
+}
+
+.lead-section .slds-combobox_container {
+  position: relative;
+  z-index: 1000; /* Ensure dropdown appears above other content */
+}
+
+.lead-section .lookup-dropdown {
+  z-index: 1001; /* Higher than the container */
+}
+
 /* Info Card Header */
 .info-card-header {
   background-color: #ffffff;
   border-bottom: 1px solid #e0e5ee;
-  padding: 8px 12px;
+  padding: 12px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -503,13 +525,13 @@
 
 /* Info Card Content */
 .info-card-content {
-  padding: 8px 12px;
+  padding: 12px 16px;
 }
 
 .info-field-row {
   display: flex;
-  gap: 12px;
-  margin-bottom: 4px;
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
 .info-field-row:last-child {
@@ -547,11 +569,11 @@
   }
 
   .info-card-header {
-    padding: 6px 10px;
+    padding: 10px 12px;
   }
 
   .info-card-content {
-    padding: 6px 10px;
+    padding: 10px 12px;
   }
 }
 
@@ -766,7 +788,13 @@
   border: 1px solid #e1e5e9;
   border-radius: 8px;
   margin-bottom: 16px;
-  overflow: hidden;
+  overflow: visible; /* Allow dropdown to escape container */
+}
+
+/* Special handling for unified contact section to allow dropdown overflow */
+.unified-contact-section {
+  overflow: visible;
+  position: relative;
 }
 
 .section-header {
@@ -837,58 +865,23 @@
   text-decoration: underline;
 }
 
-/* Lookup Dropdown Styling */
-.slds-combobox_container {
-  position: relative;
-}
-
-.slds-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 7000;
-  background: white;
-  border: 1px solid #d8dde6;
+/* Lookup dropdown styling */
+.lookup-dropdown {
+  background-color: #ffffff;
+  border: 1px solid #dddbda;
   border-radius: 0.25rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-height: 200px;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.16);
+  z-index: 9000; /* Increased z-index to ensure visibility */
+  position: absolute;
+  top: calc(100% + 3px); /* Position right below the input */
+  left: 50%; /* Center alignment */
+  transform: translateX(-50%); /* Center the dropdown */
+  width: 100%; /* Match parent width */
+  max-width: 100%; /* Ensure it doesn't overflow */
+  max-height: 300px;
   overflow-y: auto;
-}
-
-.slds-listbox__option {
-  padding: 0.5rem 0.75rem;
-  cursor: pointer;
-  transition: background-color 0.15s ease-in-out;
-}
-
-.slds-listbox__option:hover {
-  background-color: #f3f2f2;
-}
-
-.slds-listbox__option-text_entity {
-  font-weight: 500;
-  color: #181818;
-}
-
-.slds-listbox__option-meta_entity {
-  font-size: 0.75rem;
-  color: #706e6b;
   margin-top: 0.125rem;
-}
-
-.slds-listbox__option-icon {
-  margin-right: 0.5rem;
-}
-
-/* Ensure dropdown appears above other elements */
-.slds-combobox {
-  position: relative;
-  z-index: 1;
-}
-
-.slds-combobox__input {
-  width: 100%;
+  display: block !important; /* Force display */
 }
 
 /* Standard Lightning Checkbox styling for search type */
@@ -955,6 +948,166 @@
   margin-top: 0;
 }
 
+/* Unified Contact/Lead Display Styling */
+.unified-contact-display {
+  margin-top: 0.5rem;
+}
+
+.unified-contact-card {
+  background-color: #ffffff;
+  border: 1px solid #000000;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.unified-contact-card:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-color: #000000;
+}
+
+.unified-contact-card--automated {
+  border-color: #000000;
+  background-color: #ffffff;
+}
+
+.unified-contact-card--automated:hover {
+  border-color: #000000;
+  background-color: #ffffff;
+}
+
+.contact-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #000000;
+}
+
+.unified-contact-card--automated .contact-card-header {
+  background-color: #ffffff;
+  border-bottom-color: #000000;
+}
+
+.contact-basic-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.contact-icon {
+  --slds-c-icon-color-foreground-default: #0176d3;
+}
+
+.unified-contact-card--automated .contact-icon {
+  --slds-c-icon-color-foreground-default: #0ea5e9;
+}
+
+.contact-name-type {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.contact-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #181818;
+  line-height: 1.2;
+}
+
+.contact-type {
+  font-size: 0.75rem;
+  color: #605e5c;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.automation-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: transparent;
+  color: #000000;
+  border: 1px solid #000000;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.automation-badge lightning-icon {
+  --slds-c-icon-color-foreground-default: #000000;
+}
+
+.contact-details-section {
+  padding: 0.75rem;
+}
+
+.contact-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #605e5c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 0.875rem;
+  color: #181818;
+  font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.detail-value:empty::before {
+  content: "—";
+  color: #a8a8a8;
+  font-style: italic;
+}
+
+.contact-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f3f2f2;
+}
+
+/* Edit button styling in section header */
+.section-header .slds-button_icon-border-filled {
+  background-color: transparent;
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  padding: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.section-header .slds-button_icon-border-filled:hover {
+  background-color: #f3f2f1;
+  border-color: #0176d3;
+}
+
+.section-header .slds-button_icon-border-filled:hover lightning-icon {
+  --slds-c-icon-color-foreground-default: #0176d3;
+}
+
 /* Responsive adjustments for mobile */
 @media (max-width: 768px) {
   .search-type-checkbox-input {
@@ -969,6 +1122,33 @@
     width: 0.875rem;
     height: 0.875rem;
     margin-right: 0.375rem;
+  }
+
+  /* Unified contact card mobile adjustments */
+  .contact-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.625rem;
+  }
+
+  .contact-basic-info {
+    width: 100%;
+  }
+
+  .automation-badge {
+    align-self: flex-end;
+    font-size: 0.5625rem;
+    padding: 0.1875rem 0.375rem;
+  }
+
+  .contact-details-grid {
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
+  }
+
+  .contact-details-section {
+    padding: 0.625rem;
   }
 }
 
@@ -993,25 +1173,6 @@
   background-color: #f3f3f3 !important;
   color: #3e3e3c !important;
   cursor: not-allowed;
-}
-
-/* Lookup dropdown styling */
-.lookup-dropdown {
-  background-color: #ffffff;
-  border: 1px solid #dddbda;
-  border-radius: 0.25rem;
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.16);
-  z-index: 9000; /* Increased z-index to ensure visibility */
-  position: absolute;
-  top: calc(100% + 3px); /* Position right below the input */
-  left: 50%; /* Center alignment */
-  transform: translateX(-50%); /* Center the dropdown */
-  width: 100%; /* Match parent width */
-  max-width: 100%; /* Ensure it doesn't overflow */
-  max-height: 300px;
-  overflow-y: auto;
-  margin-top: 0.125rem;
-  display: block !important; /* Force display */
 }
 
 /* Dropdown container styling with extra visual polish */
@@ -1085,6 +1246,26 @@
   background-color: #f3f2f2;
 }
 
+/* Reduce spacing in the media component */
+.lookup-dropdown-item-content .slds-media__figure {
+  margin-right: 0.25rem;
+  min-width: 1.5rem;
+}
+
+/* Make media layout more compact */
+.lookup-dropdown-item-content.slds-media {
+  display: flex;
+  align-items: center;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+/* Adjust avatar size */
+.lookup-dropdown-item-content .slds-avatar_small {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
 .lookup-dropdown-item-title {
   font-weight: 600;
   font-size: 0.8125rem;
@@ -1120,23 +1301,7 @@
   font-size: 0.8125rem;
 }
 
-/* Add a slight border when input is focused to connect with dropdown */
-.slds-dropdown-trigger .slds-combobox__input:focus {
-  box-shadow: 0 0 3px #0176d3;
-}
 
-/* Ensure proper positioning of dropdown container */
-.slds-dropdown-trigger {
-  position: relative;
-  display: block;
-  width: 100%;
-}
-
-/* Ensure dropdown stays above other content */
-.slds-dropdown-trigger_click {
-  position: relative;
-  z-index: 7000;
-}
 
 /* Improve the layout on mobile devices */
 @media (max-width: 30em) {
@@ -1190,4 +1355,37 @@
   color: #a8a8a8;
   font-style: italic;
   font-weight: 400;
+}
+
+/* Tab styling improvements */
+.slds-tabs_default__nav {
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #f3f2f1;
+}
+
+.slds-tabs_default__content {
+  padding-bottom: 2rem;
+}
+
+.slds-tabs_default__link.slds-is-active {
+  border-bottom: 3px solid #0176d3;
+  font-weight: 600;
+  color: #0176d3;
+  background-color: #f8f9ff;
+  border-radius: 4px 4px 0 0;
+}
+
+.slds-tabs_default__link {
+  transition: all 0.2s ease;
+  padding: 0.75rem 1rem;
+  border-radius: 4px 4px 0 0;
+}
+
+.slds-tabs_default__link:hover {
+  color: #0176d3;
+  background-color: #f8f9ff;
+}
+
+.slds-tabs_default__item {
+  margin-right: 0.25rem;
 }

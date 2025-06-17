@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Criado_Por_Automacao__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indica se este evento foi criado automaticamente pela automação do sistema quando um lead foi classificado como &quot;Interessado&quot;. Quando marcado como verdadeiro, o lead associado não pode ser editado no appointmentEditor.</description>
+    <externalId>false</externalId>
+    <label>Criado Por Automação</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

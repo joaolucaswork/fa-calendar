@@ -71,7 +71,7 @@ public with sharing class LeadEventController {
 
       // Check if Event already exists for this Lead
       List<Event> existingEvents = [
-        SELECT Id, Subject, StartDateTime, EndDateTime, WhoId, WhatId
+        SELECT Id, Subject, StartDateTime, EndDateTime, WhoId, WhatId, Oportunidade_Relacionada__c
         FROM Event
         WHERE WhoId = :leadId AND Subject LIKE '%Lead:%'
         ORDER BY CreatedDate DESC
@@ -89,6 +89,7 @@ public with sharing class LeadEventController {
           EndDateTime = DateTime.now().addHours(1),
           WhoId = leadId,
           OwnerId = lead.OwnerId,
+          Criado_Por_Automacao__c = true, // Mark as created by automation
           Description = 'Evento criado automaticamente para Lead classificado como Interessado.\n' +
             'Lead: ' +
             leadFullName +
@@ -96,7 +97,8 @@ public with sharing class LeadEventController {
             'Empresa: ' +
             lead.Company +
             '\n\n[OPPORTUNITY_LINKED:true]' +
-            '\n[OPPORTUNITY_STAGE:Primeiro Contato]'
+            '\n[OPPORTUNITY_STAGE:Primeiro Contato]' +
+            '\n[DUAL_RELATIONSHIP:Lead+Opportunity]'
         );
         insert leadEvent;
       }
@@ -114,11 +116,14 @@ public with sharing class LeadEventController {
       if (!existingOpportunities.isEmpty()) {
         leadOpportunity = existingOpportunities[0];
 
-        // Note: Cannot link Event to Opportunity when Event already has Lead (WhoId)
-        // if (leadEvent.WhatId != leadOpportunity.Id) {
-        //   leadEvent.WhatId = leadOpportunity.Id;
-        //   update leadEvent;
-        // }
+        // NEW: Link Event to existing Opportunity using custom lookup field
+        if (leadEvent.Oportunidade_Relacionada__c != leadOpportunity.Id) {
+          leadEvent.Oportunidade_Relacionada__c = leadOpportunity.Id;
+          update leadEvent;
+        }
+
+        // Note: Cannot use WhatId when Event already has Lead (WhoId)
+        // But we can use the custom Oportunidade_Relacionada__c field instead
       } else {
         // Create new Opportunity linked to central Account
         leadOpportunity = new Opportunity(
@@ -137,7 +142,6 @@ public with sharing class LeadEventController {
             '\n' +
             'Empresa: ' +
             lead.Company,
-          Type = 'Lead em Prospecção',
           // Tipo_de_produto__c will use default value from field definition
           Probabilidade_da_Oportunidade__c = 'treze', // Default probability 13%
           Amount = 50000.00 // Default amount R$ 50,000
@@ -153,11 +157,13 @@ public with sharing class LeadEventController {
           '\n[OPPORTUNITY_ID:' +
           leadOpportunity.Id +
           ']';
+
+        // NEW: Link Event to Opportunity using custom lookup field
+        leadEvent.Oportunidade_Relacionada__c = leadOpportunity.Id;
         update leadEvent;
 
-        // Note: Cannot link Event to Opportunity when Event already has Lead (WhoId)
-        // leadEvent.WhatId = leadOpportunity.Id;
-        // update leadEvent;
+        // Note: Cannot use WhatId when Event already has Lead (WhoId)
+        // But we can use the custom Oportunidade_Relacionada__c field instead
 
         // Note: LeadStageOpportunityId__c field update removed due to permissions
         // lead.LeadStageOpportunityId__c = leadOpportunity.Id;
@@ -277,7 +283,6 @@ public with sharing class LeadEventController {
           StageName,
           Probabilidade_da_Oportunidade__c,
           CloseDate,
-          Type,
           Tipo_de_produto__c,
           Amount
         FROM Opportunity
@@ -305,9 +310,8 @@ public with sharing class LeadEventController {
       }
 
       if (opportunityData.containsKey('type')) {
-        // Support both Type and Tipo_de_produto__c fields
+        // Only update Tipo_de_produto__c field (Type field is not used)
         String typeValue = (String) opportunityData.get('type');
-        opp.Type = typeValue;
         opp.Tipo_de_produto__c = typeValue;
       }
 
@@ -341,7 +345,7 @@ public with sharing class LeadEventController {
   ) {
     try {
       Event evt = [
-        SELECT Id, Description
+        SELECT Id, Description, Oportunidade_Relacionada__c
         FROM Event
         WHERE Id = :eventId
         WITH SECURITY_ENFORCED
@@ -469,6 +473,39 @@ public with sharing class LeadEventController {
   }
 
   /**
+   * @description Gets Events related to a specific Opportunity using the custom lookup field
+   * @param opportunityId The Opportunity ID
+   * @return List of Events related to the Opportunity
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<Event> getEventsByOpportunity(String opportunityId) {
+    try {
+      return [
+        SELECT
+          Id,
+          Subject,
+          StartDateTime,
+          EndDateTime,
+          Description,
+          Location,
+          WhoId,
+          WhatId,
+          Oportunidade_Relacionada__c,
+          OwnerId,
+          Owner.Name,
+          Who.Name
+        FROM Event
+        WHERE Oportunidade_Relacionada__c = :opportunityId
+        ORDER BY StartDateTime DESC
+      ];
+    } catch (Exception e) {
+      throw new AuraHandledException(
+        'Erro ao recuperar eventos da oportunidade: ' + e.getMessage()
+      );
+    }
+  }
+
+  /**
    * @description Gets Lead Event and Opportunity details for calendar display
    * @param leadId The Lead ID
    * @return Map containing Lead, Event, and Opportunity details
@@ -509,6 +546,7 @@ public with sharing class LeadEventController {
           Location,
           WhoId,
           WhatId,
+          Oportunidade_Relacionada__c,
           OwnerId,
           Owner.Name
         FROM Event
@@ -527,8 +565,8 @@ public with sharing class LeadEventController {
           StageName,
           CloseDate,
           Amount,
-          Type,
           Probabilidade_da_Oportunidade__c,
+          Tipo_de_produto__c,
           AccountId,
           Account.Name,
           Nome_do_Lead__c,
@@ -611,6 +649,7 @@ public with sharing class LeadEventController {
           Location,
           WhoId,
           WhatId,
+          Oportunidade_Relacionada__c,
           OwnerId,
           Owner.Name,
           Who.Name
@@ -657,14 +696,16 @@ public with sharing class LeadEventController {
           'location' => evt.Location,
           'whoId' => evt.WhoId,
           'whatId' => evt.WhatId,
+          'oportunidadeRelacionadaId' => evt.Oportunidade_Relacionada__c,
           'ownerId' => evt.OwnerId,
           'ownerName' => evt.Owner?.Name,
           'leadName' => evt.Who?.Name,
           'isLeadEvent' => true,
           'type' => 'Lead Event',
-          'opportunityLinked' => opportunityLinked,
-          'opportunityId' => opportunityId,
-          'opportunityStage' => opportunityStage
+          'opportunityLinked' => opportunityLinked || evt.Oportunidade_Relacionada__c != null,
+          'opportunityId' => evt.Oportunidade_Relacionada__c != null ? evt.Oportunidade_Relacionada__c : opportunityId,
+          'opportunityStage' => opportunityStage,
+          'hasDualRelationship' => evt.WhoId != null && evt.Oportunidade_Relacionada__c != null
         };
         formattedEvents.add(eventMap);
       }
@@ -699,6 +740,7 @@ public with sharing class LeadEventController {
           Location,
           WhoId,
           WhatId,
+          Oportunidade_Relacionada__c,
           OwnerId,
           Owner.Name
         FROM Event
@@ -760,7 +802,6 @@ public with sharing class LeadEventController {
           StageName,
           CloseDate,
           Amount,
-          Type,
           Probabilidade_da_Oportunidade__c,
           Tipo_de_produto__c,
           AccountId,

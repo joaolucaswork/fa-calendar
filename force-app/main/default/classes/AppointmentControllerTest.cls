@@ -1020,7 +1020,8 @@ public class AppointmentControllerTest {
     Test.startTest();
     List<Map<String, Object>> result = AppointmentController.searchContacts(
       'Test',
-      10
+      10,
+      false
     );
     Test.stopTest();
 
@@ -1054,7 +1055,8 @@ public class AppointmentControllerTest {
     Test.startTest();
     List<Map<String, Object>> result = AppointmentController.searchContacts(
       'T',
-      10
+      10,
+      false
     );
     Test.stopTest();
 
@@ -1071,7 +1073,8 @@ public class AppointmentControllerTest {
     Test.startTest();
     List<Map<String, Object>> result = AppointmentController.searchContacts(
       '',
-      10
+      10,
+      false
     );
     Test.stopTest();
 
@@ -1088,7 +1091,8 @@ public class AppointmentControllerTest {
     Test.startTest();
     List<Map<String, Object>> result = AppointmentController.searchContacts(
       'Test',
-      null
+      null,
+      false
     );
     Test.stopTest();
 
@@ -1099,6 +1103,25 @@ public class AppointmentControllerTest {
       'Should return results with default max'
     );
     System.assert(result.size() <= 10, 'Should use default max of 10');
+  }
+
+  @isTest
+  static void testSearchContacts_LeadsOnly() {
+    Test.startTest();
+    List<Map<String, Object>> result = AppointmentController.searchContacts(
+      'Test',
+      10,
+      true
+    );
+    Test.stopTest();
+
+    // Assertions
+    System.assertNotEquals(null, result, 'Should return results');
+    // Verify all results are leads
+    for (Map<String, Object> record : result) {
+      System.assertEquals('Lead', record.get('Type'), 'Should only return leads when leadsOnly is true');
+      System.assertEquals('standard:lead', record.get('IconName'), 'Should have correct icon for leads');
+    }
   }
 
   @isTest
