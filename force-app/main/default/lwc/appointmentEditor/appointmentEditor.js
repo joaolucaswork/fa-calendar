@@ -82,6 +82,11 @@ export default class AppointmentEditor extends NavigationMixin(
   @track isSearchingOpportunities = false;
   @track searchLeadsOnly = false; // Sempre false - opção de buscar apenas leads foi removida
 
+  // Field read-only states for opportunity-tied events
+  @track isContactFieldReadOnly = false;
+  @track isFaseEventoReadOnly = true; // Always read-only as it's auto-populated
+  @track isProdutoEventoReadOnly = true; // Always read-only as it's auto-populated
+
   // Lead opportunity management properties (internal storage like leadEventEditor)
   _leadOpportunityStage = "Primeira Reunião";
   _leadOpportunityProbability = "";
@@ -203,6 +208,10 @@ export default class AppointmentEditor extends NavigationMixin(
 
   // Getter para título do modal
   get modalTitle() {
+    if (this.eventId && this.eventData.subject) {
+      // For existing events, show the subject name
+      return this.eventData.subject;
+    }
     return this.eventId ? "Editar Compromisso" : "Novo Compromisso";
   }
 
@@ -393,35 +402,19 @@ export default class AppointmentEditor extends NavigationMixin(
     return baseClass;
   }
 
-  // Dynamic layout getters for contact, opportunity, and lead information cards
+  // Dynamic layout getters for contact information cards (simplified since opportunity/lead cards are removed from Event Information tab)
   get showContactOrOpportunityInfo() {
-    return this.hasContactInfo || this.hasOpportunityInfo || this.hasLeadInfo;
+    return this.hasContactInfo; // Only show contact info in Event Information tab
   }
 
   get contactOpportunityLayoutClass() {
-    const infoCount = [
-      this.hasContactInfo,
-      this.hasOpportunityInfo,
-      this.hasLeadInfo
-    ].filter(Boolean).length;
-
-    if (infoCount > 1) {
-      // Multiple cards - side by side layout
-      return "contact-opportunity-layout side-by-side";
-    } else {
-      // Only one card - full width layout
-      return "contact-opportunity-layout full-width";
-    }
+    // Always use full-width layout since only contact card is shown in Event Information tab
+    return "contact-opportunity-layout full-width";
   }
 
   get contactCardClass() {
-    if (this.hasContactInfo && this.hasOpportunityInfo) {
-      // Side by side - 50% width
-      return "info-card contact-card half-width";
-    } else {
-      // Full width
-      return "info-card contact-card full-width";
-    }
+    // Always use full-width since opportunity and lead cards are removed from Event Information tab
+    return "info-card contact-card full-width";
   }
 
   get opportunityCardClass() {
@@ -981,6 +974,18 @@ export default class AppointmentEditor extends NavigationMixin(
       produtoEvento: "" // Product selection for subject generation
     };
 
+    // Set default close date to 1 month from now for new events only
+    if (!this.eventId) {
+      const oneMonthFromNow = new Date();
+      oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+      this._leadOpportunityCloseDate = this.formatDateForInput(oneMonthFromNow.toISOString());
+    }
+
+    // Auto-populate from opportunity if available
+    if (this.hasOpportunityInfo) {
+      this.autoPopulateFromOpportunity();
+    }
+
     // console.log("AppointmentEditor: initializeEventData completed", {
     //   eventData: this.eventData,
     //   whoId: this.whoId,
@@ -1036,6 +1041,18 @@ export default class AppointmentEditor extends NavigationMixin(
       faseEvento: "", // Event phase for subject generation
       produtoEvento: "" // Product selection for subject generation
     };
+
+    // Set default close date to 1 month from now for new events only
+    if (!this.eventId) {
+      const oneMonthFromNow = new Date();
+      oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+      this._leadOpportunityCloseDate = this.formatDateForInput(oneMonthFromNow.toISOString());
+    }
+
+    // Auto-populate from opportunity if available
+    if (this.hasOpportunityInfo) {
+      this.autoPopulateFromOpportunity();
+    }
 
     // console.log(
     //   "📝 AppointmentEditor: eventData initialized with selected dates",
@@ -1734,6 +1751,10 @@ export default class AppointmentEditor extends NavigationMixin(
         if (result.success && result.opportunityInfo) {
           this.opportunityInfo = result.opportunityInfo;
           this.hasOpportunityInfo = true;
+
+          // Auto-populate fields from opportunity and make them read-only
+          this.autoPopulateFromOpportunity();
+
           // console.log(
           //   "AppointmentEditor: Opportunity info loaded",
           //   this.opportunityInfo
@@ -1741,6 +1762,9 @@ export default class AppointmentEditor extends NavigationMixin(
         } else {
           this.opportunityInfo = {};
           this.hasOpportunityInfo = false;
+
+          // Reset read-only states when no opportunity
+          this.resetOpportunityReadOnlyStates();
         }
       })
       .catch((error) => {
@@ -2104,13 +2128,65 @@ export default class AppointmentEditor extends NavigationMixin(
     this.participantsValidationError = "";
   }
 
-  // Generate subject automatically in format: "Fase - Cliente - Produto"
+  // Auto-populate fields from opportunity data and set read-only states
+  autoPopulateFromOpportunity() {
+    if (!this.hasOpportunityInfo || !this.opportunityInfo) return;
+
+    try {
+      // Set contact field as read-only when tied to opportunity
+      this.isContactFieldReadOnly = true;
+
+      // Auto-populate fase evento from opportunity stage
+      if (this.opportunityInfo.StageName) {
+        this.eventData = {
+          ...this.eventData,
+          faseEvento: this.opportunityInfo.StageName
+        };
+      }
+
+      // Auto-populate produto evento from opportunity product
+      if (this.opportunityInfo.Tipo_de_produto__c) {
+        this.eventData = {
+          ...this.eventData,
+          produtoEvento: this.opportunityInfo.Tipo_de_produto__c
+        };
+      }
+
+      // Regenerate subject with new data
+      this.generateSubject();
+
+      console.log("Fields auto-populated from opportunity:", {
+        faseEvento: this.eventData.faseEvento,
+        produtoEvento: this.eventData.produtoEvento,
+        subject: this.eventData.subject
+      });
+    } catch (error) {
+      console.error("Error auto-populating from opportunity:", error);
+    }
+  }
+
+  // Reset read-only states when no opportunity is present
+  resetOpportunityReadOnlyStates() {
+    this.isContactFieldReadOnly = false;
+    // Note: isFaseEventoReadOnly and isProdutoEventoReadOnly remain true as they are always display-only
+  }
+
+  // Generate subject automatically in format: "[Opportunity Stage] - [Client Name] - [Product]"
   generateSubject() {
     let subjectParts = [];
 
-    // 1. Add phase (Fase)
-    if (this.eventData.faseEvento) {
-      subjectParts.push(this.eventData.faseEvento);
+    // 1. Add opportunity stage or event phase (Fase)
+    let phase = "";
+    if (this.hasOpportunityInfo && this.opportunityInfo.StageName) {
+      // Use opportunity stage if available
+      phase = this.opportunityInfo.StageName;
+    } else if (this.eventData.faseEvento) {
+      // Fallback to event phase
+      phase = this.eventData.faseEvento;
+    }
+
+    if (phase) {
+      subjectParts.push(phase);
     }
 
     // 2. Add client name (Cliente)
@@ -2125,9 +2201,18 @@ export default class AppointmentEditor extends NavigationMixin(
       subjectParts.push(clientName);
     }
 
-    // 3. Add product (Produto)
-    if (this.eventData.produtoEvento) {
-      subjectParts.push(this.eventData.produtoEvento);
+    // 3. Add product (Produto) - use opportunity product if available
+    let product = "";
+    if (this.hasOpportunityInfo && this.opportunityInfo.Tipo_de_produto__c) {
+      // Use opportunity product if available
+      product = this.opportunityInfo.Tipo_de_produto__c;
+    } else if (this.eventData.produtoEvento) {
+      // Fallback to event product
+      product = this.eventData.produtoEvento;
+    }
+
+    if (product) {
+      subjectParts.push(product);
     }
 
     // Join with " - " separator
@@ -2225,6 +2310,9 @@ export default class AppointmentEditor extends NavigationMixin(
       updateAppointment({ eventData: eventDataToSave })
         .then((result) => {
           if (result.success) {
+            // Update internal data immediately with saved values
+            this.updateInternalDataAfterSave(eventDataToSave);
+
             // Save Lead opportunity data if available
             return this.saveLeadOpportunityDataIfNeeded();
           } else {
@@ -2274,6 +2362,10 @@ export default class AppointmentEditor extends NavigationMixin(
         .then((result) => {
           if (result.success) {
             this.eventId = result.eventId; // Store the new event ID
+
+            // Update internal data immediately with saved values
+            this.updateInternalDataAfterSave(eventDataToSave);
+
             // Save Lead opportunity data if available
             return this.saveLeadOpportunityDataIfNeeded();
           } else {
@@ -2317,6 +2409,50 @@ export default class AppointmentEditor extends NavigationMixin(
           this.error = "Erro ao criar compromisso: " + this.reduceErrors(error);
           this.isLoading = false;
         });
+    }
+  }
+
+  // Update internal data immediately after successful save to prevent stale data
+  updateInternalDataAfterSave(eventDataToSave) {
+    try {
+      // Update the main eventData object with saved values
+      this.eventData = {
+        ...this.eventData,
+        subject: eventDataToSave.subject,
+        location: eventDataToSave.location,
+        startDateTime: eventDataToSave.startDateTime,
+        endDateTime: eventDataToSave.endDateTime,
+        isAllDayEvent: eventDataToSave.isAllDayEvent,
+        description: eventDataToSave.description,
+        whoId: eventDataToSave.whoId,
+        whatId: eventDataToSave.whatId,
+        reuniaoCriada: eventDataToSave.reuniaoCriada,
+        statusReuniao: eventDataToSave.statusReuniao,
+        gestorName: eventDataToSave.gestorName,
+        liderComercialName: eventDataToSave.liderComercialName,
+        sdrName: eventDataToSave.sdrName,
+        faseEvento: eventDataToSave.faseEvento,
+        produtoEvento: eventDataToSave.produtoEvento
+      };
+
+      // Update other component properties
+      this.appointmentType = eventDataToSave.appointmentType || this.appointmentType;
+      this.salaReuniao = eventDataToSave.salaReuniao || this.salaReuniao;
+      this.linkReuniao = eventDataToSave.linkReuniao || this.linkReuniao;
+      this.statusReuniao = eventDataToSave.statusReuniao;
+
+      // Update participant selections
+      this.selectedGestorName = eventDataToSave.gestorName || "";
+      this.selectedLiderComercialName = eventDataToSave.liderComercialName || "";
+      this.selectedSdrName = eventDataToSave.sdrName || "";
+
+      console.log("Internal data updated after save:", {
+        eventData: this.eventData,
+        appointmentType: this.appointmentType,
+        salaReuniao: this.salaReuniao
+      });
+    } catch (error) {
+      console.error("Error updating internal data after save:", error);
     }
   }
 

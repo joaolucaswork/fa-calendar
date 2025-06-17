@@ -426,7 +426,7 @@
 /* Contact and Opportunity Information Cards */
 .contact-opportunity-info-section {
   margin: 16px 0;
-  padding: 0 12px;
+  padding: 0;
 }
 
 .contact-opportunity-layout {
@@ -469,7 +469,7 @@
 .info-card-header {
   background-color: #ffffff;
   border-bottom: 1px solid #e0e5ee;
-  padding: 12px 16px;
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -503,13 +503,13 @@
 
 /* Info Card Content */
 .info-card-content {
-  padding: 12px 16px;
+  padding: 8px 12px;
 }
 
 .info-field-row {
   display: flex;
-  gap: 16px;
-  margin-bottom: 8px;
+  gap: 12px;
+  margin-bottom: 4px;
 }
 
 .info-field-row:last-child {
@@ -547,11 +547,11 @@
   }
 
   .info-card-header {
-    padding: 10px 12px;
+    padding: 6px 10px;
   }
 
   .info-card-content {
-    padding: 10px 12px;
+    padding: 6px 10px;
   }
 }
 

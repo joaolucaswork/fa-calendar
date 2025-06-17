@@ -128,7 +128,8 @@
                     <div class="slds-p-around_medium">
                       <div class="slds-form">
                         <div class="slds-grid slds-wrap">
-                          <!-- Assunto do Compromisso - Read-only, auto-generated -->
+                          <!-- Assunto do Compromisso - Commented out as it's now displayed in modal header -->
+                          <!--
                           <div
                             class="slds-col slds-size_1-of-1 slds-p-horizontal_small slds-p-bottom_small"
                           >
@@ -146,6 +147,7 @@
                               </div>
                             </div>
                           </div>
+                          -->
 
                           <!-- Fase do Evento -->
                           <div
@@ -159,6 +161,7 @@
                               onchange={handleFieldChange}
                               placeholder="Selecione a fase..."
                               variant="standard"
+                              disabled={isFaseEventoReadOnly}
                             >
                             </lightning-combobox>
                           </div>
@@ -175,6 +178,7 @@
                               onchange={handleFieldChange}
                               placeholder="Selecione o produto..."
                               variant="standard"
+                              disabled={isProdutoEventoReadOnly}
                             >
                             </lightning-combobox>
                           </div>
@@ -251,7 +255,7 @@
                           <template if:true={showLookupFields}>
                             <!-- Contact (WhoId) Lookup -->
                             <div
-                              class="slds-col slds-size_1-of-2 slds-p-horizontal_small slds-p-bottom_small"
+                              class="slds-col slds-size_1-of-1 slds-p-horizontal_small slds-p-bottom_small"
                             >
                               <div class="slds-form-element">
                                 <label class="slds-form-element__label">
@@ -278,6 +282,7 @@
                                       onclick={handleContactSearch}
                                       data-field="WhoId"
                                       class="slds-combobox__input"
+                                      disabled={isContactFieldReadOnly}
                                     ></lightning-input>
 
                                     <!-- Contact Search Results Dropdown -->
@@ -398,8 +403,9 @@
 
                           <!-- Contact and Opportunity Information Cards - Dynamic Layout -->
                           <template if:true={showContactOrOpportunityInfo}>
-                            <div class="contact-opportunity-info-section">
-                              <div class={contactOpportunityLayoutClass}>
+                            <div class="slds-col slds-size_1-of-1">
+                              <div class="contact-opportunity-info-section">
+                                <div class={contactOpportunityLayoutClass}>
                                 <!-- Contact Information Card -->
                                 <template if:true={hasContactInfo}>
                                   <div class={contactCardClass}>
@@ -477,7 +483,8 @@
                                   </div>
                                 </template>
 
-                                <!-- Opportunity Information Card -->
+                                <!-- Opportunity Information Card - Removed from Event Information tab -->
+                                <!--
                                 <template if:true={hasOpportunityInfo}>
                                   <div class={opportunityCardClass}>
                                     <div class="info-card-header">
@@ -561,8 +568,10 @@
                                     </div>
                                   </div>
                                 </template>
+                                -->
 
-                                <!-- Lead Information Card -->
+                                <!-- Lead Information Card - Removed from Event Information tab -->
+                                <!--
                                 <template if:true={hasLeadInfo}>
                                   <div class={leadCardClass}>
                                     <div class="info-card-header">
@@ -636,6 +645,8 @@
                                     </div>
                                   </div>
                                 </template>
+                                -->
+                                </div>
                               </div>
                             </div>
                           </template>
