@@ -1,0 +1,104 @@
+<!--
+  Client Tracking Pills LWC Template
+  Displays horizontal pill-shaped buttons for active/recurring clients
+-->
+<template>
+    <!-- Main Container -->
+    <div class={containerClass} if:true={shouldShowComponent}>
+        <!-- Header Section -->
+        <div class="pills-header">
+            <div class="pills-title">
+                <lightning-icon 
+                    icon-name="utility:groups" 
+                    size="x-small" 
+                    class="title-icon">
+                </lightning-icon>
+                <span class="title-text">Clientes Ativos</span>
+                <span class="client-count">({activeClients.length})</span>
+            </div>
+            
+            <!-- Clear Filters Button -->
+            <div if:true={shouldShowClearButton} class="clear-filters">
+                <lightning-button
+                    label="Limpar Filtros"
+                    variant="neutral"
+                    size="small"
+                    icon-name="utility:clear"
+                    onclick={handleClearFilters}
+                    class="clear-button">
+                </lightning-button>
+            </div>
+        </div>
+        
+        <!-- Pills Container -->
+        <div class="pills-container">
+            <!-- Client Pills -->
+            <div class="pills-list">
+                <template for:each={visibleClients} for:item="client">
+                    <div key={client.clientId} 
+                         class={client.pillClass}
+                         data-client-id={client.clientId}
+                         data-client-name={client.clientName}
+                         onclick={handlePillClick}
+                         title={client.trackingReason}>
+                        
+                        <!-- Client Icon -->
+                        <lightning-icon 
+                            icon-name="utility:person_account" 
+                            size="xx-small" 
+                            class="pill-icon">
+                        </lightning-icon>
+                        
+                        <!-- Client Name -->
+                        <span class="pill-text">{client.clientName}</span>
+                        
+                        <!-- Event Count Badge -->
+                        <span class="pill-badge">{client.totalEvents}</span>
+                        
+                        <!-- Active Indicator -->
+                        <div if:true={client.isSelected} class="selected-indicator">
+                            <lightning-icon 
+                                icon-name="utility:check" 
+                                size="xx-small">
+                            </lightning-icon>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <!-- Show More/Less Toggle -->
+            <div if:true={hasMoreClients} class="toggle-container">
+                <lightning-button
+                    label={toggleButtonLabel}
+                    variant="neutral"
+                    size="small"
+                    onclick={handleToggleShowAll}
+                    class="toggle-button">
+                </lightning-button>
+            </div>
+        </div>
+        
+        <!-- Loading State - Removed to prevent flickering -->
+        
+        <!-- Error State -->
+        <div if:true={error} class="error-container">
+            <lightning-icon 
+                icon-name="utility:error" 
+                size="small" 
+                variant="error" 
+                class="error-icon">
+            </lightning-icon>
+            <span class="error-text">Erro ao carregar clientes ativos</span>
+        </div>
+    </div>
+    
+    <!-- Empty State (when no active clients) -->
+    <div if:true={shouldShowEmptyState} class="empty-state">
+        <lightning-icon 
+            icon-name="utility:info" 
+            size="small" 
+            class="empty-icon">
+        </lightning-icon>
+        <span class="empty-text">Nenhum cliente ativo encontrado para este período</span>
+    </div>
+</template>

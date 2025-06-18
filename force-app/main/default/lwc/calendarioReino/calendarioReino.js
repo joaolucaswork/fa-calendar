@@ -130,6 +130,12 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   };
   @track allEvents = []; // Store all events for filtering
 
+  // Client tracking filter properties
+  @track selectedClientId = null; // Currently selected client for filtering
+  @track selectedClientName = null; // Name of selected client
+  @track currentStartDate = null; // Current calendar start date for client tracking
+  @track currentEndDate = null; // Current calendar end date for client tracking
+
   // Meeting room filter properties
   @track meetingRooms = [
     {
@@ -335,6 +341,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
     // Load status picklist options for meeting outcome interface
     this.loadStatusPicklistOptions();
+
+    // Initialize client tracking date range to current month
+    this.initializeClientTrackingDates();
   }
 
   // ========================================
@@ -718,6 +727,19 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       // Format: "Maio de 2025"
       this.currentDateRangeText = `${monthNames[monthIndex]} de ${year}`;
     }
+  }
+
+  /**
+   * Initialize client tracking date range to current month
+   */
+  initializeClientTrackingDates() {
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    // Format dates as YYYY-MM-DD for consistency with calendar
+    this.currentStartDate = startOfMonth.toISOString().split('T')[0];
+    this.currentEndDate = endOfMonth.toISOString().split('T')[0];
   }
 
   /**
@@ -1108,6 +1130,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
           // Save the current view's date range - using moment since it's available in FullCalendar
           this.startDate = start.format("YYYY-MM-DD");
           this.endDate = end.format("YYYY-MM-DD");
+
+          // Update client tracking date range
+          this.currentStartDate = this.startDate;
+          this.currentEndDate = this.endDate;
 
           // Load events from Salesforce
           this.loadEventsFromSalesforce(start, end, callback);
@@ -2015,6 +2041,11 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     // Enhanced calendar refresh with multiple strategies
     this.refreshCalendarAfterSave();
 
+    // Refresh client tracking data after event save
+    setTimeout(() => {
+      this.refreshClientTrackingData();
+    }, 500);
+
     // If appointment was created from a suggestion, provide specific feedback
     if (wasFromSuggestion && usedSuggestionData) {
       // console.log(
@@ -2474,6 +2505,55 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   }
 
   /**
+   * Handle client filter selection from client tracking pills
+   */
+  handleClientFilter(event) {
+    const { clientId, clientName, isActive } = event.detail;
+
+    if (isActive) {
+      // Select client for filtering
+      this.selectedClientId = clientId;
+      this.selectedClientName = clientName;
+
+      this.showToast(
+        "Filtro de Cliente",
+        `Mostrando eventos de ${clientName}`,
+        "success"
+      );
+    } else {
+      // Clear client filter
+      this.selectedClientId = null;
+      this.selectedClientName = null;
+
+      this.showToast(
+        "Filtro Removido",
+        "Mostrando todos os eventos",
+        "success"
+      );
+    }
+
+    // Apply filters to calendar
+    this.applyFilters();
+
+    // Refresh client tracking data
+    this.refreshClientTrackingData();
+  }
+
+  /**
+   * Refresh client tracking pills data
+   */
+  refreshClientTrackingData() {
+    try {
+      const clientTrackingComponent = this.template.querySelector('c-client-tracking-pills');
+      if (clientTrackingComponent && typeof clientTrackingComponent.refreshClients === 'function') {
+        clientTrackingComponent.refreshClients();
+      }
+    } catch (error) {
+      console.error('Error refreshing client tracking data:', error);
+    }
+  }
+
+  /**
    * Apply search and filter to events
    */
   applyFilters() {
@@ -2511,6 +2591,14 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
           event.liderComercialName === this.selectedUserName ||
           event.sdrName === this.selectedUserName
         );
+      });
+    }
+
+    // Apply client filter - show only events for selected client
+    if (this.selectedClientId) {
+      filteredEvents = filteredEvents.filter((event) => {
+        // Check if event is associated with the selected client via WhoId
+        return event.whoId === this.selectedClientId;
       });
     }
 
@@ -5157,6 +5245,11 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
         // Generate meeting suggestions after loading events
         this.generateMeetingSuggestions();
+
+        // Refresh client tracking data after loading events
+        setTimeout(() => {
+          this.refreshClientTrackingData();
+        }, 300);
 
         // Pass all events to FullCalendar
         callback(allEvents);

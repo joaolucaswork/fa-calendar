@@ -357,6 +357,8 @@
         </div>
       </div>
 
+
+
       <!-- Floating Fuzzy Search Overlay - COMMENTED OUT -->
       <!-- <div class="floating-fuzzy-search-overlay">
         <template if:true={isFuzzySearchVisible}>
@@ -726,6 +728,16 @@
   </div>
   <div if:true={error} class="slds-text-color_error slds-p-around_small">
     Ocorreu um erro ao carregar o calendário. Por favor, tente novamente.
+  </div>
+
+  <!-- Client Tracking Pills Section - Independent of calendar loading state -->
+  <div class="client-tracking-section-independent">
+    <c-client-tracking-pills
+      start-date={currentStartDate}
+      end-date={currentEndDate}
+      selected-client-id={selectedClientId}
+      onclientfilter={handleClientFilter}
+    ></c-client-tracking-pills>
   </div>
 
   <!-- Appointment Editor Modal -->

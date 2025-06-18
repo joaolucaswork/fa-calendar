@@ -1,0 +1,282 @@
+/**
+ * Client Tracking Pills LWC Styles
+ * Styles for the horizontal pill-shaped client tracking component
+ */
+
+/* Main Container */
+.client-tracking-container {
+    background: #ffffff;
+    border: 1px solid #e1dfdd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 8px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.client-tracking-container.loading {
+    opacity: 0.7;
+}
+
+/* Header Section */
+.pills-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.pills-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #252423;
+    font-size: 14px;
+}
+
+.title-icon {
+    --slds-c-icon-color-foreground-default: #926f1b;
+}
+
+.client-count {
+    color: #605e5c;
+    font-weight: 400;
+    font-size: 13px;
+}
+
+.clear-filters {
+    display: flex;
+    align-items: center;
+}
+
+.clear-button {
+    --slds-c-button-radius-border: 16px;
+    --slds-c-button-neutral-color-background: #f5f5f5;
+    --slds-c-button-neutral-color-border: #d0d0d0;
+    --slds-c-button-text-color: #605e5c;
+    font-size: 12px;
+}
+
+/* Pills Container */
+.pills-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Individual Client Pills */
+.client-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8f9fa;
+    border: 1px solid #e1dfdd;
+    border-radius: 20px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    color: #252423;
+    position: relative;
+    max-width: 200px;
+}
+
+.client-pill:hover {
+    background: #e9ecef;
+    border-color: #926f1b;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(146, 111, 27, 0.2);
+}
+
+.client-pill.selected {
+    background: #926f1b;
+    border-color: #926f1b;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(146, 111, 27, 0.3);
+}
+
+/* Pill Type Variations */
+.client-pill.multiple-events {
+    border-left: 3px solid #4bca81;
+}
+
+.client-pill.rescheduled {
+    border-left: 3px solid #ff9500;
+}
+
+.client-pill.multiple-phases {
+    border-left: 3px solid #0176d3;
+}
+
+.client-pill.recent-activity {
+    border-left: 3px solid #8b5cf6;
+}
+
+/* Pill Content */
+.pill-icon {
+    --slds-c-icon-color-foreground-default: #605e5c;
+    flex-shrink: 0;
+}
+
+.client-pill.selected .pill-icon {
+    --slds-c-icon-color-foreground-default: #ffffff;
+}
+
+.pill-text {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+.pill-badge {
+    background: #605e5c;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.client-pill.selected .pill-badge {
+    background: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+}
+
+.selected-indicator {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #4bca81;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+}
+
+.selected-indicator lightning-icon {
+    --slds-c-icon-color-foreground-default: #ffffff;
+}
+
+/* Toggle Button */
+.toggle-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.toggle-button {
+    --slds-c-button-radius-border: 16px;
+    --slds-c-button-neutral-color-background: transparent;
+    --slds-c-button-neutral-color-border: #d0d0d0;
+    --slds-c-button-text-color: #926f1b;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.toggle-button:hover {
+    --slds-c-button-neutral-color-background: rgba(146, 111, 27, 0.05);
+}
+
+/* Loading State */
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    color: #605e5c;
+}
+
+.loading-text {
+    font-size: 13px;
+}
+
+/* Error State */
+.error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    background: #fef7f7;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    color: #721c24;
+}
+
+.error-text {
+    font-size: 13px;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    color: #605e5c;
+    font-size: 13px;
+    background: #f8f9fa;
+    border: 1px solid #e1dfdd;
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+.empty-icon {
+    --slds-c-icon-color-foreground-default: #605e5c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .pills-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .client-pill {
+        max-width: 150px;
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+    
+    .pill-badge {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+}
+
+/* Animation for pill selection */
+@keyframes pillSelect {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.client-pill.selected {
+    animation: pillSelect 0.3s ease;
+}
