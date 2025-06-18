@@ -271,6 +271,9 @@ public with sharing class AppointmentController {
           tipoReuniao = (String) evento.get('tipoReuniao__c');
         }
         result.put('type', tipoReuniao);
+
+        // Debug logging to see what we're returning
+        System.debug('AppointmentController: Returning event details with type: ' + tipoReuniao);
         
         result.put('startDateTime', evento.StartDateTime);
         result.put('endDateTime', evento.EndDateTime);
@@ -484,11 +487,17 @@ public with sharing class AppointmentController {
 
       // Set meeting type using tipoReuniao__c field
       if (eventData.containsKey('tipoReuniao') && eventData.get('tipoReuniao') != null) {
-        if (fieldMap.containsKey('tipoReuniao__c') && 
+        System.debug('AppointmentController: Creating event with tipoReuniao field value: ' + eventData.get('tipoReuniao'));
+        if (fieldMap.containsKey('tipoReuniao__c') &&
             fieldMap.get('tipoReuniao__c').getDescribe().isAccessible() &&
             fieldMap.get('tipoReuniao__c').getDescribe().isCreateable()) {
           newEvent.put('tipoReuniao__c', (String) eventData.get('tipoReuniao'));
+          System.debug('AppointmentController: Successfully set tipoReuniao__c field on new event');
+        } else {
+          System.debug('AppointmentController: tipoReuniao__c field not accessible or createable');
         }
+      } else {
+        System.debug('AppointmentController: tipoReuniao field not found in eventData or is null');
       }
 
       if (eventData.containsKey('reuniaoCriada')) {
@@ -756,11 +765,17 @@ public with sharing class AppointmentController {
 
       // Update meeting type using tipoReuniao__c field
       if (eventData.containsKey('tipoReuniao') && eventData.get('tipoReuniao') != null) {
-        if (fieldMap.containsKey('tipoReuniao__c') && 
+        System.debug('AppointmentController: Updating tipoReuniao field with value: ' + eventData.get('tipoReuniao'));
+        if (fieldMap.containsKey('tipoReuniao__c') &&
             fieldMap.get('tipoReuniao__c').getDescribe().isAccessible() &&
             fieldMap.get('tipoReuniao__c').getDescribe().isUpdateable()) {
           eventToUpdate.put('tipoReuniao__c', (String) eventData.get('tipoReuniao'));
+          System.debug('AppointmentController: Successfully set tipoReuniao__c field');
+        } else {
+          System.debug('AppointmentController: tipoReuniao__c field not accessible or updateable');
         }
+      } else {
+        System.debug('AppointmentController: tipoReuniao field not found in eventData or is null');
       }
 
       if (eventData.containsKey('reuniaoCriada')) {

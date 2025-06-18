@@ -110,6 +110,14 @@ public with sharing class ReuniaoController {
       Description = 'Reunião inicial para apresentação e discussão de oportunidades.'
     );
 
+    // Set default meeting type for automated events
+    try {
+      novoEvento.put('tipoReuniao__c', 'Reunião Presencial');
+    } catch (Exception e) {
+      // Field may not be accessible, continue without setting
+      System.debug('Could not set tipoReuniao__c field: ' + e.getMessage());
+    }
+
     try {
       insert novoEvento;
 

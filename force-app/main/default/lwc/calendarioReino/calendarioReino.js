@@ -3980,7 +3980,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       description: event.description || "",
       location: event.location || "",
       whoId: event.whoId || null,
-      whatId: event.whatId || null
+      whatId: event.whatId || null,
+      // Include meeting type and room information to preserve during drag/drop
+      tipoReuniao: event.type || event.tipoReuniao || null,
+      salaReuniao: event.salaReuniao || null
     };
 
     saveEvent({ eventData })
@@ -4701,6 +4704,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
               whatId: event.whatId,
               // Enhanced fields for display
               type: event.type || null, // Type field may be null due to permissions
+              tipoReuniao: event.tipoReuniao || null, // Add tipoReuniao field explicitly
               salaReuniao: event.salaReuniao,
               gestorName: event.gestorName,
               liderComercialName: event.liderComercialName,
@@ -5795,7 +5799,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     const room = this.formatMeetingRoom(event.salaReuniao);
     const participants = this.formatParticipants(event);
     const attachment = this.formatAttachment(event);
-    const meetingTypeBadge = this.formatMeetingTypeBadge(event.type);
+    // Use the correct field for meeting type badge - check both type and tipoReuniao fields
+    const meetingType = event.type || event.tipoReuniao || "";
+    const meetingTypeBadge = this.formatMeetingTypeBadge(meetingType);
 
     // Format time for display
     const timeDisplay = this.formatEventTime(event);
@@ -6054,8 +6060,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     // Load meeting outcome for the selected event
     this.colorPickerMeetingOutcome = calendarEvent.reuniaoAconteceu;
 
-    // Load event type to determine URL field visibility
-    this.colorPickerEventType = calendarEvent.type || "";
+    // Load event type to determine URL field visibility - check both type and tipoReuniao fields
+    this.colorPickerEventType = calendarEvent.type || calendarEvent.tipoReuniao || "";
     // Find the complete event data in our cache instead of using FullCalendar event
     const completeEvent = this.allEvents.find(
       (event) => event.id === calendarEvent.id

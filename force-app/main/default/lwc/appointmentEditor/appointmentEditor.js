@@ -855,10 +855,10 @@ export default class AppointmentEditor extends NavigationMixin(
 
     // If modal is being opened, ensure we load the correct data
     if (this.isConnected && !oldValue && value) {
-      // console.log(
-      //   "📝 AppointmentEditor: Modal opening - about to reset state and load data"
-      // );
-      this.resetComponentState();
+      // Only reset state for new events, not when editing existing events
+      if (!this.eventId && !this.selectedEventData) {
+        this.resetComponentState();
+      }
       this.loadEventData();
     }
   }
@@ -881,19 +881,8 @@ export default class AppointmentEditor extends NavigationMixin(
     this.salaReuniao = "salaPrincipal"; // Reset to default room
     this.linkReuniao = ""; // Reset meeting link
 
-    // Only reset appointment type if we don't have pre-selected dates
-    // This ensures date fields remain visible when day is clicked
-    if (!this.selectedStartDate || !this.selectedEndDate) {
-      this.appointmentType = ""; // Reset appointment type to force selection
-      // console.log(
-      //   "📝 AppointmentEditor: No pre-selected dates - appointment type reset to empty"
-      // );
-    } else {
-      this.appointmentType = "Reunião Presencial"; // Set default for day clicks
-      // console.log(
-      //   "📝 AppointmentEditor: Pre-selected dates found - appointment type set to 'Reunião Presencial'"
-      // );
-    }
+    // Always reset appointment type to force user selection
+    this.appointmentType = ""; // Reset appointment type to force selection
 
     // Reset contact and opportunity information
     this.contactInfo = {};
@@ -1086,7 +1075,7 @@ export default class AppointmentEditor extends NavigationMixin(
       startDateTime: formattedStartDate,
       endDateTime: formattedEndDate,
       isAllDayEvent: false,
-      type: "Reunião Presencial", // Set default type when dates are pre-selected
+      type: "", // Don't force default type - let user select
       description: "",
       whoId: this.whoId || null,
       whatId: this.whatId || null,
@@ -1545,13 +1534,15 @@ export default class AppointmentEditor extends NavigationMixin(
         : new Date(Date.now() + 3600000).toISOString();
 
       // Map calendar event data to our eventData structure
+      const meetingType = this.selectedEventData.type || this.selectedEventData.tipoReuniao || "";
+
       this.eventData = {
         subject: this.selectedEventData.title || "",
         location: this.selectedEventData.location || "",
         startDateTime: startDateTime,
         endDateTime: endDateTime,
         isAllDayEvent: this.selectedEventData.allDay || false,
-        type: "Reunião Presencial", // Default type, will be updated by Apex call
+        type: meetingType, // Use actual meeting type from event data
         description: this.selectedEventData.description || "",
         whoId: this.selectedEventData.whoId || null,
         whatId: this.selectedEventData.whatId || null,
@@ -1564,6 +1555,11 @@ export default class AppointmentEditor extends NavigationMixin(
         liderComercialName: "",
         sdrName: ""
       };
+
+      // Set appointment type from calendar data
+      if (meetingType) {
+        this.appointmentType = meetingType;
+      }
 
       // Still need to fetch full details from Salesforce for custom fields
       // but we can show the basic data immediately
@@ -1583,8 +1579,10 @@ export default class AppointmentEditor extends NavigationMixin(
     getAppointmentDetails({ eventId: this.eventId, whoId: null, whatId: null })
       .then((result) => {
         if (result.success) {
+
+
           // Update only the fields not available from calendar data
-          this.eventData.type = result.type || "Reunião Presencial";
+          this.eventData.type = result.type || "";
           this.eventData.reuniaoCriada = result.reuniaoCriada || false;
           this.eventData.statusReuniao =
             result.statusReuniao !== undefined ? result.statusReuniao : null;
@@ -1600,8 +1598,11 @@ export default class AppointmentEditor extends NavigationMixin(
           this.statusReuniao =
             result.statusReuniao !== undefined ? result.statusReuniao : null;
 
-          // Update appointment type
-          this.appointmentType = result.type || "Reunião Presencial";
+          // Update appointment type - preserve actual meeting type from database
+          // Only update if we don't already have a type from calendar data
+          if (!this.appointmentType && result.type) {
+            this.appointmentType = result.type;
+          }
 
           // Update meeting link
           this.linkReuniao = result.linkReuniao || "";
@@ -1634,7 +1635,7 @@ export default class AppointmentEditor extends NavigationMixin(
               result.endDateTime ||
               new Date(Date.now() + 3600000).toISOString(),
             isAllDayEvent: result.isAllDay || false,
-            type: result.type || "Reunião Presencial",
+            type: result.type || "",
             description: result.description || "",
             whoId: result.whoId || null,
             whatId: result.whatId || null,
@@ -1657,8 +1658,11 @@ export default class AppointmentEditor extends NavigationMixin(
           this.statusReuniao =
             result.statusReuniao !== undefined ? result.statusReuniao : null;
 
-          // Atualizar o tipo de compromisso
-          this.appointmentType = result.type || "Reunião Presencial";
+          // Atualizar o tipo de compromisso - preserve actual meeting type from database
+          // Only update if we don't already have a type from calendar data
+          if (!this.appointmentType && result.type) {
+            this.appointmentType = result.type;
+          }
 
           // Update meeting link
           this.linkReuniao = result.linkReuniao || "";
@@ -2323,7 +2327,7 @@ export default class AppointmentEditor extends NavigationMixin(
       startDateTime: this.eventData.startDateTime,
       endDateTime: this.eventData.endDateTime,
       isAllDayEvent: this.eventData.isAllDayEvent,
-      type: this.appointmentType,
+      tipoReuniao: this.appointmentType, // Use tipoReuniao field name expected by Apex controller
       description: this.eventData.description,
       reuniaoCriada: this.eventData.reuniaoCriada,
       statusReuniao: this.statusReuniao,
@@ -2337,6 +2341,8 @@ export default class AppointmentEditor extends NavigationMixin(
       faseEvento: this.eventData.faseEvento, // Event phase for subject generation
       produtoEvento: this.eventData.produtoEvento // Product selection for subject generation
     };
+
+
 
     // console.log("AppointmentEditor: eventDataToSave", eventDataToSave);
 
