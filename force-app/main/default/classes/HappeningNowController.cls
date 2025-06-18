@@ -7,9 +7,11 @@ public with sharing class HappeningNowController {
     
     /**
      * Check if a single event is currently happening
+     * Note: This method only checks time range. For full cancellation filtering,
+     * use checkMultipleEventsHappeningNow or getCurrentlyHappeningEventsInRoom
      * @param startDateTime The event start date/time
      * @param endDateTime The event end date/time
-     * @return Boolean indicating if the event is currently in progress
+     * @return Boolean indicating if the event is currently in progress (time-wise only)
      */
     @AuraEnabled(cacheable=false)
     public static Boolean isEventHappeningNow(DateTime startDateTime, DateTime endDateTime) {
@@ -18,17 +20,17 @@ public with sharing class HappeningNowController {
                 System.debug('HappeningNowController: Null datetime parameters provided');
                 return false;
             }
-            
+
             DateTime now = DateTime.now();
-            
+
             // Event is happening now if current time is between start and end (inclusive)
             Boolean isHappening = now >= startDateTime && now <= endDateTime;
-            
-            System.debug('HappeningNowController: Event happening check - Start: ' + startDateTime + 
+
+            System.debug('HappeningNowController: Event happening check - Start: ' + startDateTime +
                         ', End: ' + endDateTime + ', Now: ' + now + ', IsHappening: ' + isHappening);
-            
+
             return isHappening;
-            
+
         } catch (Exception e) {
             System.debug(LoggingLevel.ERROR, 'HappeningNowController: Error checking if event is happening now: ' + e.getMessage());
             return false;
@@ -37,47 +39,59 @@ public with sharing class HappeningNowController {
     
     /**
      * Check multiple events and return their happening status
+     * Excludes events with cancellation reasons: 'Cancelado', 'Adiado', 'Reagendado'
      * @param eventIds List of event IDs to check
      * @return Map of event ID to happening status
      */
     @AuraEnabled(cacheable=false)
     public static Map<String, Boolean> checkMultipleEventsHappeningNow(List<String> eventIds) {
         Map<String, Boolean> results = new Map<String, Boolean>();
-        
+
         try {
             if (eventIds == null || eventIds.isEmpty()) {
                 System.debug('HappeningNowController: No event IDs provided');
                 return results;
             }
-            
+
+            // Define cancellation reasons that should exclude events from "happening now"
+            Set<String> cancellationReasons = new Set<String>{'Cancelado', 'Adiado', 'Reagendado'};
+
             // Query events with their datetime information
             List<Event> events = [
-                SELECT Id, StartDateTime, EndDateTime, Subject
-                FROM Event 
+                SELECT Id, StartDateTime, EndDateTime, Subject, statusReuniao__c
+                FROM Event
                 WHERE Id IN :eventIds
                 WITH SECURITY_ENFORCED
             ];
-            
+
             DateTime now = DateTime.now();
-            
+
             for (Event evt : events) {
                 Boolean isHappening = false;
-                
+
                 if (evt.StartDateTime != null && evt.EndDateTime != null) {
-                    isHappening = now >= evt.StartDateTime && now <= evt.EndDateTime;
+                    // Check if event is currently happening based on time
+                    Boolean isInTimeRange = now >= evt.StartDateTime && now <= evt.EndDateTime;
+
+                    // Check if event is not cancelled/postponed/rescheduled
+                    Boolean isNotCancelled = String.isBlank(evt.statusReuniao__c) ||
+                                            !cancellationReasons.contains(evt.statusReuniao__c);
+
+                    // Event is happening only if both conditions are met
+                    isHappening = isInTimeRange && isNotCancelled;
                 }
-                
+
                 results.put(evt.Id, isHappening);
-                
+
                 System.debug('HappeningNowController: Event ' + evt.Id + ' (' + evt.Subject + ') - ' +
-                           'Start: ' + evt.StartDateTime + ', End: ' + evt.EndDateTime + 
-                           ', IsHappening: ' + isHappening);
+                           'Start: ' + evt.StartDateTime + ', End: ' + evt.EndDateTime +
+                           ', Status: ' + evt.statusReuniao__c + ', IsHappening: ' + isHappening);
             }
-            
+
         } catch (Exception e) {
             System.debug(LoggingLevel.ERROR, 'HappeningNowController: Error checking multiple events: ' + e.getMessage());
         }
-        
+
         return results;
     }
     
@@ -135,39 +149,45 @@ public with sharing class HappeningNowController {
     
     /**
      * Get events that are currently happening for a specific room
+     * Excludes events with cancellation reasons: 'Cancelado', 'Adiado', 'Reagendado'
      * @param roomValue The internal room value (e.g., 'salaPrincipal', 'salaGabriel')
      * @return List of events currently happening in the specified room
      */
     @AuraEnabled(cacheable=false)
     public static List<Event> getCurrentlyHappeningEventsInRoom(String roomValue) {
         List<Event> happeningEvents = new List<Event>();
-        
+
         try {
             if (String.isBlank(roomValue)) {
                 System.debug('HappeningNowController: No room value provided');
                 return happeningEvents;
             }
-            
+
             DateTime now = DateTime.now();
-            
+
+            // Define cancellation reasons that should exclude events from "happening now"
+            Set<String> cancellationReasons = new Set<String>{'Cancelado', 'Adiado', 'Reagendado'};
+
             happeningEvents = [
                 SELECT Id, Subject, StartDateTime, EndDateTime, Location,
-                       salaReuniao__c, Owner.Name
+                       salaReuniao__c, Owner.Name, statusReuniao__c
                 FROM Event
                 WHERE salaReuniao__c = :roomValue
                 AND StartDateTime <= :now
                 AND EndDateTime >= :now
+                AND (statusReuniao__c = NULL OR statusReuniao__c NOT IN :cancellationReasons)
                 WITH SECURITY_ENFORCED
                 ORDER BY StartDateTime ASC
             ];
-            
-            System.debug('HappeningNowController: Found ' + happeningEvents.size() + 
-                        ' events currently happening in room: ' + roomValue);
-            
+
+            System.debug('HappeningNowController: Found ' + happeningEvents.size() +
+                        ' events currently happening in room: ' + roomValue +
+                        ' (excluding cancelled/postponed/rescheduled events)');
+
         } catch (Exception e) {
             System.debug(LoggingLevel.ERROR, 'HappeningNowController: Error getting current events in room: ' + e.getMessage());
         }
-        
+
         return happeningEvents;
     }
     
@@ -212,47 +232,59 @@ public with sharing class HappeningNowController {
     
     /**
      * Get detailed happening status for multiple events
+     * Excludes events with cancellation reasons: 'Cancelado', 'Adiado', 'Reagendado'
      * @param eventIds List of event IDs to check
      * @return List of EventHappeningStatus objects with detailed information
      */
     @AuraEnabled(cacheable=false)
     public static List<EventHappeningStatus> getDetailedHappeningStatus(List<String> eventIds) {
         List<EventHappeningStatus> statusList = new List<EventHappeningStatus>();
-        
+
         try {
             if (eventIds == null || eventIds.isEmpty()) {
                 return statusList;
             }
-            
+
+            // Define cancellation reasons that should exclude events from "happening now"
+            Set<String> cancellationReasons = new Set<String>{'Cancelado', 'Adiado', 'Reagendado'};
+
             List<Event> events = [
-                SELECT Id, Subject, StartDateTime, EndDateTime
-                FROM Event 
+                SELECT Id, Subject, StartDateTime, EndDateTime, statusReuniao__c
+                FROM Event
                 WHERE Id IN :eventIds
                 WITH SECURITY_ENFORCED
             ];
-            
+
             DateTime now = DateTime.now();
-            
+
             for (Event evt : events) {
                 Boolean isHappening = false;
-                
+
                 if (evt.StartDateTime != null && evt.EndDateTime != null) {
-                    isHappening = now >= evt.StartDateTime && now <= evt.EndDateTime;
+                    // Check if event is currently happening based on time
+                    Boolean isInTimeRange = now >= evt.StartDateTime && now <= evt.EndDateTime;
+
+                    // Check if event is not cancelled/postponed/rescheduled
+                    Boolean isNotCancelled = String.isBlank(evt.statusReuniao__c) ||
+                                            !cancellationReasons.contains(evt.statusReuniao__c);
+
+                    // Event is happening only if both conditions are met
+                    isHappening = isInTimeRange && isNotCancelled;
                 }
-                
+
                 statusList.add(new EventHappeningStatus(
-                    evt.Id, 
-                    evt.Subject, 
-                    isHappening, 
-                    evt.StartDateTime, 
+                    evt.Id,
+                    evt.Subject,
+                    isHappening,
+                    evt.StartDateTime,
                     evt.EndDateTime
                 ));
             }
-            
+
         } catch (Exception e) {
             System.debug(LoggingLevel.ERROR, 'HappeningNowController: Error getting detailed status: ' + e.getMessage());
         }
-        
+
         return statusList;
     }
 }

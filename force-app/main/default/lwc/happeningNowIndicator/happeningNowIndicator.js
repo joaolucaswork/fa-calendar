@@ -74,6 +74,12 @@ export default class HappeningNowIndicator extends LightningElement {
   @api size = "medium";
 
   /**
+   * Event cancellation reason/status - if set to 'Cancelado', 'Adiado', or 'Reagendado',
+   * the indicator will be hidden even if the event is currently happening
+   */
+  @api cancellationReason;
+
+  /**
    * Tracked properties
    */
   @track isHappening = false;
@@ -115,6 +121,7 @@ export default class HappeningNowIndicator extends LightningElement {
 
   /**
    * Check if the event is currently happening
+   * Considers both time range and cancellation status
    */
   async checkIfHappening() {
     try {
@@ -126,6 +133,12 @@ export default class HappeningNowIndicator extends LightningElement {
       }
 
       if (!this.startDateTime || !this.endDateTime) {
+        this.isHappening = false;
+        return;
+      }
+
+      // Check if event is cancelled/postponed/rescheduled
+      if (this.isCancelledEvent()) {
         this.isHappening = false;
         return;
       }
@@ -210,6 +223,19 @@ export default class HappeningNowIndicator extends LightningElement {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  /**
+   * Check if the event is cancelled, postponed, or rescheduled
+   * @returns {boolean} True if event should be hidden due to cancellation status
+   */
+  isCancelledEvent() {
+    if (!this.cancellationReason) {
+      return false;
+    }
+
+    const cancellationReasons = ['Cancelado', 'Adiado', 'Reagendado'];
+    return cancellationReasons.includes(this.cancellationReason);
   }
 
   /**

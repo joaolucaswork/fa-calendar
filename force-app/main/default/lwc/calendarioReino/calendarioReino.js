@@ -73,13 +73,27 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   @track currentViewLabel = "Mês"; // Label para o dropdown de visualização - changed to "Mês" for monthly default view
 
   // Event Type Filter properties for header dropdown
-  @track currentEventTypeFilterLabel = "Todos os eventos"; // Label for event type filter dropdown
+  @track currentEventTypeFilterLabel = "Todos"; // Label for event type filter dropdown
   @track isEventTypeFilterSelected = {
     all: true,
     presencial: false,
     online: false,
     telefonica: false
   };
+
+  // Location Filter properties for header dropdown
+  @track currentLocationFilterLabel = "Todas as Salas"; // Label for location filter dropdown
+  @track isLocationFilterSelected = {
+    all: true,
+    salaPrincipal: false,
+    salaGabriel: false,
+    Outra: false
+  };
+
+  // Room Tabs properties for sidebar event cards
+  @track activeRoomTab = "salaPrincipal"; // Currently active room tab
+  @track currentRoomEvents = []; // Events for the currently selected room
+  @track currentRoomLabel = "Sala Principal"; // Label for current room
 
   // Propriedades para o popup de calendário
   @track isDatePickerVisible = false;
@@ -260,6 +274,15 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     return `teams-layout ${this.isSidebarCollapsed ? "sidebar-collapsed" : ""}`.trim();
   }
 
+  // Computed properties for room tab classes
+  get salaPrincipalTabClass() {
+    return `room-tab ${this.activeRoomTab === "salaPrincipal" ? "active" : ""}`.trim();
+  }
+
+  get salaGabrielTabClass() {
+    return `room-tab ${this.activeRoomTab === "salaGabriel" ? "active" : ""}`.trim();
+  }
+
   get calendarContainerClass() {
     return `calendar-container-wrapper ${this.isSidebarCollapsed ? "sidebar-collapsed" : ""}`.trim();
   }
@@ -297,6 +320,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
     // Initialize room availability
     this.initializeRoomAvailability();
+
+    // Initialize room tabs
+    this.initializeRoomTabs();
 
     // Load available users for calendar selection
     this.loadAvailableUsers();
@@ -355,6 +381,16 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
     // Refresh calendar to show new status-based color
     this.refreshCalendarAfterStatusChange();
+
+    // Immediately refresh room occupied slots for real-time cancellation filtering
+    setTimeout(() => {
+      this.refreshRoomOccupiedSlots();
+    }, 100);
+
+    // Additional aggressive UI refresh for immediate visual feedback
+    setTimeout(() => {
+      this.forceCompleteUIRefresh();
+    }, 500);
   }
 
   /**
@@ -833,9 +869,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     // Update header filter label
     const filterLabels = {
       all: "Todos os eventos",
-      presencial: "Reunião Presencial",
-      online: "Reunião Online",
-      telefonica: "Ligação Telefônica"
+      presencial: "Presencial",
+      online: "Online",
+      telefonica: "Telefônica"
     };
     this.currentEventTypeFilterLabel =
       filterLabels[selectedFilter] || "Todos os eventos";
@@ -857,6 +893,92 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
     // Apply filters to calendar
     this.applyFilters();
+  }
+
+  /**
+   * Handle location filter change in header dropdown
+   */
+  handleLocationFilterChange(event) {
+    const selectedFilter = event.detail.value;
+
+    // Update header location filter state
+    this.isLocationFilterSelected = {
+      all: selectedFilter === "all",
+      salaPrincipal: selectedFilter === "salaPrincipal",
+      salaGabriel: selectedFilter === "salaGabriel",
+      Outra: selectedFilter === "Outra"
+    };
+
+    // Update header location filter label
+    const locationLabels = {
+      all: "Todas as Salas",
+      salaPrincipal: "Sala Principal",
+      salaGabriel: "Sala Gabriel",
+      Outra: "Outra"
+    };
+    this.currentLocationFilterLabel =
+      locationLabels[selectedFilter] || "Todas as Salas";
+
+    // Sync with meeting rooms selection for backward compatibility
+    this.meetingRooms = this.meetingRooms.map((room) => {
+      if (selectedFilter === "all") {
+        return { ...room, selected: true };
+      } else {
+        return { ...room, selected: room.value === selectedFilter };
+      }
+    });
+
+    // Apply filters to calendar
+    this.applyFilters();
+
+    // Update room availability after filter change
+    this.updateRoomAvailability();
+  }
+
+  /**
+   * Handle room tab click in sidebar
+   */
+  handleRoomTabClick(event) {
+    const roomValue = event.currentTarget.dataset.room;
+
+    // Update active tab
+    this.activeRoomTab = roomValue;
+
+    // Update current room label
+    const roomLabels = {
+      salaPrincipal: "Sala Principal",
+      salaGabriel: "Sala do Gabriel"
+    };
+    this.currentRoomLabel = roomLabels[roomValue] || "Sala Principal";
+
+    // Update current room events
+    this.updateCurrentRoomEvents();
+  }
+
+  /**
+   * Update current room events based on active tab
+   */
+  updateCurrentRoomEvents() {
+    // Find the room data for the active tab
+    const activeRoom = this.meetingRooms.find(room => room.value === this.activeRoomTab);
+
+    if (activeRoom && activeRoom.occupiedSlots) {
+      this.currentRoomEvents = [...activeRoom.occupiedSlots];
+    } else {
+      this.currentRoomEvents = [];
+    }
+  }
+
+  /**
+   * Initialize room tabs with default selection
+   */
+  initializeRoomTabs() {
+    // Set default active tab to Sala Principal
+    this.activeRoomTab = "salaPrincipal";
+    this.currentRoomLabel = "Sala Principal";
+
+    // Initialize current room events (will be empty initially until room data loads)
+    this.updateCurrentRoomEvents();
   }
 
   /**
@@ -1971,6 +2093,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
         // Refresh all participant displays in sidebar cards
         this.refreshAllParticipantDisplays();
 
+        // Re-process room occupied slots to apply cancellation filtering in real-time
+        this.refreshRoomOccupiedSlots();
+
         // Verify that events were actually refreshed
         this.verifyEventRefresh();
       }, 1200);
@@ -2662,6 +2787,155 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   }
 
   /**
+   * Refresh room occupied slots to apply real-time cancellation filtering
+   * This ensures that cancelled/postponed/rescheduled events are immediately
+   * removed from the sidebar without requiring a page refresh
+   */
+  refreshRoomOccupiedSlots() {
+    try {
+      // console.log("🏢 CalendarioReino: Refreshing room occupied slots for real-time filtering");
+
+      // Strategy 1: Force immediate re-processing of room data
+      if (this.startDate && this.endDate) {
+        // Re-fetch room availability data to get updated event lists
+        getRoomAvailability({
+          startDate: this.startDate,
+          endDate: this.endDate
+        })
+          .then((result) => {
+            if (result && result.success) {
+              // Process the fresh data which will apply cancellation filtering
+              this.processRoomAvailabilityData(result.roomAvailability);
+
+              // Force template re-render by clearing and resetting the array
+              setTimeout(() => {
+                const currentRooms = [...this.roomsWithAvailability];
+                this.roomsWithAvailability = [];
+
+                // Use Promise.resolve().then() for next tick behavior
+                Promise.resolve().then(() => {
+                  this.roomsWithAvailability = currentRooms;
+
+                  // Force refresh of happening now indicators
+                  setTimeout(() => {
+                    this.refreshAllHappeningNowIndicators();
+                  }, 100);
+                });
+              }, 50);
+            }
+          })
+          .catch((error) => {
+            console.error("🏢 CalendarioReino: Error re-fetching room availability:", error);
+          });
+      }
+
+      // Strategy 2: Force DOM refresh of sidebar elements
+      setTimeout(() => {
+        this.forceSidebarDOMRefresh();
+      }, 200);
+
+    } catch (error) {
+      console.error(
+        "🏢 CalendarioReino: Error refreshing room occupied slots:",
+        error
+      );
+    }
+  }
+
+  /**
+   * Force DOM refresh of sidebar elements to ensure real-time updates
+   */
+  forceSidebarDOMRefresh() {
+    try {
+      // Get all occupied slot elements in the sidebar
+      const occupiedSlots = this.template.querySelectorAll('.occupied-slot, .occupied-slot-card');
+
+      // Force re-render by temporarily hiding and showing elements
+      occupiedSlots.forEach((slot, index) => {
+        setTimeout(() => {
+          if (slot && slot.style) {
+            const originalDisplay = slot.style.display;
+            slot.style.display = 'none';
+
+            setTimeout(() => {
+              if (slot && slot.style) {
+                slot.style.display = originalDisplay;
+              }
+            }, 10);
+          }
+        }, index * 5);
+      });
+
+      // Also refresh happening now indicators
+      const happeningIndicators = this.template.querySelectorAll('c-happening-now-indicator');
+      happeningIndicators.forEach((indicator, index) => {
+        setTimeout(() => {
+          if (indicator && indicator.checkIfHappening) {
+            indicator.checkIfHappening();
+          }
+        }, index * 10);
+      });
+
+    } catch (error) {
+      console.error("🏢 CalendarioReino: Error in forceSidebarDOMRefresh:", error);
+    }
+  }
+
+  /**
+   * Force complete UI refresh for immediate visual feedback
+   * This is the most aggressive refresh method for real-time updates
+   */
+  forceCompleteUIRefresh() {
+    try {
+      // console.log("🔄 CalendarioReino: Force complete UI refresh for real-time updates");
+
+      // Strategy 1: Force re-fetch and re-process all room data
+      if (this.startDate && this.endDate) {
+        getRoomAvailability({
+          startDate: this.startDate,
+          endDate: this.endDate
+        })
+          .then((result) => {
+            if (result && result.success) {
+              // Clear current room data completely
+              this.roomsWithAvailability = [];
+
+              // Process fresh data after a brief delay
+              setTimeout(() => {
+                this.processRoomAvailabilityData(result.roomAvailability);
+
+                // Force template re-render
+                setTimeout(() => {
+                  // Trigger reactive updates
+                  this.activeRoomTab = this.activeRoomTab === 'salaPrincipal' ? 'salaGabriel' : 'salaPrincipal';
+                  setTimeout(() => {
+                    this.activeRoomTab = this.activeRoomTab === 'salaPrincipal' ? 'salaGabriel' : 'salaPrincipal';
+                  }, 50);
+                }, 100);
+              }, 50);
+            }
+          })
+          .catch((error) => {
+            console.error("🔄 CalendarioReino: Error in forceCompleteUIRefresh:", error);
+          });
+      }
+
+      // Strategy 2: Force refresh all happening now indicators
+      setTimeout(() => {
+        this.refreshAllHappeningNowIndicators();
+      }, 200);
+
+      // Strategy 3: Force DOM manipulation refresh
+      setTimeout(() => {
+        this.forceSidebarDOMRefresh();
+      }, 300);
+
+    } catch (error) {
+      console.error("🔄 CalendarioReino: Error in forceCompleteUIRefresh:", error);
+    }
+  }
+
+  /**
    * Process room availability data and update UI
    */
   processRoomAvailabilityData(roomAvailabilityData) {
@@ -2754,6 +3028,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
         };
       }
     });
+
+    // Update current room events after processing room data
+    this.updateCurrentRoomEvents();
   }
 
   /**
@@ -2774,12 +3051,18 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       //   `CalendarioReino: Processing ${conflicts.length} conflicts for room ${roomValue}`
       // );
 
-      // Filter out past events - only show current and future meetings
+      // Filter out past events and cancelled/postponed/rescheduled events
       const now = new Date();
+      const cancellationReasons = ['Cancelado', 'Adiado', 'Reagendado'];
+
       const currentAndFutureConflicts = conflicts.filter((conflict) => {
         try {
           const endDateTime = new Date(conflict.endDateTime);
           const isCurrentOrFuture = endDateTime >= now;
+
+          // Check if event is cancelled/postponed/rescheduled
+          const isCancelled = conflict.statusReuniao &&
+                             cancellationReasons.includes(conflict.statusReuniao);
 
           if (!isCurrentOrFuture) {
             // console.log(
@@ -2787,14 +3070,23 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
             // );
           }
 
-          return isCurrentOrFuture;
+          if (isCancelled) {
+            // console.log(
+            //   `CalendarioReino: Filtering out cancelled event: ${conflict.subject} (status: ${conflict.statusReuniao})`
+            // );
+          }
+
+          // Include only current/future events that are not cancelled
+          return isCurrentOrFuture && !isCancelled;
         } catch (error) {
           console.error(
             `CalendarioReino: Error checking event time for ${conflict.subject}:`,
             error
           );
-          // Include events with invalid dates to be safe
-          return true;
+          // Include events with invalid dates to be safe, but still check cancellation
+          const isCancelled = conflict.statusReuniao &&
+                             cancellationReasons.includes(conflict.statusReuniao);
+          return !isCancelled;
         }
       });
 
@@ -3980,7 +4272,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       description: event.description || "",
       location: event.location || "",
       whoId: event.whoId || null,
-      whatId: event.whatId || null
+      whatId: event.whatId || null,
+      // Include meeting type and room information to preserve during drag/drop
+      tipoReuniao: event.type || event.tipoReuniao || null,
+      salaReuniao: event.salaReuniao || null
     };
 
     saveEvent({ eventData })
@@ -4015,7 +4310,12 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
   handleDayClick(date) {
     // Handle day clicks in month view to create new appointments
-    // console.log("🗓️ CalendarioReino: Day clicked in month view");
+    console.log("🗓️ CalendarioReino: Day clicked in month view", {
+      date: date,
+      dateType: typeof date,
+      isMoment: moment.isMoment(date),
+      hasToDate: date && typeof date.toDate === "function"
+    });
 
     // Clear any existing event data for new appointment
     this.selectedEventId = null;
@@ -4024,23 +4324,67 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     this.selectedEventData = null;
 
     try {
-      // FullCalendar v3 date objects are often Moment objects
-      // Ensure we're working with a proper Date or Moment object
+      // Validate input
+      if (!date) {
+        throw new Error("No date provided to handleDayClick");
+      }
+
+      // FullCalendar v3 date objects are often Moment objects, but can be wrapped in Proxy
+      // Handle different types of date objects carefully
       let dateMoment;
-      if (moment.isMoment(date)) {
-        // If it's already a moment object, clone it to avoid mutations
-        dateMoment = moment(date);
-        // console.log("🗓️ CalendarioReino: Using provided moment object");
-      } else if (date && typeof date.toDate === "function") {
-        // If it's a moment-like object with toDate method
-        dateMoment = moment(date.toDate());
-        // console.log(
-        //   "🗓️ CalendarioReino: Converted object with toDate() to moment"
-        // );
-      } else {
-        // Create a moment from whatever we received
-        dateMoment = moment(date);
-        // console.log("🗓️ CalendarioReino: Created new moment from date object");
+
+      try {
+        if (moment.isMoment(date)) {
+          // If it's a moment object (including proxied ones), try to extract the actual date
+          console.log("🗓️ CalendarioReino: Detected moment object");
+
+          // Try to get the underlying date value
+          if (typeof date.toDate === "function") {
+            dateMoment = moment(date.toDate());
+            console.log("🗓️ CalendarioReino: Extracted date using toDate()");
+          } else if (typeof date.valueOf === "function") {
+            dateMoment = moment(date.valueOf());
+            console.log("🗓️ CalendarioReino: Extracted date using valueOf()");
+          } else {
+            // Try to clone the moment object
+            dateMoment = moment(date);
+            console.log("🗓️ CalendarioReino: Cloned moment object");
+          }
+        } else if (date && typeof date.toDate === "function") {
+          // If it's a moment-like object with toDate method
+          dateMoment = moment(date.toDate());
+          console.log("🗓️ CalendarioReino: Converted object with toDate() to moment");
+        } else if (date instanceof Date) {
+          // If it's a native Date object
+          dateMoment = moment(date);
+          console.log("🗓️ CalendarioReino: Created moment from Date object");
+        } else {
+          // Try to create a moment from whatever we received
+          dateMoment = moment(date);
+          console.log("🗓️ CalendarioReino: Created moment from unknown date object");
+        }
+      } catch (proxyError) {
+        console.log("🗓️ CalendarioReino: Error handling proxied moment, trying alternative approach:", proxyError);
+        // If we get an error with the proxy, try to extract the date differently
+        try {
+          // Try to access the _d property which is the internal date in moment objects
+          if (date._d) {
+            dateMoment = moment(date._d);
+            console.log("🗓️ CalendarioReino: Extracted date using _d property");
+          } else {
+            // Last resort: try to convert to string and parse
+            const dateStr = date.toString();
+            dateMoment = moment(dateStr);
+            console.log("🗓️ CalendarioReino: Created moment from string representation");
+          }
+        } catch (fallbackError) {
+          throw new Error(`Failed to process date object: ${fallbackError.message}`);
+        }
+      }
+
+      // Validate that we have a valid moment object
+      if (!dateMoment || !dateMoment.isValid()) {
+        throw new Error(`Invalid date created from input: ${date}`);
       }
 
       // Log for debugging
@@ -4058,32 +4402,37 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       //   dateMoment.toString()
       // );
 
-      // Create start date at 9:00 AM on the SAME DAY that was clicked
-      // Critical fix: use the dateMoment object directly, preserving the correct date
+      // Create start date with current time on the SAME DAY that was clicked
+      // Get current time to use as the default appointment time
+      const now = moment();
       const startDate = moment(dateMoment)
-        .hour(9)
-        .minute(0)
+        .hour(now.hour())
+        .minute(now.minute())
         .second(0)
         .millisecond(0);
 
-      // Create end date 1 hour later (10:00 AM)
+      // Create end date 1 hour later
       const endDate = moment(startDate).add(1, "hour");
+
+      // Validate that our calculated dates are valid
+      if (!startDate.isValid() || !endDate.isValid()) {
+        throw new Error("Failed to create valid start/end dates");
+      }
 
       // Store the selected date range for the appointment editor
       // For proper timezone handling, use ISO format for lightning-input datetime compatibility
-      // Ensure we're generating proper ISO 8601 strings with the format YYYY-MM-DDTHH:mm:ss.sssZ
+      // Use moment's toISOString() method which properly handles timezone conversion
       this.selectedStartDate = startDate.toISOString();
       this.selectedEndDate = endDate.toISOString();
 
-      // Validate that we have proper ISO strings with time component
+      // Additional validation to ensure we have proper ISO strings
       if (
+        !this.selectedStartDate ||
+        !this.selectedEndDate ||
         !this.selectedStartDate.includes("T") ||
         !this.selectedEndDate.includes("T")
       ) {
-        console.error("🗓️ CalendarioReino: Invalid ISO string format detected");
-        // Force proper ISO format if missing
-        this.selectedStartDate = `${startDate.format("YYYY-MM-DD")}T${startDate.format("HH:mm:ss")}.000Z`;
-        this.selectedEndDate = `${endDate.format("YYYY-MM-DD")}T${endDate.format("HH:mm:ss")}.000Z`;
+        throw new Error("Failed to generate valid ISO strings for selected dates");
       }
 
       // Log the processed dates for debugging
@@ -4102,7 +4451,14 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       // console.log("🗓️ CalendarioReino: ISO Start:", this.selectedStartDate);
       // console.log("🗓️ CalendarioReino: ISO End:", this.selectedEndDate);
     } catch (error) {
-      console.error("🗓️ CalendarioReino: Error processing day click:", error);
+      console.error("🗓️ CalendarioReino: Error processing day click:", {
+        error: error,
+        errorMessage: error.message,
+        errorStack: error.stack,
+        originalDate: date,
+        dateType: typeof date,
+        isMoment: moment.isMoment(date)
+      });
 
       // Fallback: try to open modal without pre-selected dates
       this.selectedStartDate = null;
@@ -4701,6 +5057,7 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
               whatId: event.whatId,
               // Enhanced fields for display
               type: event.type || null, // Type field may be null due to permissions
+              tipoReuniao: event.tipoReuniao || null, // Add tipoReuniao field explicitly
               salaReuniao: event.salaReuniao,
               gestorName: event.gestorName,
               liderComercialName: event.liderComercialName,
@@ -5795,7 +6152,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     const room = this.formatMeetingRoom(event.salaReuniao);
     const participants = this.formatParticipants(event);
     const attachment = this.formatAttachment(event);
-    const meetingTypeBadge = this.formatMeetingTypeBadge(event.type);
+    // Use the correct field for meeting type badge - check both type and tipoReuniao fields
+    const meetingType = event.type || event.tipoReuniao || "";
+    const meetingTypeBadge = this.formatMeetingTypeBadge(meetingType);
 
     // Format time for display
     const timeDisplay = this.formatEventTime(event);
@@ -6054,8 +6413,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     // Load meeting outcome for the selected event
     this.colorPickerMeetingOutcome = calendarEvent.reuniaoAconteceu;
 
-    // Load event type to determine URL field visibility
-    this.colorPickerEventType = calendarEvent.type || "";
+    // Load event type to determine URL field visibility - check both type and tipoReuniao fields
+    this.colorPickerEventType = calendarEvent.type || calendarEvent.tipoReuniao || "";
     // Find the complete event data in our cache instead of using FullCalendar event
     const completeEvent = this.allEvents.find(
       (event) => event.id === calendarEvent.id

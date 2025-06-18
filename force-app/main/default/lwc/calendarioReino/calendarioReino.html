@@ -85,101 +85,104 @@
             </div>
           </div>
 
-          <!-- Seção de salas de reunião (moved below Mini Calendar) -->
+          <!-- Event Cards Section with Room Tabs -->
           <div class="sidebar-section">
-            <div class="sidebar-header" onclick={toggleRoomsSection}>
-              <span>Salas de Reunião</span>
-              <lightning-icon
-                icon-name={roomsSectionIcon}
-                size="x-small"
-                class="sidebar-toggle-icon"
-              ></lightning-icon>
+            <div class="sidebar-header">
+              <span>Eventos por Sala</span>
             </div>
 
-            <div if:true={isRoomsSectionExpanded} class="rooms-list">
-              <template for:each={meetingRooms} for:item="room">
-                <div key={room.value} class="room-item">
-                  <div class="room-filter-row">
-                    <lightning-input
-                      type="checkbox"
-                      label={room.label}
-                      name={room.value}
-                      checked={room.selected}
-                      onchange={handleRoomFilterChange}
-                      class="room-filter-checkbox"
-                    ></lightning-input>
-                    <div
-                      class={room.availabilityClass}
-                      title={room.availabilityText}
-                    >
-                      <lightning-icon
-                        icon-name={room.availabilityIcon}
-                        size="xx-small"
-                        class="room-availability-icon"
-                      ></lightning-icon>
+            <!-- Room Tabs -->
+            <div class="room-tabs-container">
+              <div class="room-tabs">
+                <button
+                  class={salaPrincipalTabClass}
+                  onclick={handleRoomTabClick}
+                  data-room="salaPrincipal"
+                >
+                  Sala Principal
+                </button>
+                <button
+                  class={salaGabrielTabClass}
+                  onclick={handleRoomTabClick}
+                  data-room="salaGabriel"
+                >
+                  Sala Gabriel
+                </button>
+              </div>
+            </div>
+
+            <!-- Event Cards for Selected Room -->
+            <div class="room-event-cards">
+              <template if:true={currentRoomEvents.length}>
+                <template for:each={currentRoomEvents} for:item="slot">
+                  <div
+                    key={slot.id}
+                    class={slot.slotCardClass}
+                    data-event-id={slot.eventId}
+                    onclick={handleSlotCardClick}
+                  >
+                    <div class="slot-card-header">
+                      <div class="slot-time-info">
+                        <span class="slot-time-combined"
+                          >{slot.timeRange} • {slot.dateInfo}</span
+                        >
+                      </div>
+                      <div class="slot-header-indicators">
+                        <template if:true={slot.meetingTypeBadge}>
+                          <span
+                            class={slot.meetingTypeBadgeClass}
+                            title={slot.meetingTypeTitle}
+                          >
+                            {slot.meetingTypeBadge}
+                          </span>
+                        </template>
+                        <div
+                          class="slot-category-indicator"
+                          style={slot.categoryColor}
+                          title="Categoria do evento"
+                        ></div>
+                      </div>
+                    </div>
+                    <div class="slot-card-content">
+                      <div class="slot-subject">{slot.subject}</div>
+                      <div class="slot-participants">
+                        <c-event-participant-display
+                          gestor-name={slot.eventData.gestorName}
+                          lider-comercial-name={slot.eventData.liderComercialName}
+                          sdr-name={slot.eventData.sdrName}
+                          display-mode="compact"
+                          max-participants="4"
+                          show-photos="true"
+                          show-roles="false"
+                          custom-class="sidebar-participants"
+                          onparticipantclick={handleParticipantClick}
+                        ></c-event-participant-display>
+                      </div>
+                      <!-- Happening Now Indicator using reusable component -->
+                      <c-happening-now-indicator
+                        start-date-time={slot.eventData.startDateTime}
+                        end-date-time={slot.eventData.endDateTime}
+                        cancellation-reason={slot.eventData.statusReuniao}
+                        custom-class="happening-now-sidebar"
+                        size="small"
+                        custom-text="Acontecendo Agora"
+                      >
+                      </c-happening-now-indicator>
                     </div>
                   </div>
-                  <div
-                    if:true={room.showOccupiedSlots}
-                    class="room-occupied-slots"
-                  >
-                    <template for:each={room.occupiedSlots} for:item="slot">
-                      <div
-                        key={slot.id}
-                        class={slot.slotCardClass}
-                        data-event-id={slot.eventId}
-                        onclick={handleSlotCardClick}
-                      >
-                        <div class="slot-card-header">
-                          <div class="slot-time-info">
-                            <span class="slot-time-combined"
-                              >{slot.timeRange} • {slot.dateInfo}</span
-                            >
-                          </div>
-                          <div class="slot-header-indicators">
-                            <template if:true={slot.meetingTypeBadge}>
-                              <span
-                                class={slot.meetingTypeBadgeClass}
-                                title={slot.meetingTypeTitle}
-                              >
-                                {slot.meetingTypeBadge}
-                              </span>
-                            </template>
-                            <div
-                              class="slot-category-indicator"
-                              style={slot.categoryColor}
-                              title="Categoria do evento"
-                            ></div>
-                          </div>
-                        </div>
-                        <div class="slot-card-content">
-                          <div class="slot-subject">{slot.subject}</div>
-                          <div class="slot-participants">
-                            <c-event-participant-display
-                              gestor-name={slot.eventData.gestorName}
-                              lider-comercial-name={slot.eventData.liderComercialName}
-                              sdr-name={slot.eventData.sdrName}
-                              display-mode="compact"
-                              max-participants="4"
-                              show-photos="true"
-                              show-roles="false"
-                              custom-class="sidebar-participants"
-                              onparticipantclick={handleParticipantClick}
-                            ></c-event-participant-display>
-                          </div>
-                          <!-- Happening Now Indicator using reusable component -->
-                          <c-happening-now-indicator
-                            start-date-time={slot.eventData.startDateTime}
-                            end-date-time={slot.eventData.endDateTime}
-                            custom-class="happening-now-sidebar"
-                            size="small"
-                            custom-text="Acontecendo Agora"
-                          >
-                          </c-happening-now-indicator>
-                        </div>
-                      </div>
-                    </template>
-                  </div>
+                </template>
+              </template>
+
+              <template if:false={currentRoomEvents.length}>
+                <div class="no-events-message">
+                  <lightning-icon
+                    icon-name="utility:info"
+                    size="small"
+                    class="no-events-icon"
+                  ></lightning-icon>
+                  <p class="no-events-text">
+                    Nenhum evento encontrado para {currentRoomLabel}
+                  </p>
                 </div>
               </template>
             </div>
@@ -305,6 +308,38 @@
                   value="telefonica"
                   label="Ligação Telefônica"
                   checked={isEventTypeFilterSelected.telefonica}
+                ></lightning-menu-item>
+              </lightning-button-menu>
+            </div>
+
+            <!-- Location Filter -->
+            <div class="teams-location-filter">
+              <lightning-button-menu
+                label={currentLocationFilterLabel}
+                variant="neutral"
+                class="teams-location-menu"
+                menu-alignment="auto"
+                onselect={handleLocationFilterChange}
+              >
+                <lightning-menu-item
+                  value="all"
+                  label="Todas as Salas"
+                  checked={isLocationFilterSelected.all}
+                ></lightning-menu-item>
+                <lightning-menu-item
+                  value="salaPrincipal"
+                  label="Sala Principal"
+                  checked={isLocationFilterSelected.salaPrincipal}
+                ></lightning-menu-item>
+                <lightning-menu-item
+                  value="salaGabriel"
+                  label="Sala do Gabriel"
+                  checked={isLocationFilterSelected.salaGabriel}
+                ></lightning-menu-item>
+                <lightning-menu-item
+                  value="Outra"
+                  label="Outra"
+                  checked={isLocationFilterSelected.Outra}
                 ></lightning-menu-item>
               </lightning-button-menu>
             </div>

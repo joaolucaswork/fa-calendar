@@ -64,6 +64,37 @@ public class HappeningNowControllerTest {
     );
     testEvents.add(pastEvent);
 
+    // Events with cancellation reasons (currently happening but should be filtered out)
+    Event cancelledEvent = new Event(
+      Subject = 'Cancelled Meeting',
+      StartDateTime = now.addMinutes(-15),
+      EndDateTime = now.addMinutes(15),
+      salaReuniao__c = 'salaPrincipal',
+      statusReuniao__c = 'Cancelado',
+      Type = 'Reunião Presencial'
+    );
+    testEvents.add(cancelledEvent);
+
+    Event postponedEvent = new Event(
+      Subject = 'Postponed Meeting',
+      StartDateTime = now.addMinutes(-10),
+      EndDateTime = now.addMinutes(20),
+      salaReuniao__c = 'salaGabriel',
+      statusReuniao__c = 'Adiado',
+      Type = 'Reunião Online'
+    );
+    testEvents.add(postponedEvent);
+
+    Event rescheduledEvent = new Event(
+      Subject = 'Rescheduled Meeting',
+      StartDateTime = now.addMinutes(-5),
+      EndDateTime = now.addMinutes(25),
+      salaReuniao__c = 'salaPrincipal',
+      statusReuniao__c = 'Reagendado',
+      Type = 'Ligação Telefônica'
+    );
+    testEvents.add(rescheduledEvent);
+
     insert testEvents;
   }
 
@@ -416,5 +447,170 @@ public class HappeningNowControllerTest {
       result,
       'Event ending very soon should still be happening'
     );
+  }
+
+  /**
+   * Test getCurrentlyHappeningEventsInRoom excludes cancelled events
+   */
+  @isTest
+  static void testGetCurrentlyHappeningEventsInRoom_ExcludesCancelledEvents() {
+    Test.startTest();
+    List<Event> happeningEvents = HappeningNowController.getCurrentlyHappeningEventsInRoom(
+      'salaPrincipal'
+    );
+    Test.stopTest();
+
+    // Should find current events but exclude cancelled/postponed/rescheduled ones
+    for (Event evt : happeningEvents) {
+      System.assertEquals(
+        'salaPrincipal',
+        evt.salaReuniao__c,
+        'All events should be in Sala Principal'
+      );
+
+      // Verify no cancelled events are returned
+      System.assertNotEquals(
+        'Cancelado',
+        evt.statusReuniao__c,
+        'Cancelled events should be excluded'
+      );
+      System.assertNotEquals(
+        'Adiado',
+        evt.statusReuniao__c,
+        'Postponed events should be excluded'
+      );
+      System.assertNotEquals(
+        'Reagendado',
+        evt.statusReuniao__c,
+        'Rescheduled events should be excluded'
+      );
+    }
+
+    // Verify that cancelled events are not included even though they are in the time range
+    List<Event> allCurrentEvents = [
+      SELECT Id, Subject, statusReuniao__c
+      FROM Event
+      WHERE salaReuniao__c = 'salaPrincipal'
+      AND StartDateTime <= :DateTime.now()
+      AND EndDateTime >= :DateTime.now()
+    ];
+
+    Integer cancelledCount = 0;
+    for (Event evt : allCurrentEvents) {
+      if (evt.statusReuniao__c == 'Cancelado' ||
+          evt.statusReuniao__c == 'Adiado' ||
+          evt.statusReuniao__c == 'Reagendado') {
+        cancelledCount++;
+      }
+    }
+
+    System.assert(
+      cancelledCount > 0,
+      'Test data should include cancelled events in the time range'
+    );
+    System.assert(
+      happeningEvents.size() < allCurrentEvents.size(),
+      'Filtered results should be fewer than all current events'
+    );
+  }
+
+  /**
+   * Test checkMultipleEventsHappeningNow excludes cancelled events
+   */
+  @isTest
+  static void testCheckMultipleEventsHappeningNow_ExcludesCancelledEvents() {
+    List<Event> events = [
+      SELECT Id, Subject, statusReuniao__c
+      FROM Event
+      WHERE Subject IN ('Cancelled Meeting', 'Postponed Meeting', 'Rescheduled Meeting', 'Current Meeting')
+      ORDER BY Subject
+    ];
+
+    List<String> eventIds = new List<String>();
+    for (Event evt : events) {
+      eventIds.add(evt.Id);
+    }
+
+    Test.startTest();
+    Map<String, Boolean> results = HappeningNowController.checkMultipleEventsHappeningNow(
+      eventIds
+    );
+    Test.stopTest();
+
+    System.assertEquals(
+      events.size(),
+      results.size(),
+      'Should return results for all events'
+    );
+
+    // Verify specific events
+    for (Event evt : events) {
+      System.assert(
+        results.containsKey(evt.Id),
+        'Should contain result for event: ' + evt.Subject
+      );
+
+      if (evt.Subject == 'Current Meeting') {
+        System.assertEquals(
+          true,
+          results.get(evt.Id),
+          'Non-cancelled current event should be happening: ' + evt.Subject
+        );
+      } else if (evt.Subject.contains('Cancelled') ||
+                 evt.Subject.contains('Postponed') ||
+                 evt.Subject.contains('Rescheduled')) {
+        System.assertEquals(
+          false,
+          results.get(evt.Id),
+          'Cancelled/postponed/rescheduled event should not be happening: ' + evt.Subject
+        );
+      }
+    }
+  }
+
+  /**
+   * Test getDetailedHappeningStatus excludes cancelled events
+   */
+  @isTest
+  static void testGetDetailedHappeningStatus_ExcludesCancelledEvents() {
+    List<Event> events = [
+      SELECT Id, Subject, statusReuniao__c
+      FROM Event
+      WHERE Subject IN ('Cancelled Meeting', 'Current Meeting')
+      ORDER BY Subject
+    ];
+
+    List<String> eventIds = new List<String>();
+    for (Event evt : events) {
+      eventIds.add(evt.Id);
+    }
+
+    Test.startTest();
+    List<HappeningNowController.EventHappeningStatus> statusList = HappeningNowController.getDetailedHappeningStatus(
+      eventIds
+    );
+    Test.stopTest();
+
+    System.assertEquals(
+      events.size(),
+      statusList.size(),
+      'Should return status for all events'
+    );
+
+    for (HappeningNowController.EventHappeningStatus status : statusList) {
+      if (status.eventSubject == 'Current Meeting') {
+        System.assertEquals(
+          true,
+          status.isHappening,
+          'Non-cancelled current event should be happening'
+        );
+      } else if (status.eventSubject == 'Cancelled Meeting') {
+        System.assertEquals(
+          false,
+          status.isHappening,
+          'Cancelled event should not be happening even if in time range'
+        );
+      }
+    }
   }
 }

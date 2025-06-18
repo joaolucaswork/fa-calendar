@@ -13,6 +13,9 @@ import getAppointmentDetails from "@salesforce/apex/AppointmentController.getApp
 import createAppointment from "@salesforce/apex/AppointmentController.createAppointment";
 import updateAppointment from "@salesforce/apex/AppointmentController.updateAppointment";
 import searchUsers from "@salesforce/apex/AppointmentController.searchUsers";
+import searchSDRUsers from "@salesforce/apex/AppointmentController.searchSDRUsers";
+import searchCommercialManagerUsers from "@salesforce/apex/AppointmentController.searchCommercialManagerUsers";
+import searchGestorUsers from "@salesforce/apex/AppointmentController.searchGestorUsers";
 import searchContacts from "@salesforce/apex/AppointmentController.searchContacts";
 import searchOpportunities from "@salesforce/apex/AppointmentController.searchOpportunities";
 import updateLeadOpportunityFields from "@salesforce/apex/LeadEventController.updateLeadOpportunityFields";
@@ -53,6 +56,9 @@ export default class AppointmentEditor extends NavigationMixin(
 
   // User options for dropdowns
   @track userOptions = [];
+  @track sdrUserOptions = [];
+  @track commercialManagerUserOptions = [];
+  @track gestorUserOptions = [];
   @track isLoadingUsers = false;
 
   // Status picklist options
@@ -177,6 +183,11 @@ export default class AppointmentEditor extends NavigationMixin(
     { label: "Consultoria Societária", value: "Consultoria Societária" },
     { label: "Gestão de Patrimônio", value: "Gestão de Patrimônio" }
   ];
+
+  // Getter for displaying product value in readonly field
+  get displayProductValue() {
+    return this.eventData?.produtoEvento || "";
+  }
 
   // Helper method to validate and convert old product values to new ones
   validateAndConvertProductValue(value) {
@@ -855,10 +866,10 @@ export default class AppointmentEditor extends NavigationMixin(
 
     // If modal is being opened, ensure we load the correct data
     if (this.isConnected && !oldValue && value) {
-      // console.log(
-      //   "📝 AppointmentEditor: Modal opening - about to reset state and load data"
-      // );
-      this.resetComponentState();
+      // Only reset state for new events, not when editing existing events
+      if (!this.eventId && !this.selectedEventData) {
+        this.resetComponentState();
+      }
       this.loadEventData();
     }
   }
@@ -881,19 +892,8 @@ export default class AppointmentEditor extends NavigationMixin(
     this.salaReuniao = "salaPrincipal"; // Reset to default room
     this.linkReuniao = ""; // Reset meeting link
 
-    // Only reset appointment type if we don't have pre-selected dates
-    // This ensures date fields remain visible when day is clicked
-    if (!this.selectedStartDate || !this.selectedEndDate) {
-      this.appointmentType = ""; // Reset appointment type to force selection
-      // console.log(
-      //   "📝 AppointmentEditor: No pre-selected dates - appointment type reset to empty"
-      // );
-    } else {
-      this.appointmentType = "Reunião Presencial"; // Set default for day clicks
-      // console.log(
-      //   "📝 AppointmentEditor: Pre-selected dates found - appointment type set to 'Reunião Presencial'"
-      // );
-    }
+    // Always reset appointment type to force user selection
+    this.appointmentType = ""; // Reset appointment type to force selection
 
     // Reset contact and opportunity information
     this.contactInfo = {};
@@ -918,22 +918,51 @@ export default class AppointmentEditor extends NavigationMixin(
     // and should persist during modal lifecycle
   }
 
-  // Load all users for dropdown options
+  // Load all users for dropdown options with role-based filtering
   loadAllUsers() {
     this.isLoadingUsers = true;
 
-    // Load all active users (no search term needed)
-    searchUsers({ searchTerm: "", maxResults: 100 })
-      .then((result) => {
-        this.userOptions = result.map((user) => ({
+    // Load users in parallel for different roles
+    const loadAllUsersPromise = searchUsers({ searchTerm: "", maxResults: 100 });
+    const loadSDRUsersPromise = searchSDRUsers({ searchTerm: "", maxResults: 100 });
+    const loadCommercialManagerUsersPromise = searchCommercialManagerUsers({ searchTerm: "", maxResults: 100 });
+    const loadGestorUsersPromise = searchGestorUsers({ searchTerm: "", maxResults: 100 });
+
+    Promise.all([loadAllUsersPromise, loadSDRUsersPromise, loadCommercialManagerUsersPromise, loadGestorUsersPromise])
+      .then(([allUsers, sdrUsers, commercialManagerUsers, gestorUsers]) => {
+        // Map all users for fallback (keeping for backward compatibility)
+        this.userOptions = allUsers.map((user) => ({
           label: `${user.name} (${user.email})`,
           value: user.name
         }));
+
+        // Map SDR users for SDR dropdown
+        this.sdrUserOptions = sdrUsers.map((user) => ({
+          label: `${user.name} (${user.email})`,
+          value: user.name
+        }));
+
+        // Map Commercial Manager users for commercial manager dropdown
+        this.commercialManagerUserOptions = commercialManagerUsers.map((user) => ({
+          label: `${user.name} (${user.email})`,
+          value: user.name
+        }));
+
+        // Map Gestor users for gestor dropdown
+        this.gestorUserOptions = gestorUsers.map((user) => ({
+          label: `${user.name} (${user.email})`,
+          value: user.name
+        }));
+
+        console.log(`Loaded ${allUsers.length} total users, ${sdrUsers.length} SDR users, ${commercialManagerUsers.length} commercial manager users, ${gestorUsers.length} gestor users`);
       })
       .catch((error) => {
         console.error("Error loading users:", error);
         this.showToast("Erro", "Erro ao carregar usuários", "error");
         this.userOptions = [];
+        this.sdrUserOptions = [];
+        this.commercialManagerUserOptions = [];
+        this.gestorUserOptions = [];
       })
       .finally(() => {
         this.isLoadingUsers = false;
@@ -1086,7 +1115,7 @@ export default class AppointmentEditor extends NavigationMixin(
       startDateTime: formattedStartDate,
       endDateTime: formattedEndDate,
       isAllDayEvent: false,
-      type: "Reunião Presencial", // Set default type when dates are pre-selected
+      type: "", // Don't force default type - let user select
       description: "",
       whoId: this.whoId || null,
       whatId: this.whatId || null,
@@ -1384,17 +1413,20 @@ export default class AppointmentEditor extends NavigationMixin(
     }
 
     try {
-      // If the input is already an ISO string, return it directly to avoid double conversion
+      // If the input is already a valid ISO string, validate and return it
       if (
         typeof dateString === "string" &&
-        dateString.includes("T") &&
-        dateString.includes("Z")
+        dateString.includes("T")
       ) {
-        // console.log(
-        //   "📝 AppointmentEditor: Input is already ISO string, returning directly:",
-        //   dateString
-        // );
-        return dateString;
+        // Validate that it's a proper ISO string by parsing it
+        const testDate = new Date(dateString);
+        if (!isNaN(testDate.getTime())) {
+          // console.log(
+          //   "📝 AppointmentEditor: Input is already valid ISO string, returning directly:",
+          //   dateString
+          // );
+          return dateString;
+        }
       }
 
       // Parse the date and ensure it's in the correct format for lightning-input
@@ -1408,6 +1440,13 @@ export default class AppointmentEditor extends NavigationMixin(
 
       // Return ISO string which lightning-input datetime expects
       const isoString = date.toISOString();
+
+      // Additional validation to ensure the ISO string is properly formatted
+      if (!isoString || !isoString.includes("T")) {
+        console.error("AppointmentEditor: Failed to generate valid ISO string from:", dateString);
+        return null;
+      }
+
       // console.log("AppointmentEditor: Converted date to ISO:", {
       //   input: dateString,
       //   output: isoString,
@@ -1545,13 +1584,15 @@ export default class AppointmentEditor extends NavigationMixin(
         : new Date(Date.now() + 3600000).toISOString();
 
       // Map calendar event data to our eventData structure
+      const meetingType = this.selectedEventData.type || this.selectedEventData.tipoReuniao || "";
+
       this.eventData = {
         subject: this.selectedEventData.title || "",
         location: this.selectedEventData.location || "",
         startDateTime: startDateTime,
         endDateTime: endDateTime,
         isAllDayEvent: this.selectedEventData.allDay || false,
-        type: "Reunião Presencial", // Default type, will be updated by Apex call
+        type: meetingType, // Use actual meeting type from event data
         description: this.selectedEventData.description || "",
         whoId: this.selectedEventData.whoId || null,
         whatId: this.selectedEventData.whatId || null,
@@ -1564,6 +1605,11 @@ export default class AppointmentEditor extends NavigationMixin(
         liderComercialName: "",
         sdrName: ""
       };
+
+      // Set appointment type from calendar data
+      if (meetingType) {
+        this.appointmentType = meetingType;
+      }
 
       // Still need to fetch full details from Salesforce for custom fields
       // but we can show the basic data immediately
@@ -1583,8 +1629,10 @@ export default class AppointmentEditor extends NavigationMixin(
     getAppointmentDetails({ eventId: this.eventId, whoId: null, whatId: null })
       .then((result) => {
         if (result.success) {
+
+
           // Update only the fields not available from calendar data
-          this.eventData.type = result.type || "Reunião Presencial";
+          this.eventData.type = result.type || "";
           this.eventData.reuniaoCriada = result.reuniaoCriada || false;
           this.eventData.statusReuniao =
             result.statusReuniao !== undefined ? result.statusReuniao : null;
@@ -1600,8 +1648,11 @@ export default class AppointmentEditor extends NavigationMixin(
           this.statusReuniao =
             result.statusReuniao !== undefined ? result.statusReuniao : null;
 
-          // Update appointment type
-          this.appointmentType = result.type || "Reunião Presencial";
+          // Update appointment type - preserve actual meeting type from database
+          // Only update if we don't already have a type from calendar data
+          if (!this.appointmentType && result.type) {
+            this.appointmentType = result.type;
+          }
 
           // Update meeting link
           this.linkReuniao = result.linkReuniao || "";
@@ -1634,7 +1685,7 @@ export default class AppointmentEditor extends NavigationMixin(
               result.endDateTime ||
               new Date(Date.now() + 3600000).toISOString(),
             isAllDayEvent: result.isAllDay || false,
-            type: result.type || "Reunião Presencial",
+            type: result.type || "",
             description: result.description || "",
             whoId: result.whoId || null,
             whatId: result.whatId || null,
@@ -1657,8 +1708,11 @@ export default class AppointmentEditor extends NavigationMixin(
           this.statusReuniao =
             result.statusReuniao !== undefined ? result.statusReuniao : null;
 
-          // Atualizar o tipo de compromisso
-          this.appointmentType = result.type || "Reunião Presencial";
+          // Atualizar o tipo de compromisso - preserve actual meeting type from database
+          // Only update if we don't already have a type from calendar data
+          if (!this.appointmentType && result.type) {
+            this.appointmentType = result.type;
+          }
 
           // Update meeting link
           this.linkReuniao = result.linkReuniao || "";
@@ -2323,7 +2377,7 @@ export default class AppointmentEditor extends NavigationMixin(
       startDateTime: this.eventData.startDateTime,
       endDateTime: this.eventData.endDateTime,
       isAllDayEvent: this.eventData.isAllDayEvent,
-      type: this.appointmentType,
+      tipoReuniao: this.appointmentType, // Use tipoReuniao field name expected by Apex controller
       description: this.eventData.description,
       reuniaoCriada: this.eventData.reuniaoCriada,
       statusReuniao: this.statusReuniao,
@@ -2337,6 +2391,8 @@ export default class AppointmentEditor extends NavigationMixin(
       faseEvento: this.eventData.faseEvento, // Event phase for subject generation
       produtoEvento: this.eventData.produtoEvento // Product selection for subject generation
     };
+
+
 
     // console.log("AppointmentEditor: eventDataToSave", eventDataToSave);
 

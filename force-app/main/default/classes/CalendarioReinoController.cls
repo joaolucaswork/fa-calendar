@@ -245,6 +245,29 @@ public without sharing class CalendarioReinoController {
         evt.WhatId = (String) eventData.get('whatId');
       }
 
+      // Handle custom fields with field accessibility checks
+      Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Event.fields.getMap();
+
+      // Handle meeting type field
+      if (eventData.containsKey('tipoReuniao') && eventData.get('tipoReuniao') != null) {
+        if (fieldMap.containsKey('tipoReuniao__c') &&
+            fieldMap.get('tipoReuniao__c').getDescribe().isAccessible() &&
+            (evt.Id == null ? fieldMap.get('tipoReuniao__c').getDescribe().isCreateable() :
+             fieldMap.get('tipoReuniao__c').getDescribe().isUpdateable())) {
+          evt.put('tipoReuniao__c', (String) eventData.get('tipoReuniao'));
+        }
+      }
+
+      // Handle meeting room field
+      if (eventData.containsKey('salaReuniao') && eventData.get('salaReuniao') != null) {
+        if (fieldMap.containsKey('salaReuniao__c') &&
+            fieldMap.get('salaReuniao__c').getDescribe().isAccessible() &&
+            (evt.Id == null ? fieldMap.get('salaReuniao__c').getDescribe().isCreateable() :
+             fieldMap.get('salaReuniao__c').getDescribe().isUpdateable())) {
+          evt.put('salaReuniao__c', (String) eventData.get('salaReuniao'));
+        }
+      }
+
       upsert evt;
       return evt.Id;
     } catch (Exception e) {
@@ -576,7 +599,8 @@ public without sharing class CalendarioReinoController {
           Owner.Name,
           customColor__c,
           statusReuniao__c,
-          reuniaoAconteceu__c
+          reuniaoAconteceu__c,
+          tipoReuniao__c
         FROM Event
         WHERE
           salaReuniao__c != NULL
@@ -605,7 +629,8 @@ public without sharing class CalendarioReinoController {
         conflictInfo.put('startDateTime', evt.StartDateTime);
         conflictInfo.put('endDateTime', evt.EndDateTime);
         conflictInfo.put('location', evt.Location);
-        conflictInfo.put('type', null); // Type field removed due to permissions
+        conflictInfo.put('type', evt.tipoReuniao__c); // Use tipoReuniao__c field for meeting type
+        conflictInfo.put('tipoReuniao', evt.tipoReuniao__c); // Also include as tipoReuniao for consistency
         conflictInfo.put('organizer', evt.Owner.Name);
         conflictInfo.put('ownerId', evt.OwnerId);
         conflictInfo.put('gestorName', evt.gestor__c);
