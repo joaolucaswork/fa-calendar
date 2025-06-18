@@ -13,6 +13,9 @@ import getAppointmentDetails from "@salesforce/apex/AppointmentController.getApp
 import createAppointment from "@salesforce/apex/AppointmentController.createAppointment";
 import updateAppointment from "@salesforce/apex/AppointmentController.updateAppointment";
 import searchUsers from "@salesforce/apex/AppointmentController.searchUsers";
+import searchSDRUsers from "@salesforce/apex/AppointmentController.searchSDRUsers";
+import searchCommercialManagerUsers from "@salesforce/apex/AppointmentController.searchCommercialManagerUsers";
+import searchGestorUsers from "@salesforce/apex/AppointmentController.searchGestorUsers";
 import searchContacts from "@salesforce/apex/AppointmentController.searchContacts";
 import searchOpportunities from "@salesforce/apex/AppointmentController.searchOpportunities";
 import updateLeadOpportunityFields from "@salesforce/apex/LeadEventController.updateLeadOpportunityFields";
@@ -53,6 +56,9 @@ export default class AppointmentEditor extends NavigationMixin(
 
   // User options for dropdowns
   @track userOptions = [];
+  @track sdrUserOptions = [];
+  @track commercialManagerUserOptions = [];
+  @track gestorUserOptions = [];
   @track isLoadingUsers = false;
 
   // Status picklist options
@@ -177,6 +183,11 @@ export default class AppointmentEditor extends NavigationMixin(
     { label: "Consultoria Societária", value: "Consultoria Societária" },
     { label: "Gestão de Patrimônio", value: "Gestão de Patrimônio" }
   ];
+
+  // Getter for displaying product value in readonly field
+  get displayProductValue() {
+    return this.eventData?.produtoEvento || "";
+  }
 
   // Helper method to validate and convert old product values to new ones
   validateAndConvertProductValue(value) {
@@ -907,22 +918,51 @@ export default class AppointmentEditor extends NavigationMixin(
     // and should persist during modal lifecycle
   }
 
-  // Load all users for dropdown options
+  // Load all users for dropdown options with role-based filtering
   loadAllUsers() {
     this.isLoadingUsers = true;
 
-    // Load all active users (no search term needed)
-    searchUsers({ searchTerm: "", maxResults: 100 })
-      .then((result) => {
-        this.userOptions = result.map((user) => ({
+    // Load users in parallel for different roles
+    const loadAllUsersPromise = searchUsers({ searchTerm: "", maxResults: 100 });
+    const loadSDRUsersPromise = searchSDRUsers({ searchTerm: "", maxResults: 100 });
+    const loadCommercialManagerUsersPromise = searchCommercialManagerUsers({ searchTerm: "", maxResults: 100 });
+    const loadGestorUsersPromise = searchGestorUsers({ searchTerm: "", maxResults: 100 });
+
+    Promise.all([loadAllUsersPromise, loadSDRUsersPromise, loadCommercialManagerUsersPromise, loadGestorUsersPromise])
+      .then(([allUsers, sdrUsers, commercialManagerUsers, gestorUsers]) => {
+        // Map all users for fallback (keeping for backward compatibility)
+        this.userOptions = allUsers.map((user) => ({
           label: `${user.name} (${user.email})`,
           value: user.name
         }));
+
+        // Map SDR users for SDR dropdown
+        this.sdrUserOptions = sdrUsers.map((user) => ({
+          label: `${user.name} (${user.email})`,
+          value: user.name
+        }));
+
+        // Map Commercial Manager users for commercial manager dropdown
+        this.commercialManagerUserOptions = commercialManagerUsers.map((user) => ({
+          label: `${user.name} (${user.email})`,
+          value: user.name
+        }));
+
+        // Map Gestor users for gestor dropdown
+        this.gestorUserOptions = gestorUsers.map((user) => ({
+          label: `${user.name} (${user.email})`,
+          value: user.name
+        }));
+
+        console.log(`Loaded ${allUsers.length} total users, ${sdrUsers.length} SDR users, ${commercialManagerUsers.length} commercial manager users, ${gestorUsers.length} gestor users`);
       })
       .catch((error) => {
         console.error("Error loading users:", error);
         this.showToast("Erro", "Erro ao carregar usuários", "error");
         this.userOptions = [];
+        this.sdrUserOptions = [];
+        this.commercialManagerUserOptions = [];
+        this.gestorUserOptions = [];
       })
       .finally(() => {
         this.isLoadingUsers = false;
@@ -1373,17 +1413,20 @@ export default class AppointmentEditor extends NavigationMixin(
     }
 
     try {
-      // If the input is already an ISO string, return it directly to avoid double conversion
+      // If the input is already a valid ISO string, validate and return it
       if (
         typeof dateString === "string" &&
-        dateString.includes("T") &&
-        dateString.includes("Z")
+        dateString.includes("T")
       ) {
-        // console.log(
-        //   "📝 AppointmentEditor: Input is already ISO string, returning directly:",
-        //   dateString
-        // );
-        return dateString;
+        // Validate that it's a proper ISO string by parsing it
+        const testDate = new Date(dateString);
+        if (!isNaN(testDate.getTime())) {
+          // console.log(
+          //   "📝 AppointmentEditor: Input is already valid ISO string, returning directly:",
+          //   dateString
+          // );
+          return dateString;
+        }
       }
 
       // Parse the date and ensure it's in the correct format for lightning-input
@@ -1397,6 +1440,13 @@ export default class AppointmentEditor extends NavigationMixin(
 
       // Return ISO string which lightning-input datetime expects
       const isoString = date.toISOString();
+
+      // Additional validation to ensure the ISO string is properly formatted
+      if (!isoString || !isoString.includes("T")) {
+        console.error("AppointmentEditor: Failed to generate valid ISO string from:", dateString);
+        return null;
+      }
+
       // console.log("AppointmentEditor: Converted date to ISO:", {
       //   input: dateString,
       //   output: isoString,

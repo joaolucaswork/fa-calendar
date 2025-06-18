@@ -52,7 +52,7 @@ public class EventTriggerHandlerTest {
       StageName = 'Negociação',
       CloseDate = Date.today().addMonths(1),
       AccountId = testAccount.Id,
-      Tipo_de_produto__c = 'Liquidação Negociada;Consultoria Societária'
+      Tipo_de_produto__c = 'Liquidação Otimizada;Consultoria Societária'
     );
     insert contactOpportunity;
 
@@ -128,10 +128,11 @@ public class EventTriggerHandlerTest {
       WHERE Id = :testEvent.Id
     ];
 
+    // NOTE: Phase field should NOT be synchronized - left free for manual input
     System.assertEquals(
-      'Negociação',
+      null,
       insertedEvent.fase_evento__c,
-      'Event phase should be synchronized from Opportunity'
+      'Event phase should remain free for manual input'
     );
     System.assertEquals(
       'Liquidação Otimizada',
@@ -334,6 +335,167 @@ public class EventTriggerHandlerTest {
       'Updated Subject',
       updatedEvent.Subject,
       'Event subject should be updated'
+    );
+  }
+
+  @isTest
+  static void testEventInsert_WithDirectOpportunityWhatId_ShouldSynchronizeFields() {
+    // Create a direct Opportunity for testing WhatId relationship
+    Account testAccount = new Account(Name = 'Direct Opportunity Test Account');
+    insert testAccount;
+
+    Opportunity directOpportunity = new Opportunity(
+      Name = 'Direct WhatId Test Opportunity',
+      StageName = 'Primeira Reunião',
+      CloseDate = Date.today().addMonths(1),
+      AccountId = testAccount.Id,
+      Tipo_de_produto__c = 'Gestão de Patrimônio'
+    );
+    insert directOpportunity;
+
+    Test.startTest();
+
+    // Create Event with direct Opportunity WhatId (no WhoId)
+    Event testEvent = new Event(
+      Subject = 'Test Event with Direct Opportunity',
+      StartDateTime = DateTime.now(),
+      EndDateTime = DateTime.now().addHours(1),
+      WhatId = directOpportunity.Id
+    );
+    insert testEvent;
+
+    Test.stopTest();
+
+    // Verify Event fields were synchronized from direct Opportunity
+    Event insertedEvent = [
+      SELECT Id, fase_evento__c, produto_evento__c
+      FROM Event
+      WHERE Id = :testEvent.Id
+    ];
+
+    // NOTE: Phase field should NOT be synchronized - left free for manual input
+    System.assertEquals(
+      null,
+      insertedEvent.fase_evento__c,
+      'Event phase should remain free for manual input'
+    );
+    System.assertEquals(
+      'Gestão de Patrimônio',
+      insertedEvent.produto_evento__c,
+      'Event product should be synchronized from direct Opportunity WhatId'
+    );
+  }
+
+  @isTest
+  static void testEventUpdate_WhatIdChanged_ShouldSynchronizeFields() {
+    // Create two Opportunities for testing WhatId change
+    Account testAccount = new Account(Name = 'WhatId Change Test Account');
+    insert testAccount;
+
+    Opportunity opportunity1 = new Opportunity(
+      Name = 'First Opportunity',
+      StageName = 'Primeira Reunião',
+      CloseDate = Date.today().addMonths(1),
+      AccountId = testAccount.Id,
+      Tipo_de_produto__c = 'Gestão de Patrimônio'
+    );
+    insert opportunity1;
+
+    Opportunity opportunity2 = new Opportunity(
+      Name = 'Second Opportunity',
+      StageName = 'Negociação',
+      CloseDate = Date.today().addMonths(1),
+      AccountId = testAccount.Id,
+      Tipo_de_produto__c = 'Liquidação Otimizada'
+    );
+    insert opportunity2;
+
+    // Create Event with first Opportunity
+    Event testEvent = new Event(
+      Subject = 'Test Event',
+      StartDateTime = DateTime.now(),
+      EndDateTime = DateTime.now().addHours(1),
+      WhatId = opportunity1.Id
+    );
+    insert testEvent;
+
+    Test.startTest();
+
+    // Update Event to second Opportunity
+    testEvent.WhatId = opportunity2.Id;
+    update testEvent;
+
+    Test.stopTest();
+
+    // Verify Event fields were synchronized from second Opportunity
+    Event updatedEvent = [
+      SELECT Id, fase_evento__c, produto_evento__c
+      FROM Event
+      WHERE Id = :testEvent.Id
+    ];
+
+    // NOTE: Phase field should NOT be synchronized - left free for manual input
+    System.assertEquals(
+      null,
+      updatedEvent.fase_evento__c,
+      'Event phase should remain free for manual input'
+    );
+    System.assertEquals(
+      'Liquidação Otimizada',
+      updatedEvent.produto_evento__c,
+      'Event product should be synchronized from updated Opportunity WhatId'
+    );
+  }
+
+  @isTest
+  static void testEventInsert_WithBothContactAndWhatId_ShouldPrioritizeWhatId() {
+    // Get test data
+    Contact testContact = [SELECT Id FROM Contact LIMIT 1];
+
+    // Create a direct Opportunity for WhatId
+    Account testAccount = new Account(Name = 'Priority Test Account');
+    insert testAccount;
+
+    Opportunity directOpportunity = new Opportunity(
+      Name = 'Priority Test Opportunity',
+      StageName = 'Negociação',
+      CloseDate = Date.today().addMonths(1),
+      AccountId = testAccount.Id,
+      Tipo_de_produto__c = 'Consultoria Societária'
+    );
+    insert directOpportunity;
+
+    Test.startTest();
+
+    // Create Event with both WhoId (Contact) and WhatId (Opportunity)
+    Event testEvent = new Event(
+      Subject = 'Test Event with Both WhoId and WhatId',
+      StartDateTime = DateTime.now(),
+      EndDateTime = DateTime.now().addHours(1),
+      WhoId = testContact.Id,
+      WhatId = directOpportunity.Id
+    );
+    insert testEvent;
+
+    Test.stopTest();
+
+    // Verify Event fields were synchronized from WhatId (should take priority)
+    Event insertedEvent = [
+      SELECT Id, fase_evento__c, produto_evento__c
+      FROM Event
+      WHERE Id = :testEvent.Id
+    ];
+
+    // NOTE: Phase field should NOT be synchronized - left free for manual input
+    System.assertEquals(
+      null,
+      insertedEvent.fase_evento__c,
+      'Event phase should remain free for manual input'
+    );
+    System.assertEquals(
+      'Consultoria Societária',
+      insertedEvent.produto_evento__c,
+      'Event product should be synchronized from WhatId (priority over WhoId)'
     );
   }
 }

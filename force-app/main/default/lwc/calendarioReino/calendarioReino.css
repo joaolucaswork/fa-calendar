@@ -623,34 +623,66 @@
   align-items: center;
 }
 
-/* Salas de reunião na barra lateral */
-.rooms-list {
-  padding: 8px 16px;
+/* Room Tabs Styling */
+.room-tabs-container {
+  padding: 8px 16px 0 16px;
 }
 
-.room-item {
+.room-tabs {
+  display: flex;
+  border-bottom: 1px solid #e1dfdd;
   margin-bottom: 12px;
 }
 
-.room-filter-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.room-filter-checkbox {
+.room-tab {
   flex: 1;
-  --slds-c-checkbox-color-background: #ffffff;
-  --slds-c-checkbox-color-border: #d8dde6;
-  --slds-c-checkbox-color-background-checked: #926f1b;
-  --slds-c-checkbox-color-border-checked: #926f1b;
-  --slds-c-checkbox-sizing-border: 1px;
-  --slds-c-checkbox-radius-border: 3px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: #605e5c;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
 }
 
-.room-filter-checkbox .slds-checkbox {
-  margin-right: 8px;
+.room-tab:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: #323130;
+}
+
+.room-tab.active {
+  color: #926f1b;
+  border-bottom-color: #926f1b;
+  background-color: rgba(146, 111, 27, 0.05);
+}
+
+/* Event Cards Container */
+.room-event-cards {
+  padding: 0 16px 8px 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* No Events Message */
+.no-events-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  text-align: center;
+  color: #605e5c;
+}
+
+.no-events-icon {
+  margin-bottom: 8px;
+  color: #a19f9d;
+}
+
+.no-events-text {
+  font-size: 14px;
+  margin: 0;
 }
 
 .room-filter-checkbox .slds-form-element__label {
@@ -659,51 +691,7 @@
   font-weight: 400;
 }
 
-/* Indicadores de disponibilidade de sala */
-.room-availability {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.room-availability.available {
-  background-color: #e8f5e8;
-}
-
-.room-availability.occupied {
-  background-color: #ffeaea;
-}
-
-.room-availability.neutral {
-  background-color: #f0f0f0;
-}
-
-.room-availability-icon {
-  --slds-c-icon-color-foreground-default: inherit;
-}
-
-.room-availability.available .room-availability-icon {
-  --slds-c-icon-color-foreground-default: #4bca81; /* Keep original green for availability */
-}
-
-.room-availability.occupied .room-availability-icon {
-  --slds-c-icon-color-foreground-default: #c0392b; /* Keep original red for occupied */
-}
-
-.room-availability.neutral .room-availability-icon {
-  --slds-c-icon-color-foreground-default: #6c757d;
-}
-
-/* Enhanced card-based occupied slots */
-.room-occupied-slots {
-  margin-top: 12px;
-  padding-left: 16px;
-  border-left: 3px solid #e1dfdd;
-}
+/* Enhanced card-based occupied slots - now used in room tabs */
 
 .occupied-slot-card {
   background: #ffffff;
@@ -2235,10 +2223,12 @@
 
 /* Estilo para o dropdown de visualização */
 .teams-view-selector {
-  margin-left: 8px;
+  /* No margin - using gap from parent container */
 }
 
-.teams-view-menu {
+.teams-view-menu,
+.teams-view-menu.slds-dropdown-trigger,
+.teams-view-menu.slds-dropdown-trigger_click {
   --slds-c-button-radius-border: 20px;
   --slds-c-button-neutral-color-background: transparent;
   --slds-c-button-neutral-color-border: #d0d0d0;
@@ -2250,6 +2240,17 @@
   --slds-c-button-spacing-inline-end: 16px;
   font-size: 14px;
   font-weight: 500;
+  width: fit-content !important;
+  min-width: unset !important;
+  max-width: none !important;
+}
+
+/* Override SLDS dropdown trigger button styling for view selector */
+.teams-view-selector .slds-dropdown-trigger .slds-button,
+.teams-view-selector .slds-dropdown-trigger_click .slds-button {
+  width: fit-content !important;
+  min-width: unset !important;
+  max-width: none !important;
 }
 
 /* Event Type Filter Styles */
@@ -2257,7 +2258,9 @@
   /* No margin - using gap from parent container */
 }
 
-.teams-event-type-menu {
+.teams-event-type-menu,
+.teams-event-type-menu.slds-dropdown-trigger,
+.teams-event-type-menu.slds-dropdown-trigger_click {
   --slds-c-button-radius-border: 20px;
   --slds-c-button-neutral-color-background: transparent;
   --slds-c-button-neutral-color-border: #d0d0d0;
@@ -2269,8 +2272,62 @@
   --slds-c-button-spacing-inline-end: 16px;
   font-size: 14px;
   font-weight: 500;
-  min-width: 140px;
+  width: fit-content !important;
+  min-width: unset !important;
+  max-width: none !important;
 }
+
+/* Override SLDS dropdown trigger button styling */
+.teams-event-type-filter .slds-dropdown-trigger .slds-button,
+.teams-event-type-filter .slds-dropdown-trigger_click .slds-button {
+  width: fit-content !important;
+  min-width: unset !important;
+  max-width: none !important;
+}
+
+/* Prevent text wrapping in event type filter button */
+.teams-event-type-menu .slds-button__label {
+  white-space: nowrap;
+}
+
+/* Location Filter Styles */
+.teams-location-filter {
+  /* No margin - using gap from parent container */
+}
+
+.teams-location-menu,
+.teams-location-menu.slds-dropdown-trigger,
+.teams-location-menu.slds-dropdown-trigger_click {
+  --slds-c-button-radius-border: 20px;
+  --slds-c-button-neutral-color-background: transparent;
+  --slds-c-button-neutral-color-border: #d0d0d0;
+  --slds-c-button-neutral-color-background-hover: #f8f9fa;
+  --slds-c-button-text-color: #252423;
+  --slds-c-button-spacing-block-start: 8px;
+  --slds-c-button-spacing-block-end: 8px;
+  --slds-c-button-spacing-inline-start: 16px;
+  --slds-c-button-spacing-inline-end: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  width: fit-content !important;
+  min-width: unset !important;
+  max-width: none !important;
+}
+
+/* Override SLDS dropdown trigger button styling */
+.teams-location-filter .slds-dropdown-trigger .slds-button,
+.teams-location-filter .slds-dropdown-trigger_click .slds-button {
+  width: fit-content !important;
+  min-width: unset !important;
+  max-width: none !important;
+}
+
+/* Prevent text wrapping in location filter button */
+.teams-location-menu .slds-button__label {
+  white-space: nowrap;
+}
+
+
 
 /* Remover os botões padrão do FullCalendar */
 :host .fc-right {

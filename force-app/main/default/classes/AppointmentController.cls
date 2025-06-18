@@ -985,52 +985,7 @@ public with sharing class AppointmentController {
         ];
       }
 
-      // Additional filtering for system users (done in Apex)
-      for (User user : users) {
-        // Skip users with obvious system-related patterns
-        Boolean isSystemUser = false;
-
-        // Check for system-related names and emails
-        if (
-          user.Name != null &&
-          (user.Name.containsIgnoreCase('Integration') ||
-          user.Name.containsIgnoreCase('System Administrator') ||
-          user.Name.containsIgnoreCase('API User'))
-        ) {
-          isSystemUser = true;
-        }
-
-        if (
-          user.Email != null &&
-          (user.Email.containsIgnoreCase('noreply') ||
-          user.Email.containsIgnoreCase('donotreply') ||
-          user.Email.containsIgnoreCase('system@'))
-        ) {
-          isSystemUser = true;
-        }
-
-        // Check for system-related profiles (more selective)
-        if (
-          user.Profile.Name != null &&
-          (user.Profile.Name.containsIgnoreCase('Integration User') ||
-          user.Profile.Name.containsIgnoreCase('API Only'))
-        ) {
-          isSystemUser = true;
-        }
-
-        if (isSystemUser) {
-          continue;
-        }
-
-        Map<String, Object> userInfo = new Map<String, Object>();
-        userInfo.put('id', user.Id);
-        userInfo.put('name', user.Name);
-        userInfo.put('email', user.Email);
-        userInfo.put('title', user.Title);
-        userInfo.put('photoUrl', user.SmallPhotoUrl);
-        userInfo.put('isActive', user.IsActive);
-        userResults.add(userInfo);
-      }
+      userResults = processUserResults(users);
 
       System.debug(
         'AppointmentController.searchUsers: Found ' +
@@ -1039,6 +994,301 @@ public with sharing class AppointmentController {
       );
     } catch (Exception e) {
       System.debug('Error searching users: ' + e.getMessage());
+    }
+
+    return userResults;
+  }
+
+  /**
+   * Search for users with SDR role based on their Title field
+   * @param searchTerm The search term to find users
+   * @param maxResults Maximum number of results to return
+   * @return List of SDR users with their details
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<Map<String, Object>> searchSDRUsers(
+    String searchTerm,
+    Integer maxResults
+  ) {
+    List<Map<String, Object>> userResults = new List<Map<String, Object>>();
+
+    try {
+      if (maxResults == null || maxResults <= 0) {
+        maxResults = 100;
+      }
+
+      List<User> users;
+
+      // If no search term, return all SDR users
+      if (String.isBlank(searchTerm)) {
+        users = [
+          SELECT
+            Id,
+            Name,
+            Email,
+            Title,
+            SmallPhotoUrl,
+            IsActive,
+            Profile.Name,
+            UserType
+          FROM User
+          WHERE IsActive = TRUE
+            AND UserType = 'Standard'
+            AND (Title LIKE '%SDR%' OR Title LIKE '%Sales Development Representative%')
+          WITH SECURITY_ENFORCED
+          ORDER BY Name
+          LIMIT :maxResults
+        ];
+      } else {
+        // If search term provided, filter by name or email AND SDR role
+        String searchPattern = '%' + searchTerm + '%';
+        users = [
+          SELECT
+            Id,
+            Name,
+            Email,
+            Title,
+            SmallPhotoUrl,
+            IsActive,
+            Profile.Name,
+            UserType
+          FROM User
+          WHERE
+            (Name LIKE :searchPattern OR Email LIKE :searchPattern)
+            AND IsActive = TRUE
+            AND UserType = 'Standard'
+            AND (Title LIKE '%SDR%' OR Title LIKE '%Sales Development Representative%')
+          WITH SECURITY_ENFORCED
+          ORDER BY Name
+          LIMIT :maxResults
+        ];
+      }
+
+      userResults = processUserResults(users);
+
+      System.debug(
+        'AppointmentController.searchSDRUsers: Found ' +
+          userResults.size() +
+          ' SDR users after filtering'
+      );
+    } catch (Exception e) {
+      System.debug('Error searching SDR users: ' + e.getMessage());
+    }
+
+    return userResults;
+  }
+
+  /**
+   * Search for users with Commercial Manager role based on their Title field
+   * @param searchTerm The search term to find users
+   * @param maxResults Maximum number of results to return
+   * @return List of Commercial Manager users with their details
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<Map<String, Object>> searchCommercialManagerUsers(
+    String searchTerm,
+    Integer maxResults
+  ) {
+    List<Map<String, Object>> userResults = new List<Map<String, Object>>();
+
+    try {
+      if (maxResults == null || maxResults <= 0) {
+        maxResults = 100;
+      }
+
+      List<User> users;
+
+      // If no search term, return all Commercial Manager users
+      if (String.isBlank(searchTerm)) {
+        users = [
+          SELECT
+            Id,
+            Name,
+            Email,
+            Title,
+            SmallPhotoUrl,
+            IsActive,
+            Profile.Name,
+            UserType
+          FROM User
+          WHERE IsActive = TRUE
+            AND UserType = 'Standard'
+            AND (Title LIKE '%Líder Comercial%' OR Title LIKE '%gestor líder comercial%' OR Title LIKE '%Commercial Manager%' OR Title LIKE '%Gerente Comercial%')
+          WITH SECURITY_ENFORCED
+          ORDER BY Name
+          LIMIT :maxResults
+        ];
+      } else {
+        // If search term provided, filter by name or email AND Commercial Manager role
+        String searchPattern = '%' + searchTerm + '%';
+        users = [
+          SELECT
+            Id,
+            Name,
+            Email,
+            Title,
+            SmallPhotoUrl,
+            IsActive,
+            Profile.Name,
+            UserType
+          FROM User
+          WHERE
+            (Name LIKE :searchPattern OR Email LIKE :searchPattern)
+            AND IsActive = TRUE
+            AND UserType = 'Standard'
+            AND (Title LIKE '%Líder Comercial%' OR Title LIKE '%gestor líder comercial%' OR Title LIKE '%Commercial Manager%' OR Title LIKE '%Gerente Comercial%')
+          WITH SECURITY_ENFORCED
+          ORDER BY Name
+          LIMIT :maxResults
+        ];
+      }
+
+      userResults = processUserResults(users);
+
+      System.debug(
+        'AppointmentController.searchCommercialManagerUsers: Found ' +
+          userResults.size() +
+          ' Commercial Manager users after filtering'
+      );
+    } catch (Exception e) {
+      System.debug('Error searching Commercial Manager users: ' + e.getMessage());
+    }
+
+    return userResults;
+  }
+
+  /**
+   * Search for users with Gestor role based on their Title field
+   * @param searchTerm The search term to find users
+   * @param maxResults Maximum number of results to return
+   * @return List of Gestor users with their details
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<Map<String, Object>> searchGestorUsers(
+    String searchTerm,
+    Integer maxResults
+  ) {
+    List<Map<String, Object>> userResults = new List<Map<String, Object>>();
+
+    try {
+      if (maxResults == null || maxResults <= 0) {
+        maxResults = 100;
+      }
+
+      List<User> users;
+
+      // If no search term, return all Gestor users
+      if (String.isBlank(searchTerm)) {
+        users = [
+          SELECT
+            Id,
+            Name,
+            Email,
+            Title,
+            SmallPhotoUrl,
+            IsActive,
+            Profile.Name,
+            UserType
+          FROM User
+          WHERE IsActive = TRUE
+            AND UserType = 'Standard'
+            AND (Title LIKE '%Gestor%' OR Title LIKE '%Manager%' OR Title LIKE '%Gerente%' OR Title LIKE '%Director%' OR Title LIKE '%Diretor%')
+          WITH SECURITY_ENFORCED
+          ORDER BY Name
+          LIMIT :maxResults
+        ];
+      } else {
+        // If search term provided, filter by name or email AND Gestor role
+        String searchPattern = '%' + searchTerm + '%';
+        users = [
+          SELECT
+            Id,
+            Name,
+            Email,
+            Title,
+            SmallPhotoUrl,
+            IsActive,
+            Profile.Name,
+            UserType
+          FROM User
+          WHERE
+            (Name LIKE :searchPattern OR Email LIKE :searchPattern)
+            AND IsActive = TRUE
+            AND UserType = 'Standard'
+            AND (Title LIKE '%Gestor%' OR Title LIKE '%Manager%' OR Title LIKE '%Gerente%' OR Title LIKE '%Director%' OR Title LIKE '%Diretor%')
+          WITH SECURITY_ENFORCED
+          ORDER BY Name
+          LIMIT :maxResults
+        ];
+      }
+
+      userResults = processUserResults(users);
+
+      System.debug(
+        'AppointmentController.searchGestorUsers: Found ' +
+          userResults.size() +
+          ' Gestor users after filtering'
+      );
+    } catch (Exception e) {
+      System.debug('Error searching Gestor users: ' + e.getMessage());
+    }
+
+    return userResults;
+  }
+
+  /**
+   * Helper method to process user results and filter out system users
+   * @param users List of User records to process
+   * @return List of processed user information maps
+   */
+  private static List<Map<String, Object>> processUserResults(List<User> users) {
+    List<Map<String, Object>> userResults = new List<Map<String, Object>>();
+
+    // Additional filtering for system users (done in Apex)
+    for (User user : users) {
+      // Skip users with obvious system-related patterns
+      Boolean isSystemUser = false;
+
+      // Check for system-related names and emails
+      if (
+        user.Name != null &&
+        (user.Name.containsIgnoreCase('Integration') ||
+        user.Name.containsIgnoreCase('System Administrator') ||
+        user.Name.containsIgnoreCase('API User'))
+      ) {
+        isSystemUser = true;
+      }
+
+      if (
+        user.Email != null &&
+        (user.Email.containsIgnoreCase('noreply') ||
+        user.Email.containsIgnoreCase('donotreply') ||
+        user.Email.containsIgnoreCase('system@'))
+      ) {
+        isSystemUser = true;
+      }
+
+      // Check for system-related profiles (more selective)
+      if (
+        user.Profile.Name != null &&
+        (user.Profile.Name.containsIgnoreCase('Integration User') ||
+        user.Profile.Name.containsIgnoreCase('API Only'))
+      ) {
+        isSystemUser = true;
+      }
+
+      if (isSystemUser) {
+        continue;
+      }
+
+      Map<String, Object> userInfo = new Map<String, Object>();
+      userInfo.put('id', user.Id);
+      userInfo.put('name', user.Name);
+      userInfo.put('email', user.Email);
+      userInfo.put('title', user.Title);
+      userInfo.put('photoUrl', user.SmallPhotoUrl);
+      userInfo.put('isActive', user.IsActive);
+      userResults.add(userInfo);
     }
 
     return userResults;

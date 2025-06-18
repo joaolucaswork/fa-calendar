@@ -34,6 +34,7 @@ CalendarioReino is a **next-generation calendar system** built as a Salesforce L
 - **Real-time room availability** with visual indicators and conflict resolution
 - **Multi-dimensional filtering** by users, colors, rooms, and status
 - **Participant-focused views** showing only relevant events
+- **Intelligent cancellation filtering** automatically excludes cancelled, postponed, or rescheduled events from "happening now" displays
 
 #### **Enterprise-Grade Performance**
 
@@ -401,6 +402,8 @@ liderComercialName__c (Text, 255) - Commercial leader name
 sdrName__c (Text, 255) - SDR participant name
 statusReuniao__c (Picklist) - Meeting status values:
   - Aconteceu, Não Aconteceu, Cancelado, Adiado, Reagendado
+  - Note: Events with 'Cancelado', 'Adiado', or 'Reagendado' are automatically
+    excluded from "happening now" indicators and room-based event lists
 customColor__c (Text, 7) - Custom hex color for events
 ```
 

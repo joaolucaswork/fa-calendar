@@ -639,7 +639,7 @@ public with sharing class ReuniaoController {
     } else if (salaReuniao == 'salaGabriel') {
       return 'Sala do Gabriel';
     } else if (salaReuniao == 'Outra') {
-      return 'Outra Localização';
+      return 'Outra';
     } else if (salaReuniao == 'online') {
       return 'Online';
     } else {

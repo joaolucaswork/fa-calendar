@@ -38,11 +38,11 @@ public class EventTriggerHandler {
     isExecuting = true;
 
     try {
-      // Only process events where WhoId has changed
+      // Process events where WhoId or WhatId has changed
       List<Event> eventsToProcess = new List<Event>();
       for (Event evt : newEvents) {
         Event oldEvent = oldEventMap.get(evt.Id);
-        if (evt.WhoId != oldEvent.WhoId) {
+        if (evt.WhoId != oldEvent.WhoId || evt.WhatId != oldEvent.WhatId) {
           eventsToProcess.add(evt);
         }
       }
@@ -63,11 +63,13 @@ public class EventTriggerHandler {
     List<Event> events
   ) {
     try {
-      // Separate events by Lead and Contact WhoId
+      // Separate events by Lead, Contact WhoId, and direct Opportunity WhatId
       Set<Id> leadIds = new Set<Id>();
       Set<Id> contactIds = new Set<Id>();
+      Set<Id> opportunityIds = new Set<Id>();
 
       for (Event evt : events) {
+        // Check WhoId for Lead/Contact relationships
         if (evt.WhoId != null) {
           String whoIdString = String.valueOf(evt.WhoId);
           if (whoIdString.startsWith('00Q')) {
@@ -79,29 +81,42 @@ public class EventTriggerHandler {
           }
           // Ignore other WhoId types (User, etc.)
         }
+
+        // Check WhatId for direct Opportunity relationships
+        if (evt.WhatId != null) {
+          String whatIdString = String.valueOf(evt.WhatId);
+          if (whatIdString.startsWith('006')) {
+            // Opportunity ID prefix
+            opportunityIds.add(evt.WhatId);
+          }
+        }
       }
 
-      // Skip processing if no valid Lead or Contact IDs found
-      if (leadIds.isEmpty() && contactIds.isEmpty()) {
+      // Skip processing if no valid relationships found
+      if (leadIds.isEmpty() && contactIds.isEmpty() && opportunityIds.isEmpty()) {
         System.debug(
-          'EventTriggerHandler: No valid Lead or Contact IDs found for synchronization'
+          'EventTriggerHandler: No valid Lead, Contact, or Opportunity relationships found for synchronization'
         );
         return;
       }
 
-      // Get opportunity data for both Lead and Contact relationships
-      Map<Id, OpportunityData> whoIdToOpportunityMap = new Map<Id, OpportunityData>();
+      // Get opportunity data for all relationship types
+      Map<Id, OpportunityData> relationshipToOpportunityMap = new Map<Id, OpportunityData>();
 
       if (!leadIds.isEmpty()) {
-        whoIdToOpportunityMap.putAll(getOpportunityDataForLeads(leadIds));
+        relationshipToOpportunityMap.putAll(getOpportunityDataForLeads(leadIds));
       }
 
       if (!contactIds.isEmpty()) {
-        whoIdToOpportunityMap.putAll(getOpportunityDataForContacts(contactIds));
+        relationshipToOpportunityMap.putAll(getOpportunityDataForContacts(contactIds));
+      }
+
+      if (!opportunityIds.isEmpty()) {
+        relationshipToOpportunityMap.putAll(getOpportunityDataForDirectOpportunities(opportunityIds));
       }
 
       // Update Event fields based on Opportunity data
-      updateEventFields(events, whoIdToOpportunityMap);
+      updateEventFields(events, relationshipToOpportunityMap);
     } catch (Exception e) {
       System.debug(
         'EventTriggerHandler: Error in synchronizeEventFieldsWithOpportunity: ' +
@@ -201,40 +216,76 @@ public class EventTriggerHandler {
   }
 
   /**
+   * @description Gets Opportunity data for direct Opportunity IDs (WhatId relationships)
+   * @param opportunityIds Set of Opportunity IDs
+   * @return Map of Opportunity ID to OpportunityData
+   */
+  private static Map<Id, OpportunityData> getOpportunityDataForDirectOpportunities(
+    Set<Id> opportunityIds
+  ) {
+    Map<Id, OpportunityData> result = new Map<Id, OpportunityData>();
+
+    // Query opportunities directly
+    List<Opportunity> opportunities = [
+      SELECT Id, StageName, Tipo_de_produto__c
+      FROM Opportunity
+      WHERE Id IN :opportunityIds
+    ];
+
+    // Map opportunities to their IDs
+    for (Opportunity opp : opportunities) {
+      result.put(opp.Id, new OpportunityData(opp));
+    }
+
+    System.debug(
+      'EventTriggerHandler: Found ' + result.size() + ' direct Opportunity relationships'
+    );
+
+    return result;
+  }
+
+  /**
    * @description Updates Event fields based on Opportunity data
    * @param events List of Event records to update
-   * @param whoIdToOpportunityMap Map of WhoId to OpportunityData
+   * @param relationshipToOpportunityMap Map of relationship ID (WhoId or WhatId) to OpportunityData
    */
   private static void updateEventFields(
     List<Event> events,
-    Map<Id, OpportunityData> whoIdToOpportunityMap
+    Map<Id, OpportunityData> relationshipToOpportunityMap
   ) {
     Integer updatedCount = 0;
 
     for (Event evt : events) {
-      if (evt.WhoId != null && whoIdToOpportunityMap.containsKey(evt.WhoId)) {
-        OpportunityData oppData = whoIdToOpportunityMap.get(evt.WhoId);
+      OpportunityData oppData = null;
 
-        if (oppData != null) {
-          Boolean fieldUpdated = false;
+      // Check for direct Opportunity relationship first (WhatId)
+      if (evt.WhatId != null && relationshipToOpportunityMap.containsKey(evt.WhatId)) {
+        oppData = relationshipToOpportunityMap.get(evt.WhatId);
+      }
+      // If no direct relationship, check WhoId relationship
+      else if (evt.WhoId != null && relationshipToOpportunityMap.containsKey(evt.WhoId)) {
+        oppData = relationshipToOpportunityMap.get(evt.WhoId);
+      }
 
-          // NOTE: Phase field (fase_evento__c) is left free for manual input
-          // Only synchronize Product field (convert multi-select to single-select)
-          if (String.isNotBlank(oppData.productType)) {
-            String convertedProduct = convertProductType(oppData.productType);
-            if (
-              String.isNotBlank(convertedProduct) &&
-              (String.isBlank(evt.produto_evento__c) ||
-              evt.produto_evento__c != convertedProduct)
-            ) {
-              evt.produto_evento__c = convertedProduct;
-              fieldUpdated = true;
-            }
+      if (oppData != null) {
+        Boolean fieldUpdated = false;
+
+        // NOTE: Phase field (fase_evento__c) is left free for manual input
+        // Only synchronize Product field (convert multi-select to single-select)
+        if (String.isNotBlank(oppData.productType)) {
+          String convertedProduct = convertProductType(oppData.productType);
+          if (
+            String.isNotBlank(convertedProduct) &&
+            (String.isBlank(evt.produto_evento__c) ||
+            evt.produto_evento__c != convertedProduct)
+          ) {
+            evt.produto_evento__c = convertedProduct;
+            fieldUpdated = true;
           }
+        }
 
-          if (fieldUpdated) {
-            updatedCount++;
-          }
+        if (fieldUpdated) {
+          updatedCount++;
         }
       }
     }
@@ -260,7 +311,7 @@ public class EventTriggerHandler {
     // Product mapping between Opportunity and Event
     Map<String, String> productMapping = new Map<String, String>{
       'Gestão de Patrimônio' => 'Gestão de Patrimônio',
-      'Liquidação Negociada' => 'Liquidação Otimizada',
+      'Liquidação Otimizada' => 'Liquidação Otimizada',
       'Consultoria Societária' => 'Consultoria Societária'
     };
 

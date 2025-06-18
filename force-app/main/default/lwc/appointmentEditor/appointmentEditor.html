@@ -163,21 +163,32 @@
                             </lightning-combobox>
                           </div>
 
-                          <!-- Produto do Evento -->
+                          <!-- Produto do Evento - Readonly field linked to Opportunity -->
                           <div
                             class="slds-col slds-size_1-of-2 slds-p-horizontal_small slds-p-bottom_small"
                           >
-                            <lightning-combobox
-                              label="Produto do Evento"
-                              value={eventData.produtoEvento}
-                              options={produtoEventoOptions}
-                              name="produtoEvento"
-                              onchange={handleFieldChange}
-                              placeholder="Selecione o produto..."
-                              variant="standard"
-                              disabled
-                            >
-                            </lightning-combobox>
+                            <div class="slds-form-element">
+                              <label class="slds-form-element__label">
+                                Produto do Evento
+                              </label>
+                              <div class="slds-form-element__control">
+                                <div class="product-readonly-field">
+                                  <div class="product-value-container">
+                                    <lightning-icon
+                                      icon-name="standard:opportunity"
+                                      size="x-small"
+                                      class="product-icon"
+                                    ></lightning-icon>
+                                    <div class="product-content">
+                                      <div class="product-value">
+                                        {displayProductValue}
+                                      </div>
+                                      
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
 
                           <!-- Tipo de Compromisso - Moved to appear right after Subject -->
@@ -659,79 +670,7 @@
                     </div>
 
                     <div class="slds-p-around_medium">
-                      <div class="participants-container">
-                        <!-- Gestor Dropdown -->
-                        <div class={gestorDropdownClass}>
-                          <div class="dropdown-label-container">
-                            <lightning-icon
-                              icon-name="utility:user"
-                              size="x-small"
-                              class="dropdown-icon"
-                            ></lightning-icon>
-                            <span class="dropdown-label"
-                              >Gestor (Opcional)</span
-                            >
-                          </div>
-                          <lightning-combobox
-                            name="gestor"
-                            placeholder="Selecionar gestor..."
-                            options={userOptions}
-                            value={selectedGestorName}
-                            onchange={handleParticipantSelect}
-                            variant="standard"
-                            class="enhanced-combobox"
-                          >
-                          </lightning-combobox>
-                        </div>
-
-                        <!-- Líder Comercial Dropdown -->
-                        <div class={liderComercialDropdownClass}>
-                          <div class="dropdown-label-container">
-                            <lightning-icon
-                              icon-name="utility:salesforce1"
-                              size="x-small"
-                              class="dropdown-icon"
-                            ></lightning-icon>
-                            <span class="dropdown-label"
-                              >Líder Comercial (Opcional)</span
-                            >
-                          </div>
-                          <lightning-combobox
-                            name="liderComercial"
-                            placeholder="Selecionar líder comercial..."
-                            options={userOptions}
-                            value={selectedLiderComercialName}
-                            onchange={handleParticipantSelect}
-                            variant="standard"
-                            class="enhanced-combobox"
-                          >
-                          </lightning-combobox>
-                        </div>
-
-                        <!-- SDR Dropdown -->
-                        <div class={sdrDropdownClass}>
-                          <div class="dropdown-label-container">
-                            <lightning-icon
-                              icon-name="utility:lead"
-                              size="x-small"
-                              class="dropdown-icon"
-                            ></lightning-icon>
-                            <span class="dropdown-label">SDR (Opcional)</span>
-                          </div>
-                          <lightning-combobox
-                            name="sdr"
-                            placeholder="Selecionar SDR..."
-                            options={userOptions}
-                            value={selectedSdrName}
-                            onchange={handleParticipantSelect}
-                            variant="standard"
-                            class="enhanced-combobox"
-                          >
-                          </lightning-combobox>
-                        </div>
-                      </div>
-
-                      <!-- Selected Participants Display -->
+                      <!-- Selected Participants Display - Moved above dropdowns -->
                       <template if:true={hasSelectedParticipants}>
                         <div class="selected-participants-section">
                           <div class="selected-participants-header">
@@ -741,7 +680,7 @@
                                 size="xx-small"
                                 class="slds-m-right_x-small"
                               ></lightning-icon>
-                              Participantes Selecionados
+                              Participantes selecionados
                             </h4>
                           </div>
                           <div class="selected-participants-display">
@@ -758,6 +697,76 @@
                           </div>
                         </div>
                       </template>
+
+                      <div class="participants-container">
+                        <!-- Líder comercial Dropdown - First -->
+                        <div class={liderComercialDropdownClass}>
+                          <div class="dropdown-label-container">
+                            <lightning-icon
+                              icon-name="utility:salesforce1"
+                              size="x-small"
+                              class="dropdown-icon"
+                            ></lightning-icon>
+                            <span class="dropdown-label">Líder comercial</span>
+                          </div>
+                          <lightning-combobox
+                            name="liderComercial"
+                            placeholder="Selecionar líder comercial..."
+                            options={commercialManagerUserOptions}
+                            value={selectedLiderComercialName}
+                            onchange={handleParticipantSelect}
+                            variant="standard"
+                            class="enhanced-combobox"
+                          >
+                          </lightning-combobox>
+                        </div>
+
+                        <!-- Gestor Dropdown - Second -->
+                        <div class={gestorDropdownClass}>
+                          <div class="dropdown-label-container">
+                            <lightning-icon
+                              icon-name="utility:user"
+                              size="x-small"
+                              class="dropdown-icon"
+                            ></lightning-icon>
+                            <span class="dropdown-label">Gestor</span>
+                          </div>
+                          <lightning-combobox
+                            name="gestor"
+                            placeholder="Selecionar gestor..."
+                            options={gestorUserOptions}
+                            value={selectedGestorName}
+                            onchange={handleParticipantSelect}
+                            variant="standard"
+                            class="enhanced-combobox"
+                          >
+                          </lightning-combobox>
+                        </div>
+
+                        <!-- SDR Dropdown - Third -->
+                        <div class={sdrDropdownClass}>
+                          <div class="dropdown-label-container">
+                            <lightning-icon
+                              icon-name="utility:lead"
+                              size="x-small"
+                              class="dropdown-icon"
+                            ></lightning-icon>
+                            <span class="dropdown-label">SDR</span>
+                          </div>
+                          <lightning-combobox
+                            name="sdr"
+                            placeholder="Selecionar SDR..."
+                            options={sdrUserOptions}
+                            value={selectedSdrName}
+                            onchange={handleParticipantSelect}
+                            variant="standard"
+                            class="enhanced-combobox"
+                          >
+                          </lightning-combobox>
+                        </div>
+                      </div>
+
+
 
                       <!-- Participants Validation Error - Removed since participants are now optional -->
                       <!--
