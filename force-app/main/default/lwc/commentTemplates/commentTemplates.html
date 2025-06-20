@@ -1,0 +1,171 @@
+<template>
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-title">
+        <lightning-icon
+          icon-name="utility:comments"
+          size="x-small"
+          class="slds-m-right_x-small"
+        ></lightning-icon>
+        Modelos de mensagem
+      </div>
+      <!-- Botões de navegação simples para o carrossel -->
+      <div class="carousel-nav-buttons">
+        <button class="carousel-simple-nav carousel-nav-left" onclick={scrollLeft} title="Ver modelos anteriores">
+          <lightning-icon icon-name="utility:chevronleft" size="xx-small"></lightning-icon>
+        </button>
+        <button class="carousel-simple-nav carousel-nav-right" onclick={scrollRight} title="Ver próximos modelos">
+          <lightning-icon icon-name="utility:chevronright" size="xx-small"></lightning-icon>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Container do carrossel com scroll horizontal -->
+    <div class="cards-carousel-container">
+      <!-- Carrossel com scroll horizontal para modelos de mensagem -->
+      <div class="cards-carousel" data-id="templates-wrapper">
+        <!-- Categorias negativas -->
+        <div
+          class="template-pill template-pill-negative"
+          data-id="1"
+          data-category="sem-interesse"
+          data-template="Lead não demonstrou interesse no momento. Ficar no radar para futuras oportunidades."
+          onclick={handleTemplatePillClick}
+        >
+          Lead sem interesse
+        </div>
+
+        <div
+          class="template-pill template-pill-neutral"
+          data-id="2"
+          data-category="nao-atendeu"
+          data-template="Lead não atendeu a chamada. Tentarei entrar em contato novamente mais tarde."
+          onclick={handleTemplatePillClick}
+        >
+          Lead não atendeu
+        </div>
+
+        <div
+          class="template-pill template-pill-neutral"
+          data-id="3"
+          data-category="mensagem-whatsapp"
+          data-template="Deixei mensagem no WhatsApp com informações iniciais. Aguardando retorno do lead."
+          onclick={handleTemplatePillClick}
+        >
+          Deixei mensagem no WhatsApp
+        </div>
+
+        <div
+          class="template-pill template-pill-negative"
+          data-id="4"
+          data-category="contato-invalido"
+          data-template="Contato inválido. Telefone não pertence ao lead ou está desativado."
+          onclick={handleTemplatePillClick}
+        >
+          Contato inválido
+        </div>
+
+        <!-- Categorias pendentes -->
+        <div
+          class="template-pill template-pill-pending"
+          data-id="5"
+          data-category="retornar-depois"
+          data-template="Lead pediu para retornar em outro momento. Reagendar contato."
+          onclick={handleTemplatePillClick}
+        >
+          Lead pediu para retornar
+        </div>
+
+        <div
+          class="template-pill template-pill-pending"
+          data-id="6"
+          data-category="sem-sequencia"
+          data-template="Lead recebeu informações iniciais, mas não deu sequência à conversa."
+          onclick={handleTemplatePillClick}
+        >
+          Lead não deu sequência
+        </div>
+
+        <div
+          class="template-pill template-pill-neutral"
+          data-id="7"
+          data-category="ocupado"
+          data-template="Lead estava ocupado no momento. Tentar novamente mais tarde."
+          onclick={handleTemplatePillClick}
+        >
+          Lead ocupado
+        </div>
+
+        <div
+          class="template-pill template-pill-neutral"
+          data-id="8"
+          data-category="comercial"
+          data-template="Contato comercial. Lead informou estar buscando soluções para sua empresa."
+          onclick={handleTemplatePillClick}
+        >
+          Contato comercial
+        </div>
+
+        <!-- Categorias positivas -->
+        <div
+          class="template-pill template-pill-pending"
+          data-id="9"
+          data-category="desconfianca"
+          data-template="Lead um pouco desconfiado. Precisa de mais informações sobre nossos serviços e credibilidade."
+          onclick={handleTemplatePillClick}
+        >
+          Lead desconfiado
+        </div>
+
+        <div
+          class="template-pill template-pill-positive"
+          data-id="10"
+          data-category="interessado"
+          data-template="Lead demonstrou interesse. Está avaliando nossas soluções e considerando investir."
+          onclick={handleTemplatePillClick}
+        >
+          Lead interessado
+        </div>
+
+        <!-- Personalizado -->
+        <div
+          class="template-pill template-pill-manual"
+          data-id="manual"
+          data-category="manual"
+          onclick={handleTemplatePillClick}
+        >
+          Escrever manualmente
+        </div>
+      </div>
+    </div>
+
+    <!-- Interface para edição de template personalizado (aparece apenas quando selecionado) -->
+    <div
+      if:true={isCustomTemplate}
+      class="custom-template-editor slds-m-top_small"
+    >
+      <lightning-textarea
+        label="Template personalizado"
+        placeholder="Escreva seu template de comentário personalizado..."
+        value={customTemplateText}
+        onchange={handleCustomTemplateChange}
+      ></lightning-textarea>
+
+      <div class="custom-template-actions slds-m-top_x-small">
+        <lightning-button
+          label="Salvar"
+          variant="brand"
+          icon-name="utility:check"
+          onclick={handleSaveCustomTemplate}
+          class="slds-m-right_x-small"
+        ></lightning-button>
+
+        <lightning-button
+          label="Cancelar"
+          icon-name="utility:close"
+          onclick={handleCancelCustomTemplate}
+        ></lightning-button>
+      </div>
+    </div>
+  </div>
+</template>

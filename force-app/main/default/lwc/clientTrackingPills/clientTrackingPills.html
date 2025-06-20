@@ -1,71 +1,87 @@
 <!--
   Client Tracking Pills LWC Template
-  Displays horizontal pill-shaped buttons for active/recurring clients
+  Displays circular avatar buttons for active/recurring clients in sidebar
 -->
 <template>
     <!-- Main Container -->
     <div class={containerClass} if:true={shouldShowComponent}>
         <!-- Header Section -->
-        <div class="pills-header">
-            <div class="pills-title">
-                <lightning-icon 
-                    icon-name="utility:groups" 
-                    size="x-small" 
-                    class="title-icon">
-                </lightning-icon>
-                <span class="title-text">Clientes Ativos</span>
+        <div class="avatars-header">
+            <div class="avatars-title">
+                <span class="title-text">Recorrências</span>
                 <span class="client-count">({activeClients.length})</span>
             </div>
-            
+
             <!-- Clear Filters Button -->
             <div if:true={shouldShowClearButton} class="clear-filters">
-                <lightning-button
-                    label="Limpar Filtros"
-                    variant="neutral"
-                    size="small"
-                    icon-name="utility:clear"
+                <button
+                    class="clear-button-custom"
                     onclick={handleClearFilters}
-                    class="clear-button">
-                </lightning-button>
+                    title="Limpar filtros">
+                    ×
+                </button>
             </div>
         </div>
-        
-        <!-- Pills Container -->
-        <div class="pills-container">
-            <!-- Client Pills -->
-            <div class="pills-list">
+
+        <!-- Avatars Container -->
+        <div class="avatars-container">
+            <!-- Client Avatars -->
+            <div class="avatars-list">
                 <template for:each={visibleClients} for:item="client">
-                    <div key={client.clientId} 
-                         class={client.pillClass}
-                         data-client-id={client.clientId}
-                         data-client-name={client.clientName}
-                         onclick={handlePillClick}
-                         title={client.trackingReason}>
-                        
-                        <!-- Client Icon -->
-                        <lightning-icon 
-                            icon-name="utility:person_account" 
-                            size="xx-small" 
-                            class="pill-icon">
-                        </lightning-icon>
-                        
-                        <!-- Client Name -->
-                        <span class="pill-text">{client.clientName}</span>
-                        
-                        <!-- Event Count Badge -->
-                        <span class="pill-badge">{client.totalEvents}</span>
-                        
-                        <!-- Active Indicator -->
-                        <div if:true={client.isSelected} class="selected-indicator">
-                            <lightning-icon 
-                                icon-name="utility:check" 
-                                size="xx-small">
-                            </lightning-icon>
+                    <!-- First item with dynamic layout -->
+                    <template if:true={client.isFirstItem}>
+                        <div key={client.clientId}
+                             class={client.avatarClass}
+                             data-client-id={client.clientId}
+                             data-client-name={client.clientName}
+                             onclick={handlePillClick}
+                             title={client.clientName}>
+
+                            <!-- Show as circle with initial when another item is expanded -->
+                            <template if:true={client.showAsCircle}>
+                                <span class="avatar-initial">{client.clientInitial}</span>
+                            </template>
+
+                            <!-- Show as pill with name when no other item is expanded -->
+                            <template if:false={client.showAsCircle}>
+                                <span class="first-item-name">{client.clientName}</span>
+                            </template>
                         </div>
-                    </div>
+                    </template>
+
+                    <!-- Regular items -->
+                    <template if:false={client.isFirstItem}>
+                        <!-- Expanded regular item -->
+                        <template if:true={client.isExpanded}>
+                            <div key={client.clientId}
+                                 class={client.avatarClass}
+                                 data-client-id={client.clientId}
+                                 data-client-name={client.clientName}
+                                 onclick={handlePillClick}
+                                 title={client.clientName}>
+
+                                <!-- Client Name Only -->
+                                <span class="expanded-item-name">{client.clientName}</span>
+                            </div>
+                        </template>
+
+                        <!-- Collapsed regular item -->
+                        <template if:false={client.isExpanded}>
+                            <div key={client.clientId}
+                                 class={client.avatarClass}
+                                 data-client-id={client.clientId}
+                                 data-client-name={client.clientName}
+                                 onclick={handlePillClick}
+                                 title={client.clientName}>
+
+                                <!-- Client Initial -->
+                                <span class="avatar-initial">{client.clientInitial}</span>
+                            </div>
+                        </template>
+                    </template>
                 </template>
             </div>
-            
+
             <!-- Show More/Less Toggle -->
             <div if:true={hasMoreClients} class="toggle-container">
                 <lightning-button

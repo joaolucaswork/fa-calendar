@@ -494,68 +494,29 @@
 .sidebar-month-year {
   font-weight: 500;
   color: #252423;
-  text-align: center;
+  text-align: left;
 }
 
-/* Client Tracking Section Styling */
-.client-tracking-section {
-  margin: 8px 16px;
-  padding: 0;
-  border-radius: 8px;
-  background: transparent;
-}
-
-/* Ensure client tracking pills integrate well with calendar layout */
-.client-tracking-section c-client-tracking-pills {
+/* Client Tracking Section Styling - Sidebar Integration */
+.sidebar-section c-client-tracking-pills {
   display: block;
   width: 100%;
 }
 
-/* Override any default spacing for seamless integration */
-.client-tracking-section .client-tracking-container {
+/* Override any default spacing for seamless sidebar integration */
+.sidebar-section .client-tracking-container {
   margin: 0;
-  border-radius: 6px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e1dfdd;
-}
-
-/* Independent Client Tracking Pills Section - positioned outside calendar loading cycle */
-.client-tracking-section-independent {
-  position: fixed;
-  top: 120px; /* Below the header */
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
+  padding: 8px 16px;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
   background: transparent;
-  pointer-events: none; /* Allow clicks to pass through container */
-  width: auto;
-  max-width: 90vw;
 }
 
-.client-tracking-section-independent c-client-tracking-pills {
-  pointer-events: auto; /* Re-enable clicks on the actual component */
-}
-
-/* Responsive adjustments for client tracking */
-@media (max-width: 1200px) {
-  .client-tracking-section {
-    margin: 6px 12px;
-  }
-
-  .client-tracking-section-independent {
-    top: 110px;
-    max-width: 95vw;
-  }
-}
-
+/* Responsive adjustments for client tracking in sidebar */
 @media (max-width: 768px) {
-  .client-tracking-section {
-    margin: 4px 8px;
-  }
-
-  .client-tracking-section-independent {
-    top: 100px;
-    max-width: 98vw;
+  .sidebar-section .client-tracking-container {
+    padding: 6px 12px;
   }
 }
 

@@ -11,5 +11,5 @@ package.xml
 # LWC Jest
 **/__tests__/**
 
-# Ignore object metadata to prevent field conflicts
-**/objects/**
+# Ignore object metadata to prevent field conflicts - REMOVED to allow custom field deployment
+# **/objects/**

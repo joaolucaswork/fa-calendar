@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Template de Mensagem WhatsApp</masterLabel>
+    <description
+  >Componente para editar o template de mensagem do WhatsApp</description>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__Tab</target>
+        <target>lightning__UtilityBar</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig
+      targets="lightning__AppPage,lightning__HomePage,lightning__RecordPage"
+    >
+            <property
+        name="saveToLocalStorage"
+        type="Boolean"
+        default="true"
+        label="Salvar template no navegador"
+        description="Se marcado, o template será salvo no armazenamento local do navegador"
+      />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

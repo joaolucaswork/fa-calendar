@@ -2359,8 +2359,35 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
    * Handle search input change
    */
   handleSearchChange(event) {
-    this.searchTerm = event.target.value;
+    const newSearchTerm = event.target.value;
+    this.searchTerm = newSearchTerm;
+
+    // If search is cleared manually, also clear client selection
+    if (!newSearchTerm || newSearchTerm.trim() === "") {
+      this.clearClientSelection();
+    }
+
     this.applyFilters();
+  }
+
+  /**
+   * Clear client selection and update client tracking pills
+   */
+  clearClientSelection() {
+    if (this.selectedClientId) {
+      this.selectedClientId = null;
+      this.selectedClientName = null;
+
+      // Update client tracking pills to reflect cleared selection
+      try {
+        const clientTrackingComponent = this.template.querySelector('c-client-tracking-pills');
+        if (clientTrackingComponent && typeof clientTrackingComponent.clearSelection === 'function') {
+          clientTrackingComponent.clearSelection();
+        }
+      } catch (error) {
+        console.error('Error clearing client selection:', error);
+      }
+    }
   }
 
   /**
@@ -2515,6 +2542,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       this.selectedClientId = clientId;
       this.selectedClientName = clientName;
 
+      // Update search box with client name
+      this.searchTerm = clientName;
+      this.updateSearchInputValue(clientName);
+
       this.showToast(
         "Filtro de Cliente",
         `Mostrando eventos de ${clientName}`,
@@ -2524,6 +2555,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       // Clear client filter
       this.selectedClientId = null;
       this.selectedClientName = null;
+
+      // Clear search box
+      this.searchTerm = "";
+      this.updateSearchInputValue("");
 
       this.showToast(
         "Filtro Removido",
@@ -2537,6 +2572,32 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
     // Refresh client tracking data
     this.refreshClientTrackingData();
+  }
+
+  /**
+   * Handle clear search event from client tracking pills
+   */
+  handleClearSearch(event) {
+    // Clear search term and update input field
+    this.searchTerm = "";
+    this.updateSearchInputValue("");
+
+    // Apply filters to refresh calendar
+    this.applyFilters();
+  }
+
+  /**
+   * Update search input field value programmatically
+   */
+  updateSearchInputValue(value) {
+    try {
+      const searchInput = this.template.querySelector('.teams-search-input');
+      if (searchInput) {
+        searchInput.value = value;
+      }
+    } catch (error) {
+      console.error('Error updating search input value:', error);
+    }
   }
 
   /**

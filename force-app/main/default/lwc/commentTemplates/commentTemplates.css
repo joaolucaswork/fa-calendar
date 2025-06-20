@@ -1,0 +1,240 @@
+/* Container principal da seção */
+.section-container {
+  margin-bottom: 0.75rem;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  border: 1px solid #ecedf0;
+  overflow: hidden;
+}
+
+/* Cabeçalho da seção */
+.section-header {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #ecedf0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #514f4f;
+  display: flex;
+  align-items: center;
+}
+
+/* Botões de navegação do carrossel */
+.carousel-nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.carousel-simple-nav {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.carousel-simple-nav:hover {
+  background-color: #f7faff;
+  border-color: #c8c8c8;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-nav-left:focus, .carousel-nav-right:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px #0176d3;
+}
+
+/* Container do carrossel com scroll */
+.cards-carousel-container {
+  padding: 0.5rem;
+  overflow: hidden;
+}
+
+/* Carrossel com scroll horizontal */
+.cards-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #d8d8d8 #f4f4f4;
+  gap: 0.75rem;
+  padding: 0.25rem 0.25rem 0.5rem 0.25rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Estilização da barra de rolagem para navegadores baseados em WebKit */
+.cards-carousel::-webkit-scrollbar {
+  height: 4px;
+}
+
+.cards-carousel::-webkit-scrollbar-track {
+  background: #f4f4f4;
+  border-radius: 2px;
+}
+
+.cards-carousel::-webkit-scrollbar-thumb {
+  background: #d8d8d8;
+  border-radius: 2px;
+}
+
+.cards-carousel::-webkit-scrollbar-thumb:hover {
+  background: #bdbdbd;
+}
+
+/* Restaurando o estilo original das pílulas */
+.template-pill {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 1.25rem;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+  color: #514f4f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.5rem;
+  position: relative;
+  overflow: auto;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.template-pill:hover,
+.template-pill:focus {
+  background-color: #926f1b;
+  border-color: #926f1b;
+  color: white;
+  box-shadow: 0 2px 4px rgba(1, 118, 211, 0.1);
+  transform: translateY(-1px);
+}
+
+.template-pill.selected {
+  background-color: #926f1b;
+  color: white;
+  border-color: #926f1b;
+  font-weight: 500;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(146, 111, 27, 0.2);
+}
+
+/* Estilos para diferentes categorias de pílulas */
+.template-pill-negative {
+  border-left: 0px solid #e52d27;
+}
+
+.template-pill-neutral {
+  border-left: 0px solid #706e6b;
+}
+
+.template-pill-pending {
+  border-left: 0px solid #ffb75d;
+}
+
+.template-pill-positive {
+  border-left: 0px solid #04844b;
+}
+
+.template-pill-manual {
+  background-color: #f7f7f7;
+  border: 1px dashed #dddbda;
+  color: #514f4f;
+  border-left: 0px solid #706e6b;
+}
+
+.template-pill-manual:hover {
+  background-color: #f3f2f2;
+  border-color: #b0adab;
+  border-left: 0px solid #706e6b;
+}
+
+.template-pill-manual.selected {
+  background-color: #f3f2f2;
+  border-color: #0176d3;
+  border-style: solid;
+  border-left: 0px solid #0176d3;
+}
+
+/* Mensagem quando não há dados para exibir */
+.no-data-message {
+  width: 100%;
+  padding: 1.5rem;
+  text-align: center;
+  color: #706e6b;
+  font-style: italic;
+  background-color: #f9f9f9;
+  border-radius: 0.25rem;
+}
+
+/* Melhorando a aparência do editor de template personalizado */
+.custom-template-editor {
+  padding: 0.75rem;
+  background-color: #f9f9f9;
+  border-top: 1px solid #ecedf0;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.custom-template-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+/* Animação de destaque ao selecionar */
+@keyframes highlight-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(146, 111, 27, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(146, 111, 27, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(146, 111, 27, 0);
+  }
+}
+
+.template-pill.selected {
+  animation: highlight-pulse 1s ease-out;
+}
+
+/* Responsividade para telas menores */
+@media screen and (max-width: 768px) {
+  .card-item {
+    width: 140px;
+    min-width: 140px;
+  }
+  
+  .card-title {
+    font-size: 0.75rem;
+  }
+  
+  .carousel-simple-nav {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  .section-header {
+    padding: 0.375rem 0.625rem;
+  }
+}

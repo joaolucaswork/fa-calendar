@@ -3,14 +3,14 @@
  * Styles for the horizontal pill-shaped client tracking component
  */
 
-/* Main Container */
+/* Main Container - Sidebar Integration */
 .client-tracking-container {
-    background: #ffffff;
-    border: 1px solid #e1dfdd;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin: 8px 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 8px 16px;
+    margin: 0;
+    box-shadow: none;
     transition: all 0.2s ease;
 }
 
@@ -19,14 +19,14 @@
 }
 
 /* Header Section */
-.pills-header {
+.avatars-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
 }
 
-.pills-title {
+.avatars-title {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -50,129 +50,222 @@
     align-items: center;
 }
 
-.clear-button {
-    --slds-c-button-radius-border: 16px;
-    --slds-c-button-neutral-color-background: #f5f5f5;
-    --slds-c-button-neutral-color-border: #d0d0d0;
-    --slds-c-button-text-color: #605e5c;
-    font-size: 12px;
-}
-
-/* Pills Container */
-.pills-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.pills-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-}
-
-/* Individual Client Pills */
-.client-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #f8f9fa;
-    border: 1px solid #e1dfdd;
-    border-radius: 20px;
-    padding: 6px 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 13px;
-    color: #252423;
-    position: relative;
-    max-width: 200px;
-}
-
-.client-pill:hover {
-    background: #e9ecef;
-    border-color: #926f1b;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(146, 111, 27, 0.2);
-}
-
-.client-pill.selected {
-    background: #926f1b;
-    border-color: #926f1b;
-    color: #ffffff;
-    box-shadow: 0 2px 8px rgba(146, 111, 27, 0.3);
-}
-
-/* Pill Type Variations */
-.client-pill.multiple-events {
-    border-left: 3px solid #4bca81;
-}
-
-.client-pill.rescheduled {
-    border-left: 3px solid #ff9500;
-}
-
-.client-pill.multiple-phases {
-    border-left: 3px solid #0176d3;
-}
-
-.client-pill.recent-activity {
-    border-left: 3px solid #8b5cf6;
-}
-
-/* Pill Content */
-.pill-icon {
-    --slds-c-icon-color-foreground-default: #605e5c;
-    flex-shrink: 0;
-}
-
-.client-pill.selected .pill-icon {
-    --slds-c-icon-color-foreground-default: #ffffff;
-}
-
-.pill-text {
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-    min-width: 0;
-}
-
-.pill-badge {
-    background: #605e5c;
-    color: #ffffff;
-    border-radius: 10px;
-    padding: 2px 6px;
-    font-size: 11px;
-    font-weight: 600;
-    min-width: 18px;
-    text-align: center;
-    flex-shrink: 0;
-}
-
-.client-pill.selected .pill-badge {
-    background: rgba(255, 255, 255, 0.3);
-    color: #ffffff;
-}
-
-.selected-indicator {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    background: #4bca81;
+.clear-button-custom {
+    background: #f5f5f5;
+    border: 1px solid #d0d0d0;
     border-radius: 50%;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid #ffffff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #605e5c;
+    transition: all 0.2s ease;
+    padding: 0;
 }
 
-.selected-indicator lightning-icon {
-    --slds-c-icon-color-foreground-default: #ffffff;
+.clear-button-custom:hover {
+    background: #e9ecef;
+    border-color: #b0b0b0;
+    color: #252423;
 }
+
+/* Avatars Container */
+.avatars-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.avatars-list {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 0 12px 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #d0d0d0 transparent;
+    scroll-behavior: smooth;
+}
+
+.avatars-list::-webkit-scrollbar {
+    height: 4px;
+}
+
+.avatars-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.avatars-list::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border-radius: 2px;
+}
+
+.avatars-list::-webkit-scrollbar-thumb:hover {
+    background: #b0b0b0;
+}
+
+/* Individual Client Avatars */
+.client-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: #f8f9fa;
+    border: 1px solid #d0d0d0;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 14px;
+    font-weight: 500;
+    color: #252423;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.client-avatar:hover {
+    background: #e9ecef;
+    border-color: #b0b0b0;
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.client-avatar.selected {
+    background: #926f1b;
+    border-color: #926f1b;
+    color: #ffffff;
+    box-shadow: 0 2px 12px rgba(146, 111, 27, 0.4);
+    transform: scale(1.1);
+}
+
+/* Avatar Type Variations - Subtle color coding based on tracking reason */
+.client-avatar.multiple-events {
+    border-color: #c0c0c0;
+}
+
+.client-avatar.multiple-events:hover {
+    border-color: #a0a0a0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.client-avatar.rescheduled {
+    border-color: #c0c0c0;
+}
+
+.client-avatar.rescheduled:hover {
+    border-color: #a0a0a0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.client-avatar.multiple-phases {
+    border-color: #c0c0c0;
+}
+
+.client-avatar.multiple-phases:hover {
+    border-color: #a0a0a0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.client-avatar.recent-activity {
+    border-color: #c0c0c0;
+}
+
+.client-avatar.recent-activity:hover {
+    border-color: #a0a0a0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Avatar Content */
+.avatar-initial {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1;
+    text-align: center;
+    user-select: none;
+    transition: opacity 0.2s ease;
+}
+
+/* First Item Expanded Layout - Pill Style */
+.client-avatar.first-item {
+    width: auto;
+    max-width: 200px;
+    min-width: 80px;
+    border-radius: 18px;
+    padding: 0 12px;
+    justify-content: center;
+}
+
+.first-item-name {
+    font-weight: 500;
+    font-size: 13px;
+    color: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+/* First Item Circle State - when another item is expanded */
+.client-avatar.first-item-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    padding: 0;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* First Item Hover and Selected States */
+.client-avatar.first-item:hover,
+.client-avatar.first-item-circle:hover {
+    transform: translateY(-1px) scale(1.02);
+}
+
+.client-avatar.first-item.selected,
+.client-avatar.first-item-circle.selected {
+    transform: scale(1.05);
+}
+
+/* Expanded Regular Items Layout - Pill Style */
+.client-avatar.expanded {
+    width: auto;
+    max-width: 200px;
+    min-width: 80px;
+    border-radius: 18px;
+    padding: 0 12px;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.expanded-item-name {
+    font-weight: 500;
+    font-size: 13px;
+    color: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.2s ease 0.1s;
+}
+
+/* Expanded Item Hover and Selected States */
+.client-avatar.expanded:hover {
+    transform: translateY(-1px) scale(1.02);
+}
+
+.client-avatar.expanded.selected {
+    transform: scale(1.05);
+}
+
+
 
 /* Toggle Button */
 .toggle-container {
@@ -246,37 +339,71 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .pills-header {
+    .avatars-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
     }
-    
-    .client-pill {
-        max-width: 150px;
+
+    .client-avatar {
+        width: 32px;
+        height: 32px;
         font-size: 12px;
-        padding: 5px 10px;
     }
-    
-    .pill-badge {
-        font-size: 10px;
-        padding: 1px 4px;
+
+    .clear-button-custom {
+        width: 18px;
+        height: 18px;
+        font-size: 12px;
+    }
+
+    /* First Item Responsive */
+    .client-avatar.first-item {
+        max-width: 150px;
+        min-width: 60px;
+        height: 32px;
+        padding: 0 8px;
+        border-radius: 16px;
+    }
+
+    .client-avatar.first-item-circle {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border-radius: 50%;
+    }
+
+    .first-item-name {
+        font-size: 12px;
+    }
+
+    /* Expanded Items Responsive */
+    .client-avatar.expanded {
+        max-width: 150px;
+        min-width: 60px;
+        height: 32px;
+        padding: 0 8px;
+        border-radius: 16px;
+    }
+
+    .expanded-item-name {
+        font-size: 12px;
     }
 }
 
-/* Animation for pill selection */
-@keyframes pillSelect {
+/* Animation for avatar selection */
+@keyframes avatarSelect {
     0% {
         transform: scale(1);
     }
     50% {
-        transform: scale(1.05);
+        transform: scale(1.15);
     }
     100% {
-        transform: scale(1);
+        transform: scale(1.1);
     }
 }
 
-.client-pill.selected {
-    animation: pillSelect 0.3s ease;
+.client-avatar.selected {
+    animation: avatarSelect 0.3s ease;
 }
