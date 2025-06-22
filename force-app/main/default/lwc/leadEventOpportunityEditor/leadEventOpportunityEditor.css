@@ -1,30 +1,71 @@
 /* Combined Lead Event & Opportunity Editor Styles */
 
-/* Modal Container */
+/* Utility Bar Container - Following sidebarChamada pattern */
 .modal-container {
   position: relative;
   z-index: 9000;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .slds-modal__container {
   max-width: 900px;
-  width: 95%;
-  max-height: 90vh;
+  width: 100%;
+  height: 100%; /* Use full height like utility bar components */
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Ensure modal fits utility bar constraints */
+.slds-modal {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
 }
 
 .slds-modal__content {
-  max-height: 70vh;
+  max-height: 70vh; /* Following utility bar pattern */
   overflow-y: auto;
+  padding: 0 !important;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+  box-sizing: border-box;
 }
 
 /* Tab Styling */
+.slds-tabs_default {
+  width: 100%;
+  flex-shrink: 0; /* Prevent tabs from shrinking */
+}
+
 .slds-tabs_default__nav {
   border-bottom: 1px solid #d8dde6;
+  display: flex;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.slds-tabs_default__item {
+  flex: 1;
+  list-style: none;
 }
 
 .slds-tabs_default__link {
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 0.75rem 1rem;
   font-weight: 500;
   transition: all 0.2s ease;
@@ -32,35 +73,78 @@
   border: none;
   cursor: pointer;
   text-decoration: none;
-  color: inherit;
+  color: #514f4f;
   width: 100%;
-  text-align: left;
+  text-align: center;
+  border-bottom: 2px solid transparent;
 }
 
 .slds-tabs_default__link:hover {
   background-color: #f3f3f3;
-}
-
-.slds-tabs_default__link[data-tab="event"] {
-  border-bottom: 2px solid transparent;
-}
-
-.slds-tabs_default__link[data-tab="opportunity"] {
-  border-bottom: 2px solid transparent;
+  color: #0070d2;
 }
 
 .slds-tabs_default__link.active {
   border-bottom: 2px solid #0070d2;
   color: #0070d2;
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+/* Modal Footer - Always Visible and Accessible */
+.slds-modal__footer {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  border-top: 1px solid #d8dde6;
+  padding: 1rem;
+  z-index: 10;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0; /* Prevent footer from shrinking */
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 60px; /* Ensure minimum touch target size */
+}
+
+/* Ensure buttons are properly sized and accessible */
+.slds-modal__footer lightning-button {
+  min-width: 80px;
+  min-height: 40px;
 }
 
 /* Tab Content */
 .tab-content {
   display: none;
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .tab-content.show {
   display: block;
+}
+
+/* Scroll Improvements */
+.slds-modal__content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.slds-modal__content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.slds-modal__content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.slds-modal__content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 /* Section Containers */
@@ -70,6 +154,14 @@
   border-radius: 0.25rem;
   border: 1px solid #ecedf0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Ensure last section has extra bottom margin for footer clearance */
+.section-container:last-child {
+  margin-bottom: 2rem;
 }
 
 .section-header {
@@ -115,16 +207,24 @@
 }
 
 /* Form Layout */
+.slds-form {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .slds-form__row {
   display: flex;
   flex-wrap: wrap;
   margin: 0 -0.5rem 1rem -0.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .slds-form__item {
   flex: 1 1 50%;
   padding: 0 0.5rem;
   min-width: 0;
+  box-sizing: border-box;
 }
 
 .slds-form__item.slds-size_1-of-1 {
@@ -374,19 +474,100 @@
   border-color: #d8edff;
 }
 
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-  .slds-modal__container {
-    max-width: 100%;
+/* Mobile - Following utility bar pattern (up to 480px) */
+@media screen and (max-width: 480px) {
+  .modal-container {
     width: 100%;
+    height: 100%;
+  }
+
+  .slds-modal__container {
+    width: 100%;
+    height: 100%;
     margin: 0;
   }
-  
+
+  .slds-modal__content {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .tab-content {
+    padding: 0.5rem;
+  }
+
+  .slds-modal__footer {
+    padding: 0.5rem;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .slds-modal__footer lightning-button {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .slds-form__item {
+    flex: 1 1 100% !important;
+    padding: 0 0.25rem;
+  }
+}
+
+/* Tablet - Following utility bar pattern (481px to 1023px) */
+@media screen and (min-width: 481px) and (max-width: 1023px) {
+  .modal-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  .slds-modal__container {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+
+  .slds-modal__content {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .tab-content {
+    padding: 0.75rem;
+  }
+
   .type-card-container {
     flex-direction: column;
   }
-  
+
   .pills-wrapper {
     flex-wrap: wrap;
+  }
+
+  .slds-modal__footer {
+    padding: 0.75rem;
+  }
+
+  .slds-form__item {
+    flex: 1 1 100% !important;
+  }
+}
+
+/* Desktop - Following utility bar pattern (1024px+) */
+@media screen and (min-width: 1024px) {
+  .modal-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  .slds-modal__container {
+    max-width: 900px;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+  }
+
+  .slds-modal__content {
+    max-height: 70vh;
+    overflow-y: auto;
   }
 }

@@ -30,14 +30,14 @@
               class="slds-modal__title slds-hyphenate"
             >
               <lightning-icon
-                icon-name="standard:event"
+                icon-name="utility:success"
                 size="small"
                 class="slds-m-right_small"
               ></lightning-icon>
               {modalTitle}
             </h2>
             <p class="slds-m-top_x-small">
-              Gerencie o compromisso e a oportunidade criados automaticamente
+              Configure os detalhes do compromisso e oportunidade criados automaticamente
             </p>
           </header>
 
@@ -46,7 +46,7 @@
             <ul class="slds-tabs_default__nav" role="tablist">
               <li class="slds-tabs_default__item" role="presentation">
                 <button
-                  class="slds-tabs_default__link"
+                  class="slds-tabs_default__link active"
                   type="button"
                   role="tab"
                   data-tab="event"
@@ -105,26 +105,25 @@
               </template>
 
               <!-- Event Tab Content -->
-              <template if:false={isLoading}>
-                <div
-                  id="event-tab"
-                  class="tab-content"
-                  role="tabpanel"
-                >
-                  <!-- Event Loading State -->
-                  <template if:true={isLoadingEvent}>
-                    <div class="slds-is-relative slds-p-around_medium">
-                      <lightning-spinner
-                        alternative-text="Carregando compromisso..."
-                        variant="brand"
-                        size="small"
-                      ></lightning-spinner>
-                    </div>
-                  </template>
+              <div
+                data-tab-content="event"
+                class="tab-content show"
+                role="tabpanel"
+              >
+                <!-- Event Loading State -->
+                <template if:true={isLoadingEvent}>
+                  <div class="slds-is-relative slds-p-around_medium">
+                    <lightning-spinner
+                      alternative-text="Carregando compromisso..."
+                      variant="brand"
+                      size="small"
+                    ></lightning-spinner>
+                  </div>
+                </template>
 
-                  <!-- Event Form -->
-                  <template if:false={isLoadingEvent}>
-                    <div class="slds-form" role="list">
+                <!-- Event Form -->
+                <template if:false={isLoadingEvent}>
+                  <div class="slds-form" role="list">
                       
                       <!-- Lead Information Section -->
                       <template if:true={hasLeadInfo}>
@@ -370,12 +369,12 @@
                   </template>
                 </div>
 
-                <!-- Opportunity Tab Content -->
-                <div
-                  id="opportunity-tab"
-                  class="tab-content"
-                  role="tabpanel"
-                >
+              <!-- Opportunity Tab Content -->
+              <div
+                data-tab-content="opportunity"
+                class="tab-content"
+                role="tabpanel"
+              >
                   <!-- Opportunity Loading State -->
                   <template if:true={isLoadingOpportunity}>
                     <div class="slds-is-relative slds-p-around_medium">
@@ -424,6 +423,7 @@
                               name="opportunityName"
                               value={opportunityName}
                               onchange={handleOpportunityFieldChange}
+                              required
                               disabled
                             ></lightning-input>
                           </div>
@@ -451,17 +451,16 @@
                             </div>
                           </div>
 
-                          <div class="slds-form__row">
-                            <div class="slds-form__item slds-size_1-of-1">
-                              <lightning-combobox
-                                label="Estágio"
-                                name="opportunityStageName"
-                                value={opportunityStageName}
-                                options={stageOptions}
-                                onchange={handleOpportunityFieldChange}
-                                required
-                              ></lightning-combobox>
-                            </div>
+                          <!-- Estágio oculto visualmente, mas mantido no DOM para o JavaScript funcionar -->
+                          <div class="slds-hide">
+                            <lightning-combobox
+                              label="Estágio"
+                              name="opportunityStageName"
+                              value={opportunityStageName}
+                              options={stageOptions}
+                              onchange={handleOpportunityFieldChange}
+                              required
+                            ></lightning-combobox>
                           </div>
 
                         </div>
@@ -609,7 +608,6 @@
                   </template>
                 </div>
 
-              </template>
             </div>
 
             <!-- Modal Footer -->

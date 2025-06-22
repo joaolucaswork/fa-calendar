@@ -103,28 +103,34 @@ public with sharing class LeadEventController {
         insert leadEvent;
       }
 
-      // Check if Opportunity already exists for this Lead
+      // Check if Opportunity already exists for this Lead - IMPROVED DUPLICATE PREVENTION
       List<Opportunity> existingOpportunities = [
-        SELECT Id, Name, StageName, AccountId, Nome_do_Lead__c
+        SELECT Id, Name, StageName, AccountId, Nome_do_Lead__c, Description
         FROM Opportunity
         WHERE Nome_do_Lead__c = :leadFullName AND AccountId = :centralAccount.Id
         ORDER BY CreatedDate DESC
         LIMIT 1
       ];
 
+      System.debug('LeadEventController: Checking for existing opportunities for Lead: ' + leadId + ', FullName: ' + leadFullName);
+      System.debug('LeadEventController: Found ' + existingOpportunities.size() + ' existing opportunities');
+
       Opportunity leadOpportunity;
       if (!existingOpportunities.isEmpty()) {
         leadOpportunity = existingOpportunities[0];
+        System.debug('LeadEventController: Using existing opportunity: ' + leadOpportunity.Id + ' for Lead: ' + leadId);
 
         // NEW: Link Event to existing Opportunity using custom lookup field
         if (leadEvent.Oportunidade_Relacionada__c != leadOpportunity.Id) {
           leadEvent.Oportunidade_Relacionada__c = leadOpportunity.Id;
           update leadEvent;
+          System.debug('LeadEventController: Linked Event ' + leadEvent.Id + ' to existing Opportunity ' + leadOpportunity.Id);
         }
 
         // Note: Cannot use WhatId when Event already has Lead (WhoId)
         // But we can use the custom Oportunidade_Relacionada__c field instead
       } else {
+        System.debug('LeadEventController: No existing opportunity found, creating new one for Lead: ' + leadId);
         // Create new Opportunity linked to central Account
         leadOpportunity = new Opportunity(
           Name = 'Lead: ' + leadFullName + ' - ' + lead.Company,
@@ -147,6 +153,7 @@ public with sharing class LeadEventController {
           Amount = 50000.00 // Default amount R$ 50,000
         );
         insert leadOpportunity;
+        System.debug('LeadEventController: Created new opportunity: ' + leadOpportunity.Id + ' for Lead: ' + leadId);
 
         // Update Event description with Opportunity ID
         String currentDescription = leadEvent.Description != null

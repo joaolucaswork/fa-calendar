@@ -10,13 +10,13 @@ import searchUsers from "@salesforce/apex/AppointmentController.searchUsers";
 import searchContacts from "@salesforce/apex/AppointmentController.searchContacts";
 import validarDisponibilidadeSala from "@salesforce/apex/ReuniaoController.validarDisponibilidadeSala";
 import getStatusPicklistValues from "@salesforce/apex/CalendarioReinoController.getStatusPicklistValues";
+import getOpportunityStageOptions from "@salesforce/apex/AppointmentController.getOpportunityStageOptions";
 
 // Apex methods from opportunityEditor
 import getOpportunityDetails from "@salesforce/apex/OpportunityManager.getOpportunityDetails";
 import updateOpportunity from "@salesforce/apex/OpportunityManager.updateOpportunity";
 
 // Apex methods for Lead Event system
-import updateLeadOpportunityFields from "@salesforce/apex/LeadEventController.updateLeadOpportunityFields";
 import getLeadEventDetails from "@salesforce/apex/LeadEventController.getLeadEventDetails";
 
 /**
@@ -91,9 +91,9 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
   // Computed properties for modal title
   get modalTitle() {
     if (this.leadInfo && this.leadInfo.Name) {
-      return `${this.leadInfo.Name} - Compromisso e Oportunidade`;
+      return `${this.leadInfo.Name} - Evento Criado com Sucesso!`;
     }
-    return "Editar Compromisso e Oportunidade";
+    return "Evento e Oportunidade Criados!";
   }
 
   get isEventTab() {
@@ -119,6 +119,13 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
 
   // Lifecycle hooks
   connectedCallback() {
+    console.log('🔄 leadEventOpportunityEditor connectedCallback - Iniciando carregamento');
+    console.log('📋 Props recebidas:', {
+      eventId: this.eventId,
+      opportunityId: this.opportunityId,
+      leadId: this.leadId,
+      isOpen: this.isOpen
+    });
     this.initializeComponent();
   }
 
@@ -131,46 +138,88 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
   }
 
   setActiveTab() {
-    // Set active class on event tab by default
-    const eventTab = this.template.querySelector('[data-tab="event"]');
-    const eventContent = this.template.querySelector('#event-tab');
+    console.log('🎯 setActiveTab - Inicializando tabs');
 
+    // Set active class on event tab by default and show its content
+    const eventTab = this.template.querySelector('[data-tab="event"]');
+    const opportunityTab = this.template.querySelector('[data-tab="opportunity"]');
+    const eventContent = this.template.querySelector('[data-tab-content="event"]');
+    const opportunityContent = this.template.querySelector('[data-tab-content="opportunity"]');
+
+    console.log('📋 Elementos encontrados:', {
+      eventTab: !!eventTab,
+      eventContent: !!eventContent,
+      opportunityTab: !!opportunityTab,
+      opportunityContent: !!opportunityContent
+    });
+
+    // Reset all tabs and content
+    if (eventTab) eventTab.classList.remove('active');
+    if (opportunityTab) opportunityTab.classList.remove('active');
+    if (eventContent) eventContent.classList.remove('show');
+    if (opportunityContent) opportunityContent.classList.remove('show');
+
+    // Set event tab as active by default
     if (eventTab) {
       eventTab.classList.add('active');
+      console.log('✅ Event tab ativada');
+    } else {
+      console.error('❌ Event tab não encontrado');
     }
+
     if (eventContent) {
       eventContent.classList.add('show');
+      console.log('✅ Event content mostrado');
+    } else {
+      console.error('❌ Event content não encontrado');
     }
+
+    // Update activeTab property
+    this.activeTab = 'event';
+    console.log('✅ activeTab definido como:', this.activeTab);
   }
 
   // Initialize component data
   async initializeComponent() {
     try {
+      console.log('🚀 initializeComponent - Iniciando inicialização');
       this.isLoading = true;
-      
+      console.log('⏳ isLoading definido como true');
+
       // Initialize event data with defaults
+      console.log('📝 Inicializando dados do evento com defaults');
       this.initializeEventData();
-      
+
       // Load users and picklist options
+      console.log('📊 Carregando usuários e opções de picklist');
       await Promise.all([
         this.loadAllUsers(),
         this.loadStatusOptions(),
         this.loadOpportunityPicklists()
       ]);
+      console.log('✅ Usuários e picklists carregados');
+
+      // For automation-created events, load lead event details first
+      if (this.leadId && this.opportunityId && !this.eventId) {
+        console.log('Loading automation-created event for lead:', this.leadId);
+        await this.loadLeadEventDetails();
+      }
 
       // Load existing data if IDs are provided
       if (this.eventId || this.leadId) {
         await this.loadEventData();
       }
-      
+
       if (this.opportunityId) {
         await this.loadOpportunityData();
       }
 
     } catch (error) {
       this.error = "Erro ao inicializar componente: " + this.reduceErrors(error);
+      console.error('❌ Error initializing component:', error);
     } finally {
       this.isLoading = false;
+      console.log('✅ initializeComponent concluído, isLoading = false');
     }
   }
 
@@ -236,13 +285,37 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
 
   // Load opportunity picklist options
   async loadOpportunityPicklists() {
-    // Set stage options (from appointmentEditor logic)
-    this.stageOptions = [
-      { label: "Primeira Reunião", value: "Primeira Reunião" },
-      { label: "Devolutiva", value: "Devolutiva" },
-      { label: "Negociação", value: "Negociação" },
-      { label: "Cliente", value: "Cliente" }
-    ];
+    try {
+      // Dynamically fetch stage options from Salesforce
+      const stageResult = await getOpportunityStageOptions();
+      if (stageResult && stageResult.length > 0) {
+        this.stageOptions = stageResult.map(option => ({
+          label: option.label,
+          value: option.value
+        }));
+        console.log('✅ Stage options loaded dynamically:', this.stageOptions);
+      } else {
+        // Fallback to hardcoded options if dynamic fetch fails
+        this.stageOptions = [
+          { label: "Reunião Agendada", value: "Reunião Agendada" },
+          { label: "Primeira Reunião", value: "Primeira Reunião" },
+          { label: "Devolutiva", value: "Devolutiva" },
+          { label: "Negociação", value: "Negociação" },
+          { label: "Cliente", value: "Cliente" }
+        ];
+        console.log('⚠️ Using fallback stage options');
+      }
+    } catch (error) {
+      console.error('Error loading stage options:', error);
+      // Use fallback options
+      this.stageOptions = [
+        { label: "Reunião Agendada", value: "Reunião Agendada" },
+        { label: "Primeira Reunião", value: "Primeira Reunião" },
+        { label: "Devolutiva", value: "Devolutiva" },
+        { label: "Negociação", value: "Negociação" },
+        { label: "Cliente", value: "Cliente" }
+      ];
+    }
 
     // Set type options (from opportunityEditor)
     this.typeOptions = [
@@ -252,19 +325,52 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
     ];
   }
 
+  // Load lead event details for automation-created events
+  async loadLeadEventDetails() {
+    if (!this.leadId) return;
+
+    try {
+      console.log('Loading lead event details for lead:', this.leadId);
+      const result = await getLeadEventDetails({ leadId: this.leadId });
+
+      if (result && result.success) {
+        console.log('Lead event details loaded:', result);
+        if (result.eventId) {
+          this._eventId = result.eventId;
+          console.log('Event ID set to:', this._eventId);
+        }
+        if (result.opportunityId && !this.opportunityId) {
+          this.opportunityId = result.opportunityId;
+          console.log('Opportunity ID set to:', this.opportunityId);
+        }
+
+        // Load lead info if available
+        if (result.leadInfo) {
+          this.leadInfo = result.leadInfo;
+          this.hasLeadInfo = true;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading lead event details:', error);
+      this.error = "Erro ao carregar detalhes do evento do lead: " + this.reduceErrors(error);
+    }
+  }
+
   // Load event data
   async loadEventData() {
     if (!this.eventId && !this.leadId) return;
 
     try {
       this.isLoadingEvent = true;
-      
+
       let result;
       if (this.eventId) {
         // Load existing event
+        console.log('Loading event details for event ID:', this.eventId);
         result = await getAppointmentDetails({ eventId: this.eventId });
       } else if (this.leadId) {
         // Load lead event details (for automation-created events)
+        console.log('Loading lead event details for lead ID:', this.leadId);
         result = await getLeadEventDetails({ leadId: this.leadId });
         if (result.eventId) {
           this._eventId = result.eventId;
@@ -273,10 +379,14 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
       }
 
       if (result && result.success) {
+        console.log('Event data loaded successfully:', result);
         this.populateEventData(result);
+      } else {
+        console.error('Failed to load event data:', result);
       }
 
     } catch (error) {
+      console.error('Error loading event data:', error);
       this.error = "Erro ao carregar dados do evento: " + this.reduceErrors(error);
     } finally {
       this.isLoadingEvent = false;
@@ -285,18 +395,28 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
 
   // Load opportunity data
   async loadOpportunityData() {
-    if (!this.opportunityId) return;
+    if (!this.opportunityId) {
+      console.log('No opportunity ID provided, skipping opportunity data load');
+      return;
+    }
 
     try {
       this.isLoadingOpportunity = true;
-      
+      console.log('Loading opportunity data for ID:', this.opportunityId);
+
       const result = await getOpportunityDetails({ opportunityId: this.opportunityId });
-      
-      if (result) {
+      console.log('Opportunity data loaded:', result);
+
+      if (result && result.success !== false) {
         this.populateOpportunityData(result);
+        console.log('Opportunity data populated successfully');
+      } else {
+        console.error('Failed to load opportunity data:', result);
+        this.opportunityError = "Não foi possível carregar os dados da oportunidade";
       }
 
     } catch (error) {
+      console.error('Error loading opportunity data:', error);
       this.opportunityError = "Erro ao carregar dados da oportunidade: " + this.reduceErrors(error);
     } finally {
       this.isLoadingOpportunity = false;
@@ -349,15 +469,43 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
 
   // Populate opportunity data from API response
   populateOpportunityData(result) {
+    console.log('🔄 populateOpportunityData - Dados recebidos:', result);
+
     this.opportunityDetails = result;
-    this.opportunityName = result.Name || "";
+
+    // Ensure required fields are populated with defaults if empty
+    this.opportunityName = result.Name || `Oportunidade - ${new Date().toLocaleDateString('pt-BR')}`;
     this.opportunityAmount = result.Amount || null;
     this.opportunityCloseDate = result.CloseDate || null;
-    this.opportunityStageName = result.StageName || "Primeira Reunião";
+
+    // Use the first stage option as default, or "Reunião Agendada" as fallback
+    const defaultStage = this.stageOptions && this.stageOptions.length > 0
+      ? this.stageOptions[0].value
+      : "Reunião Agendada";
+    this.opportunityStageName = result.StageName || defaultStage;
+
     this.opportunityDescription = result.Description || "";
     this.opportunityType = result.Tipo_de_produto__c || "";
     this.opportunityTypeApiValue = result.Tipo_de_produto__c || "";
-    this.opportunityProbability = result.Probabilidade_da_Oportunidade__c || "";
+    this.opportunityProbability = result.Probabilidade_da_Oportunidade__c || "treze";
+
+    console.log('✅ Dados da oportunidade populados:', {
+      id: this.opportunityId,
+      name: this.opportunityName,
+      amount: this.opportunityAmount,
+      stage: this.opportunityStageName,
+      type: this.opportunityType,
+      probability: this.opportunityProbability,
+      closeDate: this.opportunityCloseDate,
+      description: this.opportunityDescription
+    });
+
+    console.log('🎯 Estado atual das propriedades reativas:', {
+      isLoading: this.isLoading,
+      isLoadingOpportunity: this.isLoadingOpportunity,
+      opportunityError: this.opportunityError,
+      activeTab: this.activeTab
+    });
   }
 
   // Utility methods
@@ -381,24 +529,56 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
 
   // Event handlers
   handleTabChange(event) {
-    this.activeTab = event.target.dataset.tab;
-
-    // Update active class on tabs
-    const tabs = this.template.querySelectorAll('.slds-tabs_default__link');
-    tabs.forEach(tab => {
-      tab.classList.remove('active');
-    });
-    event.target.classList.add('active');
-
-    // Update tab content visibility
-    const tabContents = this.template.querySelectorAll('.tab-content');
-    tabContents.forEach(content => {
-      content.classList.remove('show');
+    const newTab = event.target.dataset.tab;
+    console.log('🔄 handleTabChange - Tentativa de mudança de tab:', {
+      newTab: newTab,
+      currentTab: this.activeTab,
+      target: event.target
     });
 
-    const activeContent = this.template.querySelector(`#${this.activeTab}-tab`);
-    if (activeContent) {
-      activeContent.classList.add('show');
+    // Only proceed if we're switching to a different tab
+    if (newTab && newTab !== this.activeTab) {
+      console.log('✅ Mudando tab de', this.activeTab, 'para', newTab);
+      this.activeTab = newTab;
+
+      // Update active class on tabs
+      const tabs = this.template.querySelectorAll('.slds-tabs_default__link');
+      console.log('📋 Tabs encontradas:', tabs.length);
+      tabs.forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      // Update tab content visibility
+      const tabContents = this.template.querySelectorAll('.tab-content');
+      console.log('📋 Tab contents encontrados:', tabContents.length);
+      tabContents.forEach(content => {
+        content.classList.remove('show');
+      });
+
+      const selectorString = `[data-tab-content="${this.activeTab}"]`;
+      console.log('🔍 Procurando por seletor:', selectorString);
+
+      const activeContent = this.template.querySelector(selectorString);
+      console.log('🎯 Active content encontrado:', activeContent);
+
+      // Debug: listar todos os elementos com data-tab-content
+      const allTabContents = this.template.querySelectorAll('[data-tab-content]');
+      console.log('📋 Todos os elementos com data-tab-content encontrados:');
+      allTabContents.forEach(el => {
+        console.log('  - data-tab-content:', el.getAttribute('data-tab-content'), 'Tag:', el.tagName, 'Classes:', el.className);
+      });
+
+      if (activeContent) {
+        activeContent.classList.add('show');
+        console.log('✅ Classe "show" adicionada ao conteúdo ativo');
+      } else {
+        console.error('❌ Conteúdo ativo não encontrado para tab:', this.activeTab);
+      }
+
+      console.log('✅ Tab switched to:', this.activeTab);
+    } else {
+      console.log('⚠️ Mudança de tab ignorada - mesmo tab ou tab inválida');
     }
   }
 
@@ -457,12 +637,15 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
     }
   }
 
-  // Opportunity form handlers
+  // Opportunity form handlers - following opportunityEditor.js pattern
   handleOpportunityFieldChange(event) {
     const field = event.target.name;
     const value = event.target.value;
 
     switch (field) {
+      case "opportunityName":
+        this.opportunityName = value;
+        break;
       case "opportunityAmount":
         this.opportunityAmount = value;
         break;
@@ -577,7 +760,8 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
     try {
       this.isLoadingOpportunity = true;
 
-      const opportunityData = {
+      // Use the same parameter structure as opportunityEditor.js
+      const result = await updateOpportunity({
         opportunityId: this.opportunityId,
         name: this.opportunityName,
         stageName: this.opportunityStageName,
@@ -585,14 +769,14 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
         closeDate: this.opportunityCloseDate,
         description: this.opportunityDescription,
         type: this.opportunityTypeApiValue,
-        probabilidade: this.opportunityProbability
-      };
+        probabilidade: this.opportunityProbability || ''
+      });
 
-      const result = await updateOpportunity(opportunityData);
-
-      if (result) {
+      if (result && result.success) {
         this.showToast("Sucesso", "Oportunidade salva com sucesso", "success");
         return true;
+      } else {
+        throw new Error(result.error || "Erro ao atualizar oportunidade");
       }
 
     } catch (error) {
@@ -687,44 +871,63 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
     return this.appointmentType !== "Reunião Presencial";
   }
 
-  // Save methods - using existing Lead Event Management system
+  // Save methods - using the working OpportunityManager.updateOpportunity method
   async handleSave() {
     try {
       this.isLoading = true;
 
-      // Use the existing Lead Event Management system
-      // Update lead opportunity fields with the form data
-      const leadOpportunityData = {
-        leadId: this.leadId,
-        opportunityAmount: this.opportunityAmount,
-        opportunityCloseDate: this.opportunityCloseDate,
-        opportunityStageName: this.opportunityStageName,
-        opportunityDescription: this.opportunityDescription,
-        opportunityType: this.opportunityTypeApiValue,
-        opportunityProbability: this.opportunityProbability,
-        eventSubject: this.eventData.subject,
-        eventStartDateTime: this.eventData.startDateTime,
-        eventEndDateTime: this.eventData.endDateTime,
-        eventDescription: this.eventData.description,
-        appointmentType: this.appointmentType,
-        salaReuniao: this.salaReuniao,
-        linkReuniao: this.linkReuniao,
-        statusReuniao: this.statusReuniao,
-        gestorName: this.selectedGestorName,
-        liderComercialName: this.selectedLiderComercialName,
-        sdrName: this.selectedSdrName
-      };
+      // Validate required fields
+      if (!this.opportunityId) {
+        throw new Error("ID da oportunidade não encontrado. Tente fechar e reabrir o modal.");
+      }
 
-      const result = await updateLeadOpportunityFields(leadOpportunityData);
+      // Ensure required fields are populated before save
+      if (!this.opportunityName || this.opportunityName.trim() === '') {
+        this.opportunityName = `Oportunidade - ${new Date().toLocaleDateString('pt-BR')}`;
+      }
 
-      if (result.success) {
+      if (!this.opportunityStageName || this.opportunityStageName.trim() === '') {
+        // Use the first stage option as default, or "Reunião Agendada" as fallback
+        const defaultStage = this.stageOptions && this.stageOptions.length > 0
+          ? this.stageOptions[0].value
+          : "Reunião Agendada";
+        this.opportunityStageName = defaultStage;
+      }
+
+      console.log('Saving opportunity with ID:', this.opportunityId);
+      console.log('Opportunity data (with required field validation):', {
+        name: this.opportunityName,
+        stageName: this.opportunityStageName,
+        amount: this.opportunityAmount,
+        closeDate: this.opportunityCloseDate,
+        description: this.opportunityDescription,
+        type: this.opportunityTypeApiValue,
+        probabilidade: this.opportunityProbability
+      });
+
+      // Use the same method as opportunityEditor.js that works
+      const result = await updateOpportunity({
+        opportunityId: this.opportunityId,
+        name: this.opportunityName,
+        stageName: this.opportunityStageName,
+        amount: this.opportunityAmount,
+        closeDate: this.opportunityCloseDate,
+        description: this.opportunityDescription,
+        type: this.opportunityTypeApiValue,
+        probabilidade: this.opportunityProbability || ''
+      });
+
+      console.log('Save result:', result);
+
+      // Handle response like opportunityEditor.js does
+      if (result && result.success) {
         this.showToast("Sucesso", "Compromisso e oportunidade salvos com sucesso", "success");
 
         // Emit save event for parent components
         this.dispatchEvent(new CustomEvent("save", {
           detail: {
-            eventId: result.eventId || this.eventId,
-            opportunityId: result.opportunityId || this.opportunityId,
+            eventId: this.eventId,
+            opportunityId: this.opportunityId,
             leadId: this.leadId,
             action: "update"
           }
@@ -732,10 +935,11 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
 
         this.closeModal();
       } else {
-        throw new Error(result.error || "Erro ao salvar dados");
+        throw new Error(result.error || "Erro ao atualizar oportunidade");
       }
 
     } catch (error) {
+      console.error('Save error:', error);
       this.showToast("Erro", "Erro ao salvar: " + this.reduceErrors(error), "error");
     } finally {
       this.isLoading = false;

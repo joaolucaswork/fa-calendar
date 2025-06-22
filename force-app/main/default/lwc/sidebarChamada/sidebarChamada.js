@@ -655,12 +655,16 @@ export default class SidebarChamada extends NavigationMixin(LightningElement) {
           this.opportunityId = result.opportunityId;
           console.log('Evento e Oportunidade criados com sucesso, Opportunity ID:', this.opportunityId);
 
+          // Finalizar o estado de loading primeiro
+          this.isPreparingOpportunity = false;
+          this.isLoadingOpportunity = false;
+
           // Abrir diretamente o modal do novo componente combinado
           this.showOpportunityModal = true;
 
           this.showToast(
-            "Sucesso",
-            "Evento e oportunidade criados com sucesso! Configure os detalhes agora.",
+            "🎉 Evento Criado!",
+            "Compromisso e oportunidade criados automaticamente. Configure os detalhes no modal.",
             "success"
           );
           return;
@@ -686,6 +690,10 @@ export default class SidebarChamada extends NavigationMixin(LightningElement) {
         if (result.opportunityFound) {
           this.opportunityId = result.opportunityId;
           console.log('Oportunidade encontrada para conta, ID:', this.opportunityId);
+
+          // Finalizar o estado de loading primeiro
+          this.isPreparingOpportunity = false;
+          this.isLoadingOpportunity = false;
 
           // Abrir diretamente o modal do novo componente combinado
           this.showOpportunityModal = true;
