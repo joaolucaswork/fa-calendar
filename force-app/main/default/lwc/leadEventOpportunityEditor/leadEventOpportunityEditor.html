@@ -79,7 +79,7 @@
             </ul>
 
             <!-- Modal Body with Tab Content -->
-            <div class="slds-modal__content slds-p-around_medium" id="combined-modal-content">
+            <div class="slds-modal__content slds-p-around_small" id="combined-modal-content">
               
               <!-- Loading State -->
               <template if:true={isLoading}>
@@ -104,7 +104,7 @@
                 </div>
               </template>
 
-              <!-- Event Tab Content -->
+              <!-- Event Tab Content - Replicating appointmentEditor layout -->
               <div
                 data-tab-content="event"
                 class="tab-content show"
@@ -112,7 +112,7 @@
               >
                 <!-- Event Loading State -->
                 <template if:true={isLoadingEvent}>
-                  <div class="slds-is-relative slds-p-around_medium">
+                  <div class="slds-is-relative slds-p-around_small">
                     <lightning-spinner
                       alternative-text="Carregando compromisso..."
                       variant="brand"
@@ -121,239 +121,429 @@
                   </div>
                 </template>
 
-                <!-- Event Form -->
+                <!-- Event Form - Following appointmentEditor structure -->
                 <template if:false={isLoadingEvent}>
-                  <div class="slds-form" role="list">
-                      
-                      <!-- Lead Information Section -->
+                  <div class="appointment-form">
+
+                      <!-- Contact/Lead Search Section - Replicating appointmentEditor -->
                       <template if:true={hasLeadInfo}>
-                        <div class="section-container">
-                          <div class="section-header">
-                            <div class="section-title">
+                        <div class="info-card">
+                          <div class="info-card-header">
+                            <div class="info-card-title">
                               <lightning-icon
                                 icon-name="standard:lead"
                                 size="x-small"
                                 class="slds-m-right_x-small"
                               ></lightning-icon>
-                              Informações do Lead
+                              Contato/Lead Associado
                             </div>
                           </div>
-                          <div class="slds-p-around_medium">
-                            <div class="slds-grid slds-wrap slds-gutters_small">
-                              <div class="slds-col slds-size_1-of-2">
-                                <div class="field-label">Nome</div>
-                                <div class="field-value">{leadInfo.Name}</div>
+                          <div class="info-card-content">
+                            <div class="contact-info-grid">
+                              <div class="contact-info-item">
+                                <div class="contact-info-label">Nome</div>
+                                <div class="contact-info-value">{leadInfo.Name}</div>
                               </div>
-                              <div class="slds-col slds-size_1-of-2">
-                                <div class="field-label">Empresa</div>
-                                <div class="field-value">{leadInfo.Company}</div>
+                              <div class="contact-info-item">
+                                <div class="contact-info-label">Empresa</div>
+                                <div class="contact-info-value">{leadInfo.Company}</div>
                               </div>
-                              <div class="slds-col slds-size_1-of-2">
-                                <div class="field-label">Email</div>
-                                <div class="field-value">{leadInfo.Email}</div>
+                              <div class="contact-info-item">
+                                <div class="contact-info-label">Email</div>
+                                <div class="contact-info-value">{leadInfo.Email}</div>
                               </div>
-                              <div class="slds-col slds-size_1-of-2">
-                                <div class="field-label">Telefone</div>
-                                <div class="field-value">{leadInfo.Phone}</div>
+                              <div class="contact-info-item">
+                                <div class="contact-info-label">Telefone</div>
+                                <div class="contact-info-value">{leadInfo.Phone}</div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </template>
 
-                      <!-- Event Details Section -->
+                      <!-- Detalhes do Compromisso - EXACT appointmentEditor replication -->
                       <div class="section-container">
                         <div class="section-header">
-                          <div class="section-title">
-                            <lightning-icon
-                              icon-name="utility:event"
-                              size="x-small"
-                              class="slds-m-right_x-small"
-                            ></lightning-icon>
-                            Detalhes do Compromisso
-                          </div>
+                          <h3 class="section-title">Detalhes do Compromisso</h3>
                         </div>
-                        <div class="slds-p-around_medium">
-                          <div class="slds-form__row">
-                            <div class="slds-form__item slds-size_1-of-1">
-                              <lightning-input
-                                label="Assunto"
-                                name="subject"
-                                value={eventData.subject}
-                                onchange={handleEventFieldChange}
-                                required
-                              ></lightning-input>
-                            </div>
-                          </div>
 
-                          <div class="slds-form__row">
-                            <div class="slds-form__item slds-size_1-of-2">
-                              <lightning-input
-                                type="datetime-local"
-                                label="Data/Hora de Início"
-                                name="startDateTime"
-                                value={eventData.startDateTime}
-                                onchange={handleEventFieldChange}
-                                required
-                              ></lightning-input>
-                            </div>
-                            <div class="slds-form__item slds-size_1-of-2">
-                              <lightning-input
-                                type="datetime-local"
-                                label="Data/Hora de Término"
-                                name="endDateTime"
-                                value={eventData.endDateTime}
-                                onchange={handleEventFieldChange}
-                                required
-                              ></lightning-input>
-                            </div>
-                          </div>
+                        <div class="slds-p-around_small">
+                          <div class="slds-form">
+                            <div class="slds-grid slds-wrap">
+                              <!-- Assunto do Compromisso - Read-only, auto-generated (HIDDEN like appointmentEditor) -->
+                              <!-- Subject is auto-generated and shown only in modal header -->
 
-                          <div class="slds-form__row">
-                            <div class="slds-form__item slds-size_1-of-2">
-                              <lightning-combobox
-                                label="Tipo de Reunião"
-                                name="appointmentType"
-                                value={appointmentType}
-                                options={appointmentTypeOptions}
-                                onchange={handleAppointmentTypeChange}
-                                placeholder="Selecione o tipo"
-                              ></lightning-combobox>
-                            </div>
-                            <div class="slds-form__item slds-size_1-of-2">
-                              <lightning-combobox
-                                label="Sala de Reunião"
-                                name="salaReuniao"
-                                value={salaReuniao}
-                                options={roomOptions}
-                                onchange={handleRoomChange}
-                                disabled={isRoomDisabled}
-                              ></lightning-combobox>
-                            </div>
-                          </div>
-
-                          <!-- Online Meeting Link -->
-                          <template if:true={isOnlineMeeting}>
-                            <div class="slds-form__row">
-                              <div class="slds-form__item slds-size_1-of-1">
-                                <lightning-input
-                                  label="Link da Reunião"
-                                  name="linkReuniao"
-                                  value={linkReuniao}
+                              <!-- Fase do Evento -->
+                              <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small slds-p-bottom_small">
+                                <lightning-combobox
+                                  label="Fase do Evento"
+                                  value={eventData.faseEvento}
+                                  options={faseEventoOptions}
+                                  name="faseEvento"
                                   onchange={handleEventFieldChange}
-                                  placeholder="https://teams.microsoft.com/..."
-                                ></lightning-input>
+                                  placeholder="Selecione a fase..."
+                                  variant="standard"
+                                >
+                                </lightning-combobox>
                               </div>
-                            </div>
-                          </template>
 
-                          <div class="slds-form__row">
-                            <div class="slds-form__item slds-size_1-of-1">
-                              <lightning-textarea
-                                label="Descrição"
-                                name="description"
-                                value={eventData.description}
-                                onchange={handleEventFieldChange}
-                                placeholder="Adicione detalhes sobre o compromisso..."
-                              ></lightning-textarea>
+                              <!-- Produto do Evento - Readonly field linked to Opportunity -->
+                              <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small slds-p-bottom_small">
+                                <div class="slds-form-element">
+                                  <label class="slds-form-element__label">
+                                    Produto do Evento
+                                  </label>
+                                  <div class="slds-form-element__control">
+                                    <div class="product-readonly-field">
+                                      <div class="product-value-container">
+                                        <lightning-icon
+                                          icon-name="standard:opportunity"
+                                          size="x-small"
+                                          class="product-icon"
+                                        ></lightning-icon>
+                                        <div class="product-content">
+                                          <div class="product-value">
+                                            {displayProductValue}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <!-- Tipo de Compromisso - EXACT appointmentEditor cards -->
+                              <div class="slds-col slds-size_1-of-1 slds-p-horizontal_small slds-p-bottom_medium">
+                                <div class="slds-form-element">
+                                  <label class="slds-form-element__label" for="appointment-type">Tipo de Compromisso</label>
+                                  <div class="slds-form-element__control">
+                                    <div class="cards-carousel-container">
+                                      <div class="cards-carousel">
+                                        <!-- Card Reunião Presencial -->
+                                        <div
+                                          class={reuniaoPresencialClass}
+                                          data-type="Reunião Presencial"
+                                          onclick={handleTypeCardClick}
+                                        >
+                                          <div class="card-header">
+                                            <lightning-icon
+                                              icon-name="standard:location"
+                                              size="small"
+                                              class="slds-m-bottom_x-small"
+                                            ></lightning-icon>
+                                          </div>
+                                          <div class="card-title">Presencial</div>
+                                        </div>
+
+                                        <!-- Card Reunião Online -->
+                                        <div
+                                          class={reuniaoOnlineClass}
+                                          data-type="Reunião Online"
+                                          onclick={handleTypeCardClick}
+                                        >
+                                          <div class="card-header">
+                                            <lightning-icon
+                                              icon-name="standard:video"
+                                              size="small"
+                                              class="slds-m-bottom_x-small"
+                                            ></lightning-icon>
+                                          </div>
+                                          <div class="card-title">
+                                            Reunião Online
+                                          </div>
+                                        </div>
+
+                                        <!-- Card Ligação Telefônica -->
+                                        <div
+                                          class={ligacaoTelefonicaClass}
+                                          data-type="Ligação Telefônica"
+                                          onclick={handleTypeCardClick}
+                                        >
+                                          <div class="card-header">
+                                            <lightning-icon
+                                              icon-name="standard:call"
+                                              size="small"
+                                              class="slds-m-bottom_x-small"
+                                            ></lightning-icon>
+                                          </div>
+                                          <div class="card-title">Por Telefone</div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <!-- Participants Section -->
+                      <!-- Sala de Reunião (sempre visível) - EXACT appointmentEditor replication -->
                       <div class="section-container">
                         <div class="section-header">
-                          <div class="section-title">
+                          <h3 class="section-title">
                             <lightning-icon
-                              icon-name="utility:people"
+                              icon-name="standard:location"
+                              size="x-small"
+                              class="slds-m-right_x-small"
+                            ></lightning-icon>
+                            Sala de Reunião
+                          </h3>
+                        </div>
+
+                        <div class="slds-p-around_small">
+                          <div class="slds-form-element">
+                            <div class="slds-form-element__control">
+                              <div class="cards-carousel-container">
+                                <div class="cards-carousel">
+                                  <!-- Card Sala Principal -->
+                                  <div
+                                    class={salaPrincipalCardClass}
+                                    data-value="salaPrincipal"
+                                    onclick={handleSalaSelect}
+                                  >
+                                    <div class="card-row">
+                                      <span class="color-dot color-dot-green"></span>
+                                      <div class="card-title">
+                                        Sala Principal
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Card Sala do Gabriel -->
+                                  <div
+                                    class={salaGabrielCardClass}
+                                    data-value="salaGabriel"
+                                    onclick={handleSalaSelect}
+                                  >
+                                    <div class="card-row">
+                                      <span class="color-dot color-dot-blue"></span>
+                                      <div class="card-title">
+                                        Sala do Gabriel
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Card Outra Localização -->
+                                  <div
+                                    class={outraSalaCardClass}
+                                    data-value="Outra"
+                                    onclick={handleSalaSelect}
+                                  >
+                                    <div class="card-row">
+                                      <span class="color-dot color-dot-orange"></span>
+                                      <div class="card-title">Outra</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Localização (apenas quando "Outra" sala é selecionada) -->
+                          <template if:true={isOutraSala}>
+                            <div class="slds-m-top_medium">
+                              <lightning-input
+                                label="Localização"
+                                value={eventData.location}
+                                name="location"
+                                onchange={handleEventFieldChange}
+                                required
+                                placeholder="Endereço completo"
+                              ></lightning-input>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+
+                          <!-- Teams Link Generator Component (apenas para reuniões online) -->
+                          <template if:true={isOnlineMeeting}>
+                            <c-teams-link-generator
+                              subject={eventData.subject}
+                              start-date-time={eventData.startDateTime}
+                              end-date-time={eventData.endDateTime}
+                              participants={selectedParticipants}
+                              organizer={currentUserInfo}
+                              appointment-type={appointmentType}
+                              link-reuniao={linkReuniao}
+                              onlinkgenerated={handleTeamsLinkGenerated}
+                              onlinkcleared={handleTeamsLinkCleared}
+                            ></c-teams-link-generator>
+                          </template>
+                        </div>
+                      </div>
+
+                      <!-- Date/Time fields - VERTICAL layout for utility bar -->
+                      <template if:true={showDateTimeFields}>
+                        <div class="section-container">
+                          <div class="section-header">
+                            <h3 class="section-title">
+                              <lightning-icon
+                                icon-name="utility:clock"
+                                size="x-small"
+                                class="slds-m-right_x-small"
+                              ></lightning-icon>
+                              Data e Hora
+                            </h3>
+                          </div>
+                          <div class="slds-p-around_small">
+                            <!-- Data e Hora de Início - FULL WIDTH -->
+                            <div class="slds-m-bottom_small">
+                              <lightning-input
+                                type="datetime"
+                                label="Data e Hora de Início"
+                                value={eventData.startDateTime}
+                                name="startDateTime"
+                                onchange={handleEventFieldChange}
+                                required
+                              >
+                              </lightning-input>
+                            </div>
+
+                            <!-- Data e Hora de Término - FULL WIDTH -->
+                            <div class="slds-m-bottom_small">
+                              <lightning-input
+                                type="datetime"
+                                label="Data e Hora de Término"
+                                value={eventData.endDateTime}
+                                name="endDateTime"
+                                onchange={handleEventFieldChange}
+                                required
+                              >
+                              </lightning-input>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+
+                      <!-- Participantes Obrigatórios - EXACT appointmentEditor replication -->
+                      <div class="section-container" style="margin-bottom: 6rem; padding-bottom: 2rem;">
+                        <div class="section-header">
+                          <h3 class="section-title">
+                            <lightning-icon
+                              icon-name="utility:groups"
                               size="x-small"
                               class="slds-m-right_x-small"
                             ></lightning-icon>
                             Participantes
-                          </div>
+                          </h3>
                         </div>
-                        <div class="slds-p-around_medium">
+
+                        <div class="slds-p-around_small">
+                          <!-- Selected Participants Display - Show above dropdowns -->
+                          <template if:true={hasSelectedParticipants}>
+                            <div class="selected-participants-section">
+                              <div class="selected-participants-header">
+                                <h4 class="selected-participants-title">
+                                  <lightning-icon
+                                    icon-name="utility:user"
+                                    size="xx-small"
+                                    class="slds-m-right_x-small"
+                                  ></lightning-icon>
+                                  Participantes selecionados
+                                </h4>
+                              </div>
+                              <div class="selected-participants-display">
+                                <c-event-participant-display
+                                  gestor-name={selectedGestorName}
+                                  lider-comercial-name={selectedLiderComercialName}
+                                  sdr-name={selectedSdrName}
+                                  display-mode="compact"
+                                  max-participants="3"
+                                  show-photos="true"
+                                  show-roles="true"
+                                  custom-class="appointment-participants"
+                                ></c-event-participant-display>
+                              </div>
+                            </div>
+                          </template>
+
+                          <!-- Participant Selection Dropdowns - EXACT appointmentEditor layout (VERTICAL) -->
                           <div class="participants-container">
-                            <div class="participant-picker">
-                              <div class="enhanced-dropdown">
-                                <div class="dropdown-label-container">
-                                  <lightning-icon
-                                    icon-name="utility:user"
-                                    size="x-small"
-                                    class="dropdown-icon"
-                                  ></lightning-icon>
-                                  <span class="dropdown-label">Gestor</span>
-                                </div>
-                                <lightning-combobox
-                                  name="gestorName"
-                                  value={selectedGestorName}
-                                  options={gestorUserOptions}
-                                  onchange={handleParticipantChange}
-                                  placeholder="Selecionar gestor..."
-                                  class="enhanced-combobox"
-                                ></lightning-combobox>
+                            <!-- Líder comercial Dropdown - First -->
+                            <div class={liderComercialDropdownClass}>
+                              <div class="dropdown-label-container">
+                                <lightning-icon
+                                  icon-name="utility:salesforce1"
+                                  size="x-small"
+                                  class="dropdown-icon"
+                                ></lightning-icon>
+                                <span class="dropdown-label">Líder comercial</span>
                               </div>
+                              <lightning-combobox
+                                name="liderComercial"
+                                placeholder="Selecionar líder comercial..."
+                                options={commercialManagerUserOptions}
+                                value={selectedLiderComercialName}
+                                onchange={handleParticipantSelect}
+                                variant="standard"
+                                class="enhanced-combobox"
+                              >
+                              </lightning-combobox>
                             </div>
 
-                            <div class="participant-picker">
-                              <div class="enhanced-dropdown">
-                                <div class="dropdown-label-container">
-                                  <lightning-icon
-                                    icon-name="utility:user"
-                                    size="x-small"
-                                    class="dropdown-icon"
-                                  ></lightning-icon>
-                                  <span class="dropdown-label">Líder Comercial</span>
-                                </div>
-                                <lightning-combobox
-                                  name="liderComercialName"
-                                  value={selectedLiderComercialName}
-                                  options={commercialManagerUserOptions}
-                                  onchange={handleParticipantChange}
-                                  placeholder="Selecionar líder..."
-                                  class="enhanced-combobox"
-                                ></lightning-combobox>
+                            <!-- Gestor Dropdown - Second -->
+                            <div class={gestorDropdownClass}>
+                              <div class="dropdown-label-container">
+                                <lightning-icon
+                                  icon-name="utility:user"
+                                  size="x-small"
+                                  class="dropdown-icon"
+                                ></lightning-icon>
+                                <span class="dropdown-label">Gestor</span>
                               </div>
+                              <lightning-combobox
+                                name="gestor"
+                                placeholder="Selecionar gestor..."
+                                options={gestorUserOptions}
+                                value={selectedGestorName}
+                                onchange={handleParticipantSelect}
+                                variant="standard"
+                                class="enhanced-combobox"
+                              >
+                              </lightning-combobox>
                             </div>
 
-                            <div class="participant-picker">
-                              <div class="enhanced-dropdown">
-                                <div class="dropdown-label-container">
-                                  <lightning-icon
-                                    icon-name="utility:user"
-                                    size="x-small"
-                                    class="dropdown-icon"
-                                  ></lightning-icon>
-                                  <span class="dropdown-label">SDR</span>
-                                </div>
-                                <lightning-combobox
-                                  name="sdrName"
-                                  value={selectedSdrName}
-                                  options={sdrUserOptions}
-                                  onchange={handleParticipantChange}
-                                  placeholder="Selecionar SDR..."
-                                  class="enhanced-combobox"
-                                ></lightning-combobox>
+                            <!-- SDR Dropdown - Third -->
+                            <div class={sdrDropdownClass}>
+                              <div class="dropdown-label-container">
+                                <lightning-icon
+                                  icon-name="utility:lead"
+                                  size="x-small"
+                                  class="dropdown-icon"
+                                ></lightning-icon>
+                                <span class="dropdown-label">SDR</span>
                               </div>
+                              <lightning-combobox
+                                name="sdr"
+                                placeholder="Selecionar SDR..."
+                                options={sdrUserOptions}
+                                value={selectedSdrName}
+                                onchange={handleParticipantSelect}
+                                variant="standard"
+                                class="enhanced-combobox"
+                              >
+                              </lightning-combobox>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <!-- Status Section -->
-                      <div class="section-container">
+                      <!-- Status da Reunião - HIDDEN (only filled after meeting happens) -->
+                      <!-- Campo Status da Reunião ocultado pois só deve ser preenchido após a reunião acontecer -->
+                      <!--
+                      <div class="section-container" style="margin-bottom: 4rem;">
                         <div class="section-header">
-                          <div class="section-title">
+                          <h3 class="section-title">
                             <lightning-icon
                               icon-name="utility:info"
                               size="x-small"
                               class="slds-m-right_x-small"
                             ></lightning-icon>
                             Status da Reunião
-                          </div>
+                          </h3>
                         </div>
-                        <div class="slds-p-around_medium">
+                        <div class="slds-p-around_small">
                           <lightning-combobox
                             label="Status"
                             name="statusReuniao"
@@ -364,6 +554,34 @@
                           ></lightning-combobox>
                         </div>
                       </div>
+                      -->
+
+                      <!-- Descrição - HIDDEN like appointmentEditor -->
+                      <!-- Campo Description ocultado para evitar que o usuário modifique o link da reunião -->
+                      <!--
+                      <div class="section-container">
+                        <div class="section-header">
+                          <h3 class="section-title">
+                            <lightning-icon
+                              icon-name="utility:text"
+                              size="x-small"
+                              class="slds-m-right_x-small"
+                            ></lightning-icon>
+                            Descrição
+                          </h3>
+                        </div>
+                        <div class="slds-p-around_medium">
+                          <lightning-textarea
+                            label="Descrição"
+                            name="description"
+                            value={eventData.description}
+                            onchange={handleEventFieldChange}
+                            placeholder="Adicione detalhes sobre o compromisso..."
+                            variant="label-hidden"
+                          ></lightning-textarea>
+                        </div>
+                      </div>
+                      -->
 
                     </div>
                   </template>
@@ -481,7 +699,7 @@
                         <div class="slds-p-around_medium">
                           <div class="type-card-container vertical-cards">
                             <!-- Card para Liquidação Otimizada -->
-                            <div class={liquidacaoOtimizadaClass} data-type="Liquidação Otimizada" onclick={handleTypeCardClick}>
+                            <div class={liquidacaoOtimizadaClass} data-type="Liquidação Otimizada" onclick={handleOpportunityTypeCardClick}>
                               <div class="type-card-content">
                                 <lightning-icon icon-name="utility:money" size="medium"></lightning-icon>
                                 <div class="type-card-label">Liquidação Otimizada</div>
@@ -489,7 +707,7 @@
                             </div>
 
                             <!-- Card para Consultoria Societária -->
-                            <div class={consultoriaSocietariaClass} data-type="Consultoria Societária" onclick={handleTypeCardClick}>
+                            <div class={consultoriaSocietariaClass} data-type="Consultoria Societária" onclick={handleOpportunityTypeCardClick}>
                               <div class="type-card-content">
                                 <lightning-icon icon-name="utility:groups" size="medium"></lightning-icon>
                                 <div class="type-card-label">Consultoria Societária</div>
@@ -497,7 +715,7 @@
                             </div>
 
                             <!-- Card para Gestão de Patrimônio -->
-                            <div class={gestaoPatrimonioClass} data-type="Gestão de Patrimônio" onclick={handleTypeCardClick}>
+                            <div class={gestaoPatrimonioClass} data-type="Gestão de Patrimônio" onclick={handleOpportunityTypeCardClick}>
                               <div class="type-card-content">
                                 <lightning-icon icon-name="utility:chart" size="medium"></lightning-icon>
                                 <div class="type-card-label">Gestão de Patrimônio</div>

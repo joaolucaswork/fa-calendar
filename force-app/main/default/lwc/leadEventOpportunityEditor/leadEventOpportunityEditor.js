@@ -7,6 +7,9 @@ import getAppointmentDetails from "@salesforce/apex/AppointmentController.getApp
 import createAppointment from "@salesforce/apex/AppointmentController.createAppointment";
 import updateAppointment from "@salesforce/apex/AppointmentController.updateAppointment";
 import searchUsers from "@salesforce/apex/AppointmentController.searchUsers";
+import searchSDRUsers from "@salesforce/apex/AppointmentController.searchSDRUsers";
+import searchCommercialManagerUsers from "@salesforce/apex/AppointmentController.searchCommercialManagerUsers";
+import searchGestorUsers from "@salesforce/apex/AppointmentController.searchGestorUsers";
 import searchContacts from "@salesforce/apex/AppointmentController.searchContacts";
 import validarDisponibilidadeSala from "@salesforce/apex/ReuniaoController.validarDisponibilidadeSala";
 import getStatusPicklistValues from "@salesforce/apex/CalendarioReinoController.getStatusPicklistValues";
@@ -58,6 +61,11 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
   @track commercialManagerUserOptions = [];
   @track gestorUserOptions = [];
   @track statusOptions = [];
+  @track isLoadingUsers = false;
+
+  // Selected participants for availability dashboard and Teams link - EXACT appointmentEditor
+  @track selectedParticipants = [];
+  @track currentUserInfo = {};
 
   // Contact/Lead information
   @track contactInfo = {};
@@ -243,30 +251,78 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
     };
   }
 
-  // Load all user options for dropdowns
+  // Load all user options for dropdowns - EXACT appointmentEditor approach
   async loadAllUsers() {
     try {
-      const result = await searchUsers({ searchTerm: "", roleFilter: "" });
-      this.userOptions = result.map(user => ({
-        label: user.Name,
-        value: user.Name
+      console.log('🔄 Loading users with specific role-based methods...');
+
+      // Load users in parallel using specific role-based methods (like appointmentEditor)
+      const [allUsersResult, sdrUsersResult, commercialManagerUsersResult, gestorUsersResult] = await Promise.all([
+        searchUsers({ searchTerm: "", maxResults: 100 }),
+        searchSDRUsers({ searchTerm: "", maxResults: 100 }),
+        searchCommercialManagerUsers({ searchTerm: "", maxResults: 100 }),
+        searchGestorUsers({ searchTerm: "", maxResults: 100 })
+      ]);
+
+      console.log('🔍 DEBUG - Resultados das buscas específicas:');
+      console.log('  - All Users:', allUsersResult.length);
+      console.log('  - SDR Users:', sdrUsersResult.length);
+      console.log('  - Commercial Manager Users:', commercialManagerUsersResult.length);
+      console.log('  - Gestor Users:', gestorUsersResult.length);
+
+      // Process all users
+      this.userOptions = allUsersResult.map(user => ({
+        label: user.name,
+        value: user.name
       }));
 
-      // Filter users by role for specific dropdowns
-      this.sdrUserOptions = result
-        .filter(user => user.UserRole && user.UserRole.Name === "SDR")
-        .map(user => ({ label: user.Name, value: user.Name }));
+      // Process SDR users
+      this.sdrUserOptions = sdrUsersResult.map(user => ({
+        label: user.name,
+        value: user.name
+      }));
 
-      this.commercialManagerUserOptions = result
-        .filter(user => user.UserRole && user.UserRole.Name === "gestor líder comercial")
-        .map(user => ({ label: user.Name, value: user.Name }));
+      // Process Commercial Manager users
+      this.commercialManagerUserOptions = commercialManagerUsersResult.map(user => ({
+        label: user.name,
+        value: user.name
+      }));
 
-      this.gestorUserOptions = result
-        .filter(user => user.UserRole && user.UserRole.Name === "Gestor")
-        .map(user => ({ label: user.Name, value: user.Name }));
+      // Process Gestor users
+      this.gestorUserOptions = gestorUsersResult.map(user => ({
+        label: user.name,
+        value: user.name
+      }));
+
+      console.log('✅ Usuários processados por role:');
+      console.log('  - SDR:', this.sdrUserOptions.length, this.sdrUserOptions);
+      console.log('  - Gestor:', this.gestorUserOptions.length, this.gestorUserOptions);
+      console.log('  - Líder Comercial:', this.commercialManagerUserOptions.length, this.commercialManagerUserOptions);
 
     } catch (error) {
-      console.error("Error loading users:", error);
+      console.error("❌ Error loading users:", error);
+    }
+  }
+
+  // ANTI-DUPLICATION: Check for existing events created by automation
+  async checkForExistingLeadEvents(leadId) {
+    try {
+      console.log('🔍 Checking for existing events for Lead:', leadId);
+
+      // Use LeadEventController to get existing events for this lead
+      const result = await getLeadEventDetails({ leadId: leadId });
+
+      if (result && result.events && result.events.length > 0) {
+        console.log('✅ Found existing events:', result.events.length);
+        return result.events;
+      }
+
+      console.log('ℹ️ No existing events found for Lead');
+      return [];
+
+    } catch (error) {
+      console.error('❌ Error checking for existing events:', error);
+      return [];
     }
   }
 
@@ -603,6 +659,38 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
     }
   }
 
+  // EXACT AppointmentEditor Card Click Handlers
+  // Manipular cliques no card de tipo de compromisso
+  handleTypeCardClick(event) {
+    const selectedType = event.currentTarget.dataset.type;
+    this.appointmentType = selectedType;
+    this.eventData.type = selectedType;
+
+    // Clear meeting link if not online meeting
+    if (selectedType !== "Reunião Online") {
+      this.linkReuniao = "";
+    }
+
+    console.log('Tipo de compromisso selecionado:', selectedType);
+  }
+
+  // Manipular seleção da sala de reunião
+  handleSalaSelect(event) {
+    const selectedSala = event.currentTarget.dataset.value;
+    this.salaReuniao = selectedSala;
+
+    // Se selecionar "Outra", limpar o campo de localização
+    if (selectedSala === "Outra") {
+      this.eventData.location = "";
+    } else if (selectedSala === "salaPrincipal") {
+      this.eventData.location = "Sala Principal - Reino Capital";
+    } else if (selectedSala === "salaGabriel") {
+      this.eventData.location = "Sala do Gabriel - Reino Capital";
+    }
+
+    console.log('Sala selecionada:', selectedSala);
+  }
+
   handleAppointmentTypeChange(event) {
     this.appointmentType = event.target.value;
 
@@ -620,21 +708,65 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
     this.statusReuniao = event.target.value;
   }
 
-  handleParticipantChange(event) {
-    const field = event.target.name;
-    const value = event.target.value;
+  // EXACT AppointmentEditor participant selection method
+  handleParticipantSelect(event) {
+    const selectedValue = event.detail.value;
+    const fieldName = event.target.name;
 
-    switch (field) {
-      case "gestorName":
-        this.selectedGestorName = value;
+    switch (fieldName) {
+      case "gestor":
+        this.selectedGestorName = selectedValue;
+        this.eventData.gestorName = selectedValue;
         break;
-      case "liderComercialName":
-        this.selectedLiderComercialName = value;
+      case "liderComercial":
+        this.selectedLiderComercialName = selectedValue;
+        this.eventData.liderComercialName = selectedValue;
         break;
-      case "sdrName":
-        this.selectedSdrName = value;
+      case "sdr":
+        this.selectedSdrName = selectedValue;
+        this.eventData.sdrName = selectedValue;
         break;
     }
+
+    this.updateSelectedParticipants();
+    console.log('Participant selected:', fieldName, selectedValue);
+  }
+
+  // Update selected participants array for availability dashboard and Teams link
+  updateSelectedParticipants() {
+    this.selectedParticipants = [];
+
+    if (this.selectedGestorName) {
+      this.selectedParticipants.push({
+        name: this.selectedGestorName,
+        role: "Gestor"
+      });
+    }
+
+    if (this.selectedLiderComercialName) {
+      this.selectedParticipants.push({
+        name: this.selectedLiderComercialName,
+        role: "Líder Comercial"
+      });
+    }
+
+    if (this.selectedSdrName) {
+      this.selectedParticipants.push({
+        name: this.selectedSdrName,
+        role: "SDR"
+      });
+    }
+  }
+
+  // EXACT AppointmentEditor Teams Link handlers
+  handleTeamsLinkGenerated(event) {
+    this.linkReuniao = event.detail.meetingUrl;
+    console.log('Teams link generated:', this.linkReuniao);
+  }
+
+  handleTeamsLinkCleared() {
+    this.linkReuniao = "";
+    console.log('Teams link cleared');
   }
 
   // Opportunity form handlers - following opportunityEditor.js pattern
@@ -664,7 +796,7 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
     }
   }
 
-  handleTypeCardClick(event) {
+  handleOpportunityTypeCardClick(event) {
     const selectedType = event.currentTarget.dataset.type;
     this.opportunityType = selectedType;
     this.opportunityTypeApiValue = selectedType;
@@ -705,10 +837,28 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
     }
   }
 
-  // Save methods
+  // Save methods - ANTI-DUPLICATION LOGIC
   async saveEvent() {
     try {
       this.isLoadingEvent = true;
+
+      // CRITICAL: Check if we're creating a new event for a Lead that already has an automated event
+      if (!this.eventId && this.leadId) {
+        console.log('🔍 ANTI-DUPLICATION: Checking for existing automated events for Lead:', this.leadId);
+
+        // Check if there's already an event created by automation for this lead
+        const existingEvents = await this.checkForExistingLeadEvents(this.leadId);
+        if (existingEvents && existingEvents.length > 0) {
+          console.log('⚠️ ANTI-DUPLICATION: Found existing automated event, using it instead of creating new one');
+
+          // Use the existing event instead of creating a new one
+          this._eventId = existingEvents[0].Id;
+          this.loadEventData(); // Reload data from existing event
+
+          this.showToast("Info", "Evento já existe para este lead. Carregando evento existente.", "info");
+          return true;
+        }
+      }
 
       const eventDataToSave = {
         id: this.eventId,
@@ -733,8 +883,10 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
 
       let result;
       if (this.eventId) {
+        console.log('📝 UPDATING existing event:', this.eventId);
         result = await updateAppointment({ eventData: eventDataToSave });
       } else {
+        console.log('🆕 CREATING new event for Lead:', this.leadId);
         result = await createAppointment({ eventData: eventDataToSave });
         if (result.success && result.eventId) {
           this._eventId = result.eventId;
@@ -858,6 +1010,16 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
     ];
   }
 
+  // Fase do Evento options
+  get faseEventoOptions() {
+    return [
+      { label: "Primeira Reunião", value: "Primeira Reunião" },
+      { label: "Devolutiva", value: "Devolutiva" },
+      { label: "Negociação", value: "Negociação" },
+      { label: "Cliente", value: "Cliente" }
+    ];
+  }
+
   // Computed properties for conditional rendering
   get isPresentialMeeting() {
     return this.appointmentType === "Reunião Presencial";
@@ -869,6 +1031,87 @@ export default class LeadEventOpportunityEditor extends NavigationMixin(Lightnin
 
   get isRoomDisabled() {
     return this.appointmentType !== "Reunião Presencial";
+  }
+
+  // EXACT AppointmentEditor Card Classes - Getters para as classes dos cards de tipo
+  get reuniaoPresencialClass() {
+    return this.appointmentType === "Reunião Presencial"
+      ? "card-item card-selected"
+      : "card-item";
+  }
+
+  get reuniaoOnlineClass() {
+    return this.appointmentType === "Reunião Online"
+      ? "card-item card-selected"
+      : "card-item";
+  }
+
+  get ligacaoTelefonicaClass() {
+    return this.appointmentType === "Ligação Telefônica"
+      ? "card-item card-selected"
+      : "card-item";
+  }
+
+  // Getters para as classes dos cards de sala de reunião
+  get salaPrincipalCardClass() {
+    return this.salaReuniao === "salaPrincipal"
+      ? "card-item card-selected"
+      : "card-item";
+  }
+
+  get salaGabrielCardClass() {
+    return this.salaReuniao === "salaGabriel"
+      ? "card-item card-selected"
+      : "card-item";
+  }
+
+  get outraSalaCardClass() {
+    return this.salaReuniao === "Outra"
+      ? "card-item card-selected"
+      : "card-item";
+  }
+
+  // Additional computed properties
+  get isOutraSala() {
+    return this.salaReuniao === "Outra";
+  }
+
+  get showDateTimeFields() {
+    return this.appointmentType && this.appointmentType !== '';
+  }
+
+  get displayProductValue() {
+    return this.eventData.produtoEvento || 'Não definido';
+  }
+
+  // EXACT AppointmentEditor Getters for participants
+  get hasSelectedParticipants() {
+    return (
+      this.selectedGestorName ||
+      this.selectedLiderComercialName ||
+      this.selectedSdrName
+    );
+  }
+
+  get participantCount() {
+    let count = 0;
+    if (this.selectedGestorName) count++;
+    if (this.selectedLiderComercialName) count++;
+    if (this.selectedSdrName) count++;
+    return count;
+  }
+
+  // Dropdown classes for participants - EXACT appointmentEditor
+  get liderComercialDropdownClass() {
+    return "enhanced-dropdown";
+  }
+
+  get gestorDropdownClass() {
+    return "enhanced-dropdown";
+  }
+
+  get sdrDropdownClass() {
+    return "enhanced-dropdown";
   }
 
   // Save methods - using the working OpportunityManager.updateOpportunity method
