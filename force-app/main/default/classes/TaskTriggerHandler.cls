@@ -136,7 +136,7 @@ public class TaskTriggerHandler {
       // Update the Task with a note about the created records
       if (taskId != null) {
         Task taskToUpdate = [
-          SELECT Id, Description
+          SELECT Id, Depurar_Conversao__c
           FROM Task
           WHERE Id = :taskId
           LIMIT 1
@@ -153,8 +153,8 @@ public class TaskTriggerHandler {
           'Status: ' +
           result.get('message');
 
-        taskToUpdate.Description =
-          (taskToUpdate.Description != null ? taskToUpdate.Description : '') +
+        taskToUpdate.Depurar_Conversao__c =
+          (taskToUpdate.Depurar_Conversao__c != null ? taskToUpdate.Depurar_Conversao__c : '') +
           additionalInfo;
         update taskToUpdate;
       }
@@ -170,7 +170,7 @@ public class TaskTriggerHandler {
       if (taskId != null) {
         try {
           Task taskToUpdate = [
-            SELECT Id, Description
+            SELECT Id, Depurar_Conversao__c
             FROM Task
             WHERE Id = :taskId
             LIMIT 1
@@ -181,8 +181,8 @@ public class TaskTriggerHandler {
             'Erro ao criar Event e Opportunity: ' +
             e.getMessage();
 
-          taskToUpdate.Description =
-            (taskToUpdate.Description != null ? taskToUpdate.Description : '') +
+          taskToUpdate.Depurar_Conversao__c =
+            (taskToUpdate.Depurar_Conversao__c != null ? taskToUpdate.Depurar_Conversao__c : '') +
             errorInfo;
           update taskToUpdate;
         } catch (Exception updateError) {

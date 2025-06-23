@@ -299,6 +299,11 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       : "Recolher barra lateral";
   }
 
+  // Computed property for meeting summary - convert 0-based month to 1-based
+  get currentMonthNumber() {
+    return this.currentMonth + 1;
+  }
+
   connectedCallback() {
     // Enable calendar interactions by default
     this.allowCreate = true;
@@ -3646,7 +3651,15 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     event.stopPropagation();
     const userId = event.currentTarget.dataset.userId;
     if (userId) {
+      // Check if this is a toggle action (same user clicked again)
+      const isToggleAction = this.selectedUserId === userId;
+
       this.selectUserCalendar(userId);
+
+      // Only open toggle if it's NOT a toggle action (deselection)
+      if (!isToggleAction) {
+        this.openMeetingSummaryToggle(userId);
+      }
     }
   }
 
@@ -3674,6 +3687,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     // Check if this user is already selected (toggle behavior)
     if (this.selectedUserId === userId) {
       // User is already selected, deselect and return to all calendars view
+      // Close meeting summary toggle first
+      this.closeMeetingSummaryToggle();
       this.handleReturnToDefaultCalendar();
       return;
     }
@@ -3735,6 +3750,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     this.isDefaultCalendarSelected = true;
     this.showUserCalendarIndicator = false;
 
+    // Close meeting summary toggle if open
+    this.closeMeetingSummaryToggle();
+
     // Apply filters to show all events
     this.applyFilters();
 
@@ -3765,6 +3783,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     this.isDefaultCalendarSelected = true;
     this.showUserCalendarIndicator = false;
 
+    // Close meeting summary toggle if open
+    this.closeMeetingSummaryToggle();
+
     // Apply filters to show all events
     this.applyFilters();
 
@@ -3773,6 +3794,42 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       "Todas as seleções de calendário foram removidas",
       "success"
     );
+  }
+
+  /**
+   * Open meeting summary toggle for selected user
+   */
+  openMeetingSummaryToggle(userId) {
+    const selectedUser = this.availableUsers.find((user) => user.id === userId);
+    if (!selectedUser) return;
+
+    const toggle = this.template.querySelector('c-meeting-summary-modal');
+    if (toggle) {
+      toggle.showToggle(
+        userId,
+        selectedUser.name,
+        this.currentYear,
+        this.currentMonthNumber
+      );
+    }
+  }
+
+  /**
+   * Close meeting summary toggle
+   */
+  closeMeetingSummaryToggle() {
+    const toggle = this.template.querySelector('c-meeting-summary-modal');
+    if (toggle) {
+      toggle.hideToggle();
+    }
+  }
+
+  /**
+   * Handle meeting summary toggle close event
+   */
+  handleMeetingSummaryToggleClose() {
+    // Toggle closed - no additional action needed
+    console.log('Meeting summary toggle closed');
   }
 
   /**

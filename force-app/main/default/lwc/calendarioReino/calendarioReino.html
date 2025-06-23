@@ -777,6 +777,13 @@
     oneventclick={handleParticipantModalEventClick}
   ></c-participant-details-modal>
 
+  <!-- Meeting Summary Toggle -->
+  <c-meeting-summary-modal
+    ontoggleclose={handleMeetingSummaryToggleClose}
+  ></c-meeting-summary-modal>
+
+
+
   <!-- Color Picker Modal -->
   <template if:true={showColorPicker}>
     <div class="color-picker-backdrop" onclick={handleBackdropClick}>

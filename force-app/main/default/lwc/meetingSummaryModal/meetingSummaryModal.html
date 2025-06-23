@@ -1,0 +1,54 @@
+<template>
+  <!-- Meeting Summary Toggle - Fixed Bottom-Right -->
+  <template if:true={isVisible}>
+    <div class={modalClass}>
+      <div class="toggle-header">
+        <span class="toggle-title">{userName} - Resumo mensal, {formattedMonth}</span>
+      </div>
+      <div class="toggle-content">
+        <!-- Compact Meeting Summary Content -->
+        <template if:true={isLoading}>
+          <div class="toggle-loading">
+            <lightning-spinner alternative-text="Carregando..." size="x-small"></lightning-spinner>
+          </div>
+        </template>
+
+        <template if:false={isLoading}>
+          <template if:true={summaryData}>
+            <!-- Compact Summary Stats -->
+            <div class="compact-stats">
+              <div class="stat-item total" title="Total de reuniões agendadas no mês">
+                <span class="stat-value">{summaryData.totalMeetings}</span>
+                <span class="stat-label">Total</span>
+              </div>
+              <div class="stat-item completed" title="Reuniões realizadas com sucesso">
+                <span class="stat-value">{summaryData.completedMeetings}</span>
+                <span class="stat-label">
+                  <lightning-icon icon-name="utility:success" size="x-small" variant="success"></lightning-icon>
+                </span>
+              </div>
+              <div class="stat-item cancelled" title="Reuniões canceladas, adiadas ou não compareceu">
+                <span class="stat-value">{summaryData.cancelledPostponedMeetings}</span>
+                <span class="stat-label">
+                  <lightning-icon icon-name="utility:close" size="x-small" variant="error"></lightning-icon>
+                </span>
+              </div>
+              <div class="stat-item pending" title="Reuniões agendadas aguardando realização">
+                <span class="stat-value">{summaryData.pendingMeetings}</span>
+                <span class="stat-label">
+                  <lightning-icon icon-name="utility:clock" size="x-small" variant="warning"></lightning-icon>
+                </span>
+              </div>
+            </div>
+          </template>
+
+          <template if:false={summaryData}>
+            <div class="no-data">
+              <span>Sem dados</span>
+            </div>
+          </template>
+        </template>
+      </div>
+    </div>
+  </template>
+</template>

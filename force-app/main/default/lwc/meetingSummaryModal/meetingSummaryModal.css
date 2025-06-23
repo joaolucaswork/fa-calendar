@@ -1,0 +1,197 @@
+/* Meeting Summary Toggle - Fixed Bottom-Right Component */
+
+/* Base toggle styling */
+.meeting-summary-toggle {
+    background: #ffffff;
+    border: 1px solid #d8dde6;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    width: 280px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    z-index: 9999;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.meeting-summary-toggle.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Toggle header styling */
+.toggle-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.toggle-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #181818;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: left;
+}
+
+/* Toggle content area styling */
+.toggle-content {
+    padding: 12px;
+}
+
+/* Toggle loading */
+.toggle-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+}
+
+/* Compact stats layout */
+.compact-stats {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    padding: 6px 4px;
+    border-radius: 6px;
+    background: #f8f9fa;
+    transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+    background: #f3f3f3;
+    transform: translateY(-1px);
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: #5c5c5c;
+    text-align: center;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* SLDS Icon styling */
+.stat-label lightning-icon {
+    --slds-c-icon-color-foreground-default: currentColor;
+}
+
+/* Stat-specific colors - removed number colors, keeping only icon colors */
+
+/* Icon colors to match stat values */
+.stat-item.completed .stat-label lightning-icon {
+    --slds-c-icon-color-foreground-default: #2e844a;
+}
+
+.stat-item.cancelled .stat-label lightning-icon {
+    --slds-c-icon-color-foreground-default: #c23934;
+}
+
+.stat-item.pending .stat-label lightning-icon {
+    --slds-c-icon-color-foreground-default: #0176d3;
+}
+
+/* No data message */
+.no-data {
+    text-align: center;
+    padding: 12px;
+    color: #5c5c5c;
+    font-style: italic;
+    font-size: 11px;
+}
+
+/* Responsive adjustments for toggle */
+@media (max-width: 768px) {
+    .meeting-summary-toggle {
+        width: 260px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .compact-stats {
+        gap: 6px;
+    }
+
+    .stat-item {
+        padding: 5px 3px;
+    }
+
+    .stat-value {
+        font-size: 14px;
+    }
+
+    .stat-label {
+        font-size: 9px;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .meeting-summary-toggle {
+        width: 240px;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .toggle-header {
+        padding: 6px 10px;
+    }
+
+    .toggle-title {
+        font-size: 11px;
+    }
+
+    .toggle-content {
+        padding: 10px;
+    }
+
+    .compact-stats {
+        gap: 4px;
+    }
+
+    .stat-item {
+        padding: 4px 2px;
+    }
+
+    .stat-value {
+        font-size: 13px;
+    }
+
+    .stat-label {
+        font-size: 8px;
+    }
+}
