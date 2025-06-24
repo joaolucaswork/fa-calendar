@@ -1,0 +1,44 @@
+<template>
+  <!-- Stage Cards Section - Horizontal Row Layout -->
+  <template if:false={isLoading}>
+    <div class="stage-cards-container">
+      <!-- Horizontal scrollable container for stage cards -->
+      <div class="stage-cards-row">
+        <!-- Individual stage cards - Horizontal layout with inline count -->
+        <template for:each={stageCards} for:item="stage">
+          <div
+            key={stage.value}
+            class={stage.cardClass}
+            onclick={handleStageCardClick}
+            data-stage={stage.value}
+            title={stage.tooltip}
+          >
+            <div class="stage-card-content">
+              <div class="stage-icon">
+                <lightning-icon
+                  icon-name={stage.icon}
+                  size="small"
+                  alternative-text={stage.label}
+                ></lightning-icon>
+              </div>
+              <div class="stage-info">
+                <span class="stage-label">{stage.label}</span>
+                <span class="stage-count">{stage.count}</span>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </template>
+
+  <!-- Loading state -->
+  <template if:true={isLoading}>
+    <div class="loading-container">
+      <lightning-spinner
+        alternative-text="Carregando estágios..."
+        size="small"
+      ></lightning-spinner>
+    </div>
+  </template>
+</template>

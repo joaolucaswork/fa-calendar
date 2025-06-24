@@ -1,45 +1,187 @@
-# This file is used for Git repositories to specify intentionally untracked files that Git should ignore. 
+# This file is used for Git repositories to specify intentionally untracked files that Git should ignore.
 # If you are not using git, you can delete this file. For more information see: https://git-scm.com/docs/gitignore
 # For useful gitignore templates see: https://github.com/github/gitignore
 
-# Salesforce cache
+# =============================================================================
+# SALESFORCE SPECIFIC
+# =============================================================================
+
+# Salesforce cache and CLI directories
 .sf/
 .sfdx/
+.sfdx-cli/
+.sf-cli/
+.salesforce/
 .localdevserver/
 deploy-options.json
+
+# Salesforce logs and debug files
+*.apex-log
+.apex_history
+apex-*.log
 
 # LWC VSCode autocomplete
 **/lwc/jsconfig.json
 
+# =============================================================================
+# BUILD ARTIFACTS & TEST COVERAGE
+# =============================================================================
+
 # LWC Jest coverage reports
 coverage/
+.nyc_output/
+junit.xml
+test-results/
+.jest/
 
-# Logs
+# =============================================================================
+# PACKAGE MANAGERS & DEPENDENCIES
+# =============================================================================
+
+# Node.js dependencies
+node_modules/
+
+# Package manager logs and debug files
 logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# Dependency directories
-node_modules/
+# Package manager cache and directories
+.npm/
+.yarn/
+.pnpm/
 
-# Eslint cache
+# =============================================================================
+# DEVELOPMENT TOOLS & CACHES
+# =============================================================================
+
+# ESLint cache
 .eslintcache
+
+# Git hooks (Husky internal files)
+.husky/_/
+
+# =============================================================================
+# IDE & EDITOR FILES
+# =============================================================================
+
+# Visual Studio Code (keep shared settings, ignore user-specific)
+# Keep: .vscode/extensions.json (shared team extensions)
+# Ignore: user-specific settings and workspaces
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/*.code-workspace
+
+# IntelliJ IDEA / WebStorm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Atom
+.atom/
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# =============================================================================
+# OPERATING SYSTEM FILES
+# =============================================================================
 
 # MacOS system files
 .DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
 
 # Windows system files
 Thumbs.db
+Thumbs.db:encryptable
 ehthumbs.db
+ehthumbs_vista.db
 [Dd]esktop.ini
 $RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+
+# =============================================================================
+# TEMPORARY & CACHE FILES
+# =============================================================================
+
+# Temporary files
+.tmp/
+.temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# =============================================================================
+# ENVIRONMENT & SECURITY
+# =============================================================================
 
 # Local environment variables
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+
+# =============================================================================
+# LANGUAGE SPECIFIC
+# =============================================================================
 
 # Python Salesforce Functions
 **/__pycache__/
 **/.venv/
 **/venv/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+
+# .NET
+bin/
+obj/
+*.dll
+*.exe
