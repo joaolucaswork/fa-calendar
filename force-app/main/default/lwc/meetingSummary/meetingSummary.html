@@ -1,0 +1,109 @@
+<template>
+  <div class="meeting-summary-container">
+    <template if:true={isLoading}>
+      <div class="loading-container">
+        <lightning-spinner alternative-text="Carregando resumo..." size="small"></lightning-spinner>
+      </div>
+    </template>
+
+    <template if:false={isLoading}>
+      <template if:true={summaryData}>
+        <div class="meeting-summary-content">
+          <!-- Header -->
+          <div class="summary-header">
+            <span class="summary-title">📅 Resumo {summaryData.currentMonth}</span>
+          </div>
+
+          <!-- Horizontal Summary Cards -->
+          <div class="summary-cards-container">
+            <!-- Total Meetings Card -->
+            <div class="summary-card total-card">
+              <div class="card-icon">🔢</div>
+              <div class="card-content">
+                <div class="card-value">{summaryData.totalMeetings}</div>
+                <div class="card-label">Total</div>
+              </div>
+            </div>
+
+            <!-- Completed Meetings Card -->
+            <div class="summary-card completed-card">
+              <div class="card-icon">✅</div>
+              <div class="card-content">
+                <div class="card-value">{summaryData.completedMeetings}</div>
+                <div class="card-label">Realizadas</div>
+              </div>
+            </div>
+
+            <!-- Cancelled/Postponed Meetings Card -->
+            <div class="summary-card cancelled-card">
+              <div class="card-icon">🚫</div>
+              <div class="card-content">
+                <div class="card-value">{summaryData.cancelledPostponedMeetings}</div>
+                <div class="card-label">No Show</div>
+              </div>
+            </div>
+
+            <!-- Pending Meetings Card -->
+            <div class="summary-card pending-card">
+              <div class="card-icon">📍</div>
+              <div class="card-content">
+                <div class="card-value">{summaryData.pendingMeetings}</div>
+                <div class="card-label">Pendentes</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Breakdown (Horizontal) -->
+          <template if:true={hasDetailedData}>
+            <div class="summary-details">
+              <div class="details-row">
+                <template if:true={hasCompletedMeetings}>
+                  <div class="detail-group completed-group">
+                    <span class="detail-title">✅ Realizadas:</span>
+                    <span class="detail-items">
+                      1ª: {summaryData.completedFirstMeetings} |
+                      Dev: {summaryData.completedFeedbackMeetings}
+                      <template if:true={hasCompletedNegotiationMeetings}>
+                        | Neg: {summaryData.completedNegotiationMeetings}
+                      </template>
+                    </span>
+                  </div>
+                </template>
+              </div>
+
+              <div class="details-row">
+                <template if:true={hasCancelledMeetings}>
+                  <div class="detail-group cancelled-group">
+                    <span class="detail-title">� No Show:</span>
+                    <span class="detail-items">
+                      1ª: {summaryData.cancelledFirstMeetings} |
+                      Dev: {summaryData.cancelledFeedbackMeetings}
+                    </span>
+                  </div>
+                </template>
+              </div>
+
+              <div class="details-row">
+                <template if:true={hasPendingMeetings}>
+                  <div class="detail-group pending-group">
+                    <span class="detail-title">📍 Pendentes:</span>
+                    <span class="detail-items">
+                      1ª: {summaryData.pendingFirstMeetings} |
+                      Dev: {summaryData.pendingFeedbackMeetings}
+                    </span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+      </template>
+
+      <template if:false={summaryData}>
+        <div class="no-data-message">
+          <p>Nenhum dado encontrado</p>
+        </div>
+      </template>
+    </template>
+  </div>
+</template>

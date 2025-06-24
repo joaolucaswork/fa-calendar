@@ -1,0 +1,44 @@
+.template-container {
+  position: relative;
+}
+
+.message-preview {
+  background-color: #f8f8f8;
+  border-radius: 0.25rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--lwc-fontFamily);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  position: relative;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #ecedf0;
+}
+
+pre {
+  font-family: var(--lwc-fontFamily);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.template-textarea {
+  width: 100%;
+}
+
+.template-title {
+  font-size: 0.8125rem;
+  color: #706e6b;
+  font-weight: 500;
+}
+
+.whatsapp-header {
+  color: #075e54;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.whatsapp-icon {
+  --sds-c-icon-color-foreground-default: #25d366;
+}

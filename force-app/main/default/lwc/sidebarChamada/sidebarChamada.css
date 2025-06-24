@@ -1,0 +1,1951 @@
+.sidebar {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative; /* Adicionado para posicionamento relativo */
+}
+
+/* Nova classe para campos ocultos quando nenhum lead está selecionado */
+.low-opacity-fields {
+  display: none;
+  pointer-events: none;
+}
+
+/* Classe para os campos quando um lead é selecionado */
+.normal-opacity-fields {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.sidebar-header {
+  font-weight: bold;
+  padding-bottom: 0.75rem;
+  position: relative; /* Para permitir o posicionamento do mini-card dentro dele */
+  z-index: 5;
+}
+
+/* Mini card que aparece quando o card principal sai da visão */
+.mini-lead-card {
+  position: fixed;
+  top: 3rem; /* Ajustado para ficar abaixo dos botões do Salesforce */
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background-color: #ffffff;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-100%);
+  transition:
+    max-height 0.3s ease-in-out,
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mini-lead-card.visible {
+  max-height: 4rem;
+  opacity: 1;
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mini-lead-info {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-normal);
+  width: 100%;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.mini-lead-name {
+  font-weight: 700;
+  font-size: 0.875rem;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-lead-name a {
+  text-decoration: none;
+  transition: color 0.1s linear;
+}
+
+.mini-lead-name a:hover {
+  text-decoration: underline;
+}
+
+.mini-lead-phone {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.mini-lead-phone .whatsapp-link {
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
+/* Estilo específico para o badge de chamada dentro do mini card */
+.mini-call-badge {
+  margin-left: 0.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Estilos para pílulas de mensagens predefinidas */
+.pills-container {
+  width: 100%;
+  margin-bottom: 1rem;
+  background-color: #f9f9f9;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ecedf0;
+  transition: background-color 0.2s ease;
+}
+
+.pills-container:hover {
+  background-color: #f7f7f7;
+}
+
+.pills-heading {
+  font-size: var(--font-size-normal);
+  color: var(--lwc-colorTextLabel, #444);
+  margin-bottom: 0.5rem;
+  font-weight: var(--lwc-fontWeightRegular, 400);
+  display: flex;
+  align-items: center;
+}
+
+.pills-heading lightning-icon {
+  margin-right: 0.5rem;
+}
+
+/* Novo container para scroll horizontal */
+.pills-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: #d8d8d8 #f4f4f4;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  position: relative;
+  min-height: 2.25rem;
+  white-space: nowrap;
+}
+
+/* Estilização da barra de rolagem para navegadores baseados em WebKit */
+.pills-wrapper::-webkit-scrollbar {
+  height: 4px;
+}
+
+.pills-wrapper::-webkit-scrollbar-track {
+  background: #f4f4f4;
+  border-radius: 2px;
+}
+
+.pills-wrapper::-webkit-scrollbar-thumb {
+  background: #d8d8d8;
+  border-radius: 2px;
+}
+
+.pills-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #bdbdbd;
+}
+
+.message-pill {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 1.25rem;
+  padding: 0.375rem 0.875rem;
+  font-size: var(--pill-font-size);
+  color: #514f4f;
+  cursor: pointer;
+  transition: var(--pill-transition);
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--pill-min-height);
+  position: relative;
+  overflow: hidden;
+  /* Efeito de sombra sutil */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  /* Impede que as pílulas sejam esticadas */
+  flex-shrink: 0;
+}
+
+.message-pill:hover,
+.message-pill:focus {
+  background-color: #f7faff;
+  border-color: #d8edff;
+  box-shadow: 0 2px 4px rgba(1, 118, 211, 0.1);
+  transform: translateY(-1px);
+}
+
+.message-pill.selected {
+  background-color: #ebf5ff;
+  border-color: #0176d3;
+  font-weight: 500;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(1, 118, 211, 0.2);
+}
+
+/* Estilos para diferentes categorias de pílulas */
+.message-pill-negative {
+  border-left: 3px solid #e52d27;
+}
+
+.message-pill-neutral {
+  border-left: 3px solid #706e6b;
+}
+
+.message-pill-pending {
+  border-left: 3px solid #ffb75d;
+}
+
+.message-pill-positive {
+  border-left: 3px solid #04844b;
+}
+
+.message-pill-manual {
+  background-color: #f7f7f7;
+  border: 1px dashed #dddbda;
+  color: #514f4f;
+  border-left: 3px solid #706e6b;
+}
+
+.message-pill-manual:hover {
+  background-color: #f3f2f2;
+  border-color: #b0adab;
+  border-left: 3px solid #706e6b;
+}
+
+.message-pill-manual.selected {
+  background-color: #f3f2f2;
+  border-color: #0176d3;
+  border-style: solid;
+  border-left: 3px solid #0176d3;
+}
+
+/* Estilos específicos para as categorias de pílulas de mensagens */
+.message-pill[data-category="sem-interesse"] {
+  border-left: 0px solid #e52d27; /* Vermelho para leads sem interesse */
+}
+
+.message-pill[data-category="nao-atendeu"] {
+  border-left: 0px solid #706e6b; /* Cinza para leads que não atenderam */
+}
+
+.message-pill[data-category="mensagem-whatsapp"] {
+  border-left: 0px solid #25d366; /* Verde WhatsApp para mensagens enviadas */
+}
+
+.message-pill[data-category="contato-invalido"] {
+  border-left: 0px solid #e52d27; /* Vermelho para contatos inválidos */
+}
+
+.message-pill[data-category="retornar-depois"] {
+  border-left: 0px solid #ffb75d; /* Laranja para retorno posterior */
+}
+
+.message-pill[data-category="sem-sequencia"] {
+  border-left: 0px solid #ffb75d; /* Laranja para leads que não deram sequência */
+}
+
+.message-pill[data-category="ocupado"] {
+  border-left: 0px solid #706e6b; /* Cinza para leads ocupados */
+}
+
+.message-pill[data-category="comercial"] {
+  border-left: 0px solid #706e6b; /* Cinza para contatos comerciais */
+}
+
+.message-pill[data-category="desconfianca"] {
+  border-left: 0px solid #ffb75d; /* Laranja para leads desconfiados */
+}
+
+.message-pill[data-category="interessado"] {
+  border-left: 0px solid #04844b; /* Verde para leads interessados */
+}
+
+.message-pill[data-category="manual"] {
+  background-color: #f7f7f7;
+  border: 1px dashed #dddbda;
+  color: #514f4f;
+  border-left: 0px solid #706e6b;
+}
+
+/* Efeito de ripple ao clicar */
+.message-pill:active::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple 0.6s linear;
+}
+
+@keyframes ripple {
+  to {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* Estilos para destacar mensagens no textarea */
+.textarea-highlight {
+  background-color: rgba(1, 118, 211, 0.1);
+  animation: highlight-pulse 2s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+  0% {
+    background-color: rgba(1, 118, 211, 0.1);
+  }
+  50% {
+    background-color: rgba(1, 118, 211, 0.2);
+  }
+  100% {
+    background-color: rgba(1, 118, 211, 0.1);
+  }
+}
+
+/* Estilo para tooltip de instruções */
+.pill-tooltip {
+  position: absolute;
+  top: -2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #032d60;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 5;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.pill-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -0.5rem;
+  border-width: 0.5rem;
+  border-style: solid;
+  border-color: #032d60 transparent transparent transparent;
+}
+
+.pills-container:hover .pill-tooltip {
+  opacity: 1;
+}
+
+/* Estilo para área de comentários quando uma pílula é selecionada */
+.comments-textarea-container {
+  position: relative;
+  width: 100%;
+}
+
+.comments-textarea-container.pill-selected .slds-textarea {
+  border-color: #0176d3;
+  box-shadow: 0 0 3px #0176d3;
+}
+
+.comments-textarea-container.pill-selected::before {
+  content: "✓";
+  position: absolute;
+  right: 0.5rem;
+  top: 0.5rem;
+  color: #04844b;
+  font-weight: bold;
+  z-index: 1;
+}
+
+/* Estilos para seção de comentários */
+/* Estilos para secão de comentários integrada */
+.comments-section {
+  width: 100%;
+}
+
+.comments-text-container {
+  margin-top: 0.5rem;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.comments-title lightning-icon {
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.comments-area {
+  width: 100%;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.comments-area .slds-textarea {
+  resize: vertical;
+  min-height: 5rem !important;
+  transition: all 0.2s ease;
+  font-size: var(--font-size-normal);
+  border: 1px solid #dddbda;
+}
+
+.comments-area .slds-textarea:focus {
+  border-color: #0176d3;
+  box-shadow: 0 0 3px #0176d3;
+}
+
+/* Feedback visual quando um comentário predefinido é selecionado */
+.comments-area.predefined-selected .slds-textarea {
+  background-color: #f8fcff;
+  border-color: #0176d3;
+}
+
+.predefined-message-indicator {
+  position: absolute;
+  right: 0.5rem;
+  top: 0.5rem;
+  background-color: #0176d3;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 1rem;
+  opacity: 0;
+  transform: translateY(-0.5rem);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.comments-area.predefined-selected .predefined-message-indicator {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Estilos para mensagens predefinidas específicas */
+.predefined-message-list {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: #f8f8f8;
+  border-radius: 0.5rem;
+  border: 1px solid #ecedf0;
+}
+
+/* Ajustes responsivos para a seção de comentários */
+@media screen and (max-width: 1023px) {
+  .predefined-message-list {
+    padding: 0.5rem;
+  }
+
+  .message-pill {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    min-height: 1.75rem;
+  }
+
+  .comments-area .slds-textarea {
+    min-height: 4rem;
+  }
+}
+
+/* Estilos para o contador de caracteres */
+.char-counter {
+  text-align: right;
+  font-size: 0.75rem;
+  color: #706e6b;
+  margin-top: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.char-counter.warning {
+  color: #ffb75d;
+}
+
+.char-counter.danger {
+  color: #e52d27;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.25rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 3.5rem; /* Adiciona espaço na parte inferior para não esconder conteúdo atrás do botão fixo */
+  padding-top: 0; /* Para evitar sobreposição quando o mini-card aparecer */
+}
+
+/* Estilos para o sticky footer com o botão salvar */
+.sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  border-top: 1px solid #e0e0e0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Estilos específicos para garantir que o botão de salvar tenha a cor correta */
+.sticky-footer .slds-button_brand {
+  background-color: #926F1B;
+  border-color: #926F1B;
+  color: white;
+}
+
+.sticky-footer .slds-button_brand:hover,
+.sticky-footer .slds-button_brand:focus {
+  background-color: #7c5e16;
+  border-color: #7c5e16;
+  color: white;
+}
+
+/* Estilos para o componente de pesquisa */
+.slds-dropdown {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.slds-listbox__option {
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.slds-listbox__option:hover {
+  background-color: #f3f2f2;
+}
+
+.slds-listbox__option-meta {
+  word-break: break-word;
+  white-space: normal;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Estilo para o card de informações do lead */
+.lead-card {
+  background-color: #f7f7f7;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 0.75rem;
+  border: 1px solid #ecedf0;
+  margin-top: 0.75rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.lead-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lead-name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lead-name a {
+  text-decoration: none;
+  transition: color 0.1s linear;
+}
+
+.lead-name a:hover {
+  text-decoration: underline;
+}
+
+.lead-email, .mini-lead-email {
+  font-size: var(--font-size-normal);
+  color: #444;
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
+}
+
+.lead-company {
+  font-size: var(--font-size-normal);
+  color: #444;
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lead-info-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  margin-bottom: 0.25rem;
+  font-size: var(--font-size-normal);
+  color: #444;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.lead-info-item[data-field="Email"],
+.card-item[data-field="Email"] .card-content,
+.mini-lead-info[data-field="Email"],
+.info-value[data-field="Email"] {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.lead-info-item lightning-icon {
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Regras específicas para o item de email */
+.lead-info-item[data-field="Email"] lightning-icon {
+  margin-top: 0;
+  align-self: center;
+}
+
+.lead-info-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 1.5rem);
+}
+
+/* Classe específica para text clamp em emails longos */
+.email-text-clamp {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 1.5rem);
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+/* Estilo para badge de chamadas */
+.call-badge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background-color: #e5e5e5;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.call-badge:hover {
+  background-color: #d8d8d8;
+}
+
+.call-badge-count {
+  font-size: 0.75rem;
+  font-weight: var(--lwc-fontWeightBold, 700);
+  color: #514f4f;
+}
+
+/* Estilos para o link do WhatsApp */
+.whatsapp-link {
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  display: inline-block;
+}
+
+.whatsapp-link:hover,
+.whatsapp-link:focus {
+  color: #57410e;
+  text-decoration: underline;
+}
+
+/* Adiciona um ícone visual do WhatsApp ao passar o mouse */
+.whatsapp-link:hover::after {
+  content: " 📱";
+  font-size: 0.9em;
+}
+
+/* Estilos para o botão de enviar mensagem WhatsApp */
+.whatsapp-send-button {
+  background-color: #25d366 !important; /* Cor padrão do WhatsApp */
+  border-color: #25d366 !important;
+  color: white !important;
+  font-weight: 500;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 2rem !important;
+}
+
+.whatsapp-send-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.whatsapp-send-button:hover {
+  background-color: #128c7e !important; /* Cor um pouco mais escura para hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.whatsapp-send-button:hover::before {
+  transform: translateX(0);
+}
+
+.whatsapp-send-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.whatsapp-send-button:disabled {
+  background-color: #cccccc !important;
+  border-color: #cccccc !important;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Estilos responsivos para garantir que o componente se adapte bem à barra de utilitários */
+:host {
+  --spacing-small: 0.75rem;
+  --spacing-medium: 1rem;
+  --spacing-large: 1.5rem;
+  --font-size-normal: 0.875rem;
+  --font-size-medium: 1rem;
+  --font-size-large: 1.25rem;
+  --pill-border-radius: 0.25rem;
+  --pill-padding: 0.375rem 0.75rem;
+  --pill-font-size: 0.875rem;
+  --pill-min-height: 2rem;
+  --pill-transition: all 0.2s ease;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Estilos globais para garantir que elementos não causem rolagem horizontal */
+.slds-input,
+.slds-combobox,
+.slds-form-element,
+.slds-combobox__form-element,
+.slds-combobox__input,
+.slds-textarea,
+lightning-input,
+lightning-combobox,
+lightning-textarea,
+.slds-button_stretch {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* Mobile e tablets pequenos */
+@media screen and (max-width: 1023px) {
+  .slds-form-element {
+    margin-bottom: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .slds-dropdown {
+    max-height: 200px;
+  }
+
+  /* Ajustes para evitar rolagem horizontal em telas pequenas */
+  .slds-grid {
+    flex-wrap: wrap;
+  }
+
+  .slds-col {
+    flex: 1 1 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .lead-card {
+    padding: 0.5rem;
+  }
+  /* Ajustes para o footer fixo em telas menores */
+  .sticky-footer {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .sidebar-content {
+    padding-bottom: 4rem;
+  } /* Ajustes para o mini card em telas menores */
+  .mini-lead-card {
+    position: fixed;
+    top: 2.75rem; /* Menor espaço em telas pequenas */
+    left: 0;
+    right: 0;
+    z-index: 999;
+    padding: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 0.25rem;
+    margin: 0 0.5rem;
+    width: calc(100% - 1rem);
+  }
+
+  .mini-call-badge {
+    margin-left: 0.25rem;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .mini-lead-name {
+    max-width: 40%;
+    font-size: 0.8rem;
+  }
+
+  .mini-lead-phone {
+    font-size: 0.8rem;
+  }
+
+  /* Ajustes para pílulas em telas menores */
+  .message-pill {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+    min-height: 1.75rem;
+  }
+
+  .pills-wrapper {
+    gap: 0.3rem;
+  }
+
+  .pill-tooltip {
+    font-size: 0.7rem;
+    padding: 0.3rem;
+    top: -2rem;
+  }
+
+  .predefined-message-list {
+    padding: 0.5rem;
+    margin-top: 0.3rem;
+  }
+}
+
+/* Ajustes adicionais para telas muito pequenas (smartphones) */
+@media screen and (max-width: 480px) {
+  .mini-lead-card {
+    padding: 0.4rem;
+  }
+
+  .mini-lead-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mini-lead-name {
+    max-width: 100%;
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .mini-lead-phone {
+    font-size: 0.75rem;
+    margin-left: 0;
+  }
+
+  .mini-lead-card.visible {
+    max-height: 5rem;
+  }
+}
+
+/* Desktop padrão */
+@media screen and (min-width: 1024px) and (max-width: 1440px) {
+  /* Ajustes específicos para telas desktop padrão */
+  .lead-info {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .lead-info-item {
+    margin-right: 1rem;
+  }
+  /* Ajustes para o footer sticky em telas desktop */
+  .sticky-footer {
+    max-width: calc(
+      100% - 2rem
+    ); /* Alinhamento com as margens laterais do sidebar */
+    left: 1rem;
+    right: 1rem;
+  } /* Ajustes para o mini card em telas desktop */
+  .mini-lead-card {
+    position: fixed;
+    top: 3.25rem; /* Espaço adequado para desktop */
+    left: 1rem;
+    right: 1rem;
+    width: calc(100% - 2rem);
+    z-index: 999;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    max-width: 30rem; /* Limita a largura em telas maiores */
+  }
+}
+
+/* Telas grandes */
+@media screen and (min-width: 1441px) {
+  /* Ajustes específicos para telas grandes */
+  .lead-info {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .lead-info-item {
+    margin-right: 1.5rem;
+  }
+  /* Ajustes para o footer sticky em telas grandes */
+  .sticky-footer {
+    max-width: calc(100% - 2rem);
+    left: 1rem;
+    right: 1rem;
+  } /* Ajustes para o mini card em telas grandes */
+  .mini-lead-card {
+    position: fixed;
+    top: 3.5rem; /* Espaço maior para telas grandes */
+    left: 1rem;
+    right: 1rem;
+    width: calc(100% - 2rem);
+    z-index: 999;
+    border-radius: 0.5rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    max-width: 25rem; /* Limita a largura em telas grandes */
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Ajustes de acessibilidade para pílulas */
+.message-pill:focus {
+  outline: 2px solid #0176d3;
+  outline-offset: 1px;
+}
+
+.message-pill[tabindex="0"] {
+  position: relative;
+}
+
+.message-pill[tabindex="0"]:focus-visible {
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px #0176d3;
+}
+
+/* Efeito de transição suave quando o conteúdo muda */
+.slds-textarea {
+  transition: background-color 0.3s ease;
+}
+
+/* Efeito de feedback quando uma pílula é clicada */
+.message-pill.clicked {
+  animation: click-feedback 0.3s ease;
+}
+
+@keyframes click-feedback {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Estilos para o acordeão de histórico de chamadas */
+.call-history-container {
+  margin-top: 0.75rem;
+  border: 1px solid #ecedf0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: #fff;
+  width: 100%;
+  display: block;
+}
+
+.call-history-header {
+  padding: 0.5rem 0.75rem;
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #ecedf0;
+}
+
+.call-history-header:hover {
+  background-color: white;
+}
+
+.call-history-title {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #514f4f;
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.call-history-content.expanded + .toggle-icon,
+.toggle-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.call-history-content {
+  transition: max-height 0.3s ease-in-out;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.call-history-content.collapsed {
+  max-height: 0;
+  padding: 0;
+}
+
+.call-history-content.expanded {
+  max-height: 25rem;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+/* Cards Carousel para o histórico de chamadas dentro do acordeão */
+.call-history-content.expanded {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Item de histórico de chamada estilizado como card */
+.call-history-item {
+  background-color: #ffffff;
+  border: 1px solid #ecedf0;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.875rem;
+}
+
+.call-history-item:last-child {
+  margin-bottom: 0;
+}
+
+.call-history-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Cabeçalho do card de histórico */
+.call-history-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #f5f5f5;
+  padding-bottom: 0.5rem;
+}
+
+.call-date-time,
+.call-channel {
+  display: flex;
+  align-items: center;
+  color: #706e6b;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* Conteúdo do card de histórico */
+.call-classification,
+.call-comments {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 0.375rem;
+  color: #3e3e3c;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.call-classification {
+  font-weight: 600;
+  color: #181818;
+}
+
+.call-comments {
+  color: #514f4f;
+  word-break: break-word;
+  margin-top: 0.5rem;
+  background-color: #f9f9f9;
+  padding: 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.no-calls-message {
+  padding: 1rem;
+  text-align: center;
+  color: #706e6b;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9;
+  border-radius: 0.25rem;
+}
+
+/* Estilos para o botão limpar na caixa de pesquisa */
+.clear-button {
+  cursor: pointer;
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  transition: all 0.2s ease;
+}
+
+.clear-button:hover {
+  color: #e52d27;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.clear-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Ajuste na posição do ícone de pesquisa */
+.slds-input__icon_right lightning-icon {
+  margin-right: 0.5rem;
+}
+
+/* Estilos para container de abas */
+.tab-container {
+  position: relative;
+  border-bottom: 1px solid #ecedf0;
+  margin-bottom: 1rem;
+}
+
+/* Estilos para o container de botões de aba */
+.tab-buttons {
+  display: flex;
+  width: fit-content;
+}
+
+/* Estilos base para as abas (antes eram botões) */
+.tab-buttons > div {
+  padding: 0 0.75rem;
+  height: 2rem;
+  line-height: 2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hover para as abas */
+.tab-buttons > div:hover {
+  color: #926f1b;
+}
+
+/* Aba ativa */
+.tab-buttons > div.tab-active {
+  border-bottom: 2px solid #926f1b;
+  font-weight: 500;
+}
+
+/* Ícones nas abas */
+.tab-icon {
+  margin-right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Transição suave para conteúdo das abas */
+.slds-show,
+.slds-hide {
+  transition: opacity 0.3s ease;
+}
+
+.slds-show {
+  opacity: 1;
+  height: auto;
+}
+
+.slds-hide {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Estilos para o modal de oportunidade */
+.slds-modal__container {
+  max-width: 700px;
+  width: 90%;
+}
+
+.slds-modal__header lightning-icon {
+  vertical-align: middle;
+}
+
+.slds-modal__content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Estilos para o formulário dentro do modal */
+.slds-form__row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -0.25rem;
+}
+
+.slds-form__item {
+  flex: 1 1 50%;
+  padding: 0 0.25rem;
+  min-width: 0;
+  margin-bottom: 0.5rem;
+}
+
+@media screen and (max-width: 48em) {
+  .slds-form__item {
+    flex: 1 1 100%;
+  }
+}
+
+/* Animações para o modal */
+.slds-fade-in-open {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.slds-backdrop {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Estilos para a seção de histórico de chamadas recentes */
+.call-history-section {
+  margin-bottom: 0.75rem;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  border: 1px solid #ecedf0;
+}
+
+.call-history-section-header {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #ecedf0;
+}
+
+.call-history-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.call-history-section-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #514f4f;
+  display: flex;
+  align-items: center;
+}
+
+.carousel-nav-buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.carousel-simple-nav {
+  background: transparent;
+  border: none;
+  padding: 0.125rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #706e6b;
+}
+
+.carousel-simple-nav:hover {
+  color: #926f1b;
+}
+
+.carousel-simple-nav:focus {
+  outline: none;
+}
+
+.call-history-carousel-container {
+  padding: 0.5rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.call-history-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #d8d8d8 #f4f4f4;
+  gap: 0.75rem;
+  padding: 0.25rem 0.25rem 0.5rem 0.25rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Estilização da barra de rolagem para navegadores baseados em WebKit */
+.call-history-carousel::-webkit-scrollbar {
+  height: 6px;
+}
+
+.call-history-carousel::-webkit-scrollbar-track {
+  background: #f4f4f4;
+  border-radius: 3px;
+  margin: 0 0.5rem;
+}
+
+.call-history-carousel::-webkit-scrollbar-thumb {
+  background: #d8d8d8;
+  border-radius: 3px;
+  border: 1px solid #f4f4f4;
+}
+
+.call-history-carousel::-webkit-scrollbar-thumb:hover {
+  background: #bdbdbd;
+}
+
+/* As classes dos botões antigos foram removidas, pois agora usamos os botões simples no cabeçalho */
+
+.call-history-card {
+  flex: 0 0 auto;
+  width: 160px;
+  min-width: 160px;
+  background-color: #ffffff;
+  border: 1px solid #ecedf0;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 0.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.call-history-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.call-header {
+  display: flex;
+  margin-bottom: 0.375rem;
+}
+
+.call-lead-name {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: #181818;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.call-time {
+  font-size: 0.75rem;
+  color: #706e6b;
+  white-space: nowrap;
+}
+
+/* Estilo para o ícone de tipo de registro - simplificado */
+.record-type-icon {
+  margin-left: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Estilos para os ícones padrão do Salesforce */
+.record-type-icon lightning-icon {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+}
+
+/* Ajustes de tamanho e apresentação */
+.record-type-icon .slds-icon_container {
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+}
+
+.record-type-icon .slds-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Remover qualquer sobreposição de cores que possa estar afetando os ícones */
+.record-type-icon * {
+  fill: currentColor !important;
+}
+
+/* Estilos para o link de tarefa simplificado */
+.task-link {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+/* Ajuste da cor do ícone */
+.task-icon {
+  --sds-c-icon-color-foreground-default: #706e6b;
+  opacity: 0.7;
+}
+
+/* Efeito hover para o ícone */
+.task-link:hover .task-icon {
+  --sds-c-icon-color-foreground-default: #0070d2;
+  opacity: 1;
+}
+
+/* Ocultar borda e rotação do ícone */
+.task-icon .slds-icon_container {
+  background: none !important;
+  border: none !important;
+}
+
+/* Efeito hover para o link */
+.task-link:hover {
+  transform: scale(1.05);
+}
+
+
+/* Classes de estilo removidas pois não são mais necessárias */
+
+.no-history-message {
+  width: 100%;
+  padding: 1.5rem;
+  text-align: center;
+  color: #706e6b;
+  font-style: italic;
+  background-color: #f9f9f9;
+  border-radius: 0.25rem;
+}
+
+/* Estilos para mensagens de alerta no modal */
+.slds-theme_info {
+  background-color: #f8fcff;
+  border-color: #d8edff;
+}
+
+/* Estilos para os campos de formulário */
+.slds-form-element {
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+  border-radius: 0.25rem;
+}
+
+/* Estilizando inputs, selects e textareas */
+.sidebar-content .slds-input,
+.sidebar-content .slds-select,
+.sidebar-content lightning-combobox .slds-combobox__input,
+.sidebar-content lightning-textarea .slds-textarea {
+  border: 1px solid #ecedf0;
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #181818;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+}
+
+/* Estado hover */
+.sidebar-content .slds-input:hover:not(:disabled),
+.sidebar-content .slds-select:hover:not(:disabled),
+.sidebar-content lightning-combobox .slds-combobox__input:hover:not(:disabled),
+.sidebar-content lightning-textarea .slds-textarea:hover:not(:disabled) {
+  border-color: #d8d8d8;
+}
+
+/* Estado focus */
+.sidebar-content .slds-input:focus:not(:disabled),
+.sidebar-content .slds-select:focus:not(:disabled),
+.sidebar-content lightning-combobox .slds-combobox__input:focus:not(:disabled),
+.sidebar-content lightning-textarea .slds-textarea:focus:not(:disabled) {
+  border-color: #926f1b;
+  box-shadow: 0 0 3px rgba(146, 111, 27, 0.5);
+  outline: none;
+}
+
+/* Estado disabled */
+.sidebar-content .slds-input:disabled,
+.sidebar-content .slds-select:disabled,
+.sidebar-content lightning-combobox .slds-combobox__input:disabled,
+.sidebar-content lightning-textarea .slds-textarea:disabled {
+  background-color: #f8f8f8;
+  border-color: #ecedf0;
+  color: #706e6b;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+/* Estilizando labels */
+.sidebar-content .slds-form-element__label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #514f4f;
+  margin-bottom: 0.25rem;
+  display: inline-block;
+}
+
+/* Card para agrupar campos relacionados */
+.form-card {
+  background-color: #ffffff;
+  border: 1px solid #ecedf0;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-card:hover {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Container para campos em grupo */
+.form-fields-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #514f4f;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ecedf0;
+  display: flex;
+  align-items: center;
+}
+
+.form-group-title lightning-icon {
+  margin-right: 0.5rem;
+}
+
+/* Definindo animação para aparecer elementos com fade */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Estilizando o botão WhatsApp */
+.whatsapp-send-button {
+  background-color: #ffffff;
+  border: 1px solid #d8d8d8;
+  color: #514f4f;
+  font-weight: 500;
+  display: flex;
+  padding-left: 1rem; 
+  padding-right: 1rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  height: 2.5rem;
+  transition: all 0.2s ease;
+}
+
+.whatsapp-send-button:hover:not(:disabled) {
+  background-color: #f8f8f8;
+  border-color: #c8c8c8;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.whatsapp-send-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.whatsapp-send-button lightning-icon {
+  --sds-c-icon-color-foreground-default: #514f4f;
+}
+
+/* Estilos para o acordeão de WhatsApp */
+.whatsapp-accordion-container {
+  margin-top: 0.75rem;
+  border: 1px solid #ecedf0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: #fff;
+  width: 100%;
+  display: block;
+}
+
+.whatsapp-accordion-header {
+  padding: 0.5rem 0.75rem;
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #ecedf0;
+}
+
+.whatsapp-accordion-header:hover {
+  background-color: #f8f8f8;
+}
+
+.whatsapp-accordion-title {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #514f4f;
+}
+
+.whatsapp-content {
+  transition: max-height 0.3s ease-in-out;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.whatsapp-content.collapsed {
+  max-height: 0;
+  padding: 0;
+  border-top: none;
+}
+
+.whatsapp-content.expanded {
+  max-height: 40rem;
+  overflow-y: auto;
+}
+
+.whatsapp-content-inner {
+  padding: 0.75rem;
+}
+
+.whatsapp-template-container {
+  margin-bottom: 0;
+}
+
+/* Estilizando a seção de alerta de oportunidade */
+.opportunity-alert-section {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.opportunity-alert-content {
+  padding: 0.5rem;
+}
+
+.opportunity-alert-card {
+  display: flex;
+  align-items: flex-start;
+  background-color: #fff;
+  border: 1px solid #ecedf0;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.opportunity-alert-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.alert-icon {
+  flex: 0 0 auto;
+  margin-right: 0.75rem;
+}
+
+.alert-icon lightning-icon {
+  --sds-c-icon-color-background: #ffdec5;
+  --sds-c-icon-color-foreground-default: #ff5d2d;
+}
+
+.alert-message {
+  flex: 1 1 auto;
+}
+
+.alert-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: #181818;
+  margin-bottom: 0.25rem;
+}
+
+.alert-text {
+  font-size: 0.8125rem;
+  color: #514f4f;
+  line-height: 1.4;
+}
+
+/* Estilizando os campos de input específicos */
+.sidebar-content lightning-combobox.classificacao {
+  margin-bottom: 0.5rem;
+}
+
+/* Loading overlay para preparação da oportunidade */
+.opportunity-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.opportunity-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 85%;
+  width: 400px;
+  text-align: center;
+  animation: slideUp 0.4s ease-out;
+}
+
+.loading-icon-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.loading-icon-container lightning-icon {
+  z-index: 2;
+  position: relative;
+  --sds-c-icon-color-background: #ffdec5;
+  --sds-c-icon-color-foreground-default: #ff5d2d;
+}
+
+.loading-spinner-ring {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border: 3px solid #f0f0f0;
+  border-radius: 50%;
+  border-top-color: #926f1b;
+  border-left-color: #926f1b;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: spin 1.5s linear infinite;
+}
+
+.loading-text h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #181818;
+  margin-bottom: 0.5rem;
+}
+
+.loading-text p {
+  font-size: 0.9375rem;
+  color: #514f4f;
+  line-height: 1.4;
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Melhorando o espaçamento no formulário */
+.sidebar-content {
+  padding-right: 0.25rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d8d8d8 #f4f4f4;
+}
+
+/* Estilo compacto para campo de data (somente leitura) */
+.date-field input {
+  font-size: 0.8125rem;
+}
+
+.date-field lightning-input {
+  --slds-c-input-spacing-horizontal-start: 0.5rem;
+  --slds-c-input-spacing-horizontal-end: 0.5rem;
+}
+
+/* Grid com espaçamento reduzido entre colunas */
+
+
+.compact-grid > .slds-col {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.sidebar-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: #f4f4f4;
+  border-radius: 2px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: #d8d8d8;
+  border-radius: 2px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: #bdbdbd;
+}
+
+/* Estilizando o formulário como um todo */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Melhorando o rodapé com botão de salvar */
+.sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  border-top: 1px solid #e0e0e0;
+  width: 100%;
+  transition: transform 0.3s ease;
+}
+
+.sticky-footer button {
+  background-color: #926f1b;
+  border-color: #926f1b;
+  transition: all 0.2s ease;
+}
+
+.sticky-footer button:hover:not(:disabled) {
+  background-color: #7a5d15;
+  border-color: #7a5d15;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.sticky-footer button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

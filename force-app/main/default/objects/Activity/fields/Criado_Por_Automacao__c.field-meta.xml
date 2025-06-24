@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Criado_Por_Automacao__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indica se este evento foi criado automaticamente pelo sistema</description>
+    <inlineHelpText>Indica se este evento foi criado automaticamente pelo sistema</inlineHelpText>
+    <label>Criado Por Automação</label>
+    <type>Checkbox</type>
+</CustomField>

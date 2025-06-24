@@ -494,7 +494,30 @@
 .sidebar-month-year {
   font-weight: 500;
   color: #252423;
-  text-align: center;
+  text-align: left;
+}
+
+/* Client Tracking Section Styling - Sidebar Integration */
+.sidebar-section c-client-tracking-pills {
+  display: block;
+  width: 100%;
+}
+
+/* Override any default spacing for seamless sidebar integration */
+.sidebar-section .client-tracking-container {
+  margin: 0;
+  padding: 8px 16px;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
+
+/* Responsive adjustments for client tracking in sidebar */
+@media (max-width: 768px) {
+  .sidebar-section .client-tracking-container {
+    padding: 6px 12px;
+  }
 }
 
 /* Mini Calendar Styling (No longer accordion) */

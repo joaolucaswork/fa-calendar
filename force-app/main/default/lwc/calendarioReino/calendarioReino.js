@@ -130,6 +130,12 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   };
   @track allEvents = []; // Store all events for filtering
 
+  // Client tracking filter properties
+  @track selectedClientId = null; // Currently selected client for filtering
+  @track selectedClientName = null; // Name of selected client
+  @track currentStartDate = null; // Current calendar start date for client tracking
+  @track currentEndDate = null; // Current calendar end date for client tracking
+
   // Meeting room filter properties
   @track meetingRooms = [
     {
@@ -293,6 +299,11 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       : "Recolher barra lateral";
   }
 
+  // Computed property for meeting summary - convert 0-based month to 1-based
+  get currentMonthNumber() {
+    return this.currentMonth + 1;
+  }
+
   connectedCallback() {
     // Enable calendar interactions by default
     this.allowCreate = true;
@@ -335,6 +346,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
     // Load status picklist options for meeting outcome interface
     this.loadStatusPicklistOptions();
+
+    // Initialize client tracking date range to current month
+    this.initializeClientTrackingDates();
   }
 
   // ========================================
@@ -718,6 +732,19 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       // Format: "Maio de 2025"
       this.currentDateRangeText = `${monthNames[monthIndex]} de ${year}`;
     }
+  }
+
+  /**
+   * Initialize client tracking date range to current month
+   */
+  initializeClientTrackingDates() {
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    // Format dates as YYYY-MM-DD for consistency with calendar
+    this.currentStartDate = startOfMonth.toISOString().split('T')[0];
+    this.currentEndDate = endOfMonth.toISOString().split('T')[0];
   }
 
   /**
@@ -1108,6 +1135,10 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
           // Save the current view's date range - using moment since it's available in FullCalendar
           this.startDate = start.format("YYYY-MM-DD");
           this.endDate = end.format("YYYY-MM-DD");
+
+          // Update client tracking date range
+          this.currentStartDate = this.startDate;
+          this.currentEndDate = this.endDate;
 
           // Load events from Salesforce
           this.loadEventsFromSalesforce(start, end, callback);
@@ -2015,6 +2046,11 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     // Enhanced calendar refresh with multiple strategies
     this.refreshCalendarAfterSave();
 
+    // Refresh client tracking data after event save
+    setTimeout(() => {
+      this.refreshClientTrackingData();
+    }, 500);
+
     // If appointment was created from a suggestion, provide specific feedback
     if (wasFromSuggestion && usedSuggestionData) {
       // console.log(
@@ -2328,8 +2364,35 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
    * Handle search input change
    */
   handleSearchChange(event) {
-    this.searchTerm = event.target.value;
+    const newSearchTerm = event.target.value;
+    this.searchTerm = newSearchTerm;
+
+    // If search is cleared manually, also clear client selection
+    if (!newSearchTerm || newSearchTerm.trim() === "") {
+      this.clearClientSelection();
+    }
+
     this.applyFilters();
+  }
+
+  /**
+   * Clear client selection and update client tracking pills
+   */
+  clearClientSelection() {
+    if (this.selectedClientId) {
+      this.selectedClientId = null;
+      this.selectedClientName = null;
+
+      // Update client tracking pills to reflect cleared selection
+      try {
+        const clientTrackingComponent = this.template.querySelector('c-client-tracking-pills');
+        if (clientTrackingComponent && typeof clientTrackingComponent.clearSelection === 'function') {
+          clientTrackingComponent.clearSelection();
+        }
+      } catch (error) {
+        console.error('Error clearing client selection:', error);
+      }
+    }
   }
 
   /**
@@ -2474,6 +2537,89 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
   }
 
   /**
+   * Handle client filter selection from client tracking pills
+   */
+  handleClientFilter(event) {
+    const { clientId, clientName, isActive } = event.detail;
+
+    if (isActive) {
+      // Select client for filtering
+      this.selectedClientId = clientId;
+      this.selectedClientName = clientName;
+
+      // Update search box with client name
+      this.searchTerm = clientName;
+      this.updateSearchInputValue(clientName);
+
+      this.showToast(
+        "Filtro de Cliente",
+        `Mostrando eventos de ${clientName}`,
+        "success"
+      );
+    } else {
+      // Clear client filter
+      this.selectedClientId = null;
+      this.selectedClientName = null;
+
+      // Clear search box
+      this.searchTerm = "";
+      this.updateSearchInputValue("");
+
+      this.showToast(
+        "Filtro Removido",
+        "Mostrando todos os eventos",
+        "success"
+      );
+    }
+
+    // Apply filters to calendar
+    this.applyFilters();
+
+    // Refresh client tracking data
+    this.refreshClientTrackingData();
+  }
+
+  /**
+   * Handle clear search event from client tracking pills
+   */
+  handleClearSearch(event) {
+    // Clear search term and update input field
+    this.searchTerm = "";
+    this.updateSearchInputValue("");
+
+    // Apply filters to refresh calendar
+    this.applyFilters();
+  }
+
+  /**
+   * Update search input field value programmatically
+   */
+  updateSearchInputValue(value) {
+    try {
+      const searchInput = this.template.querySelector('.teams-search-input');
+      if (searchInput) {
+        searchInput.value = value;
+      }
+    } catch (error) {
+      console.error('Error updating search input value:', error);
+    }
+  }
+
+  /**
+   * Refresh client tracking pills data
+   */
+  refreshClientTrackingData() {
+    try {
+      const clientTrackingComponent = this.template.querySelector('c-client-tracking-pills');
+      if (clientTrackingComponent && typeof clientTrackingComponent.refreshClients === 'function') {
+        clientTrackingComponent.refreshClients();
+      }
+    } catch (error) {
+      console.error('Error refreshing client tracking data:', error);
+    }
+  }
+
+  /**
    * Apply search and filter to events
    */
   applyFilters() {
@@ -2511,6 +2657,14 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
           event.liderComercialName === this.selectedUserName ||
           event.sdrName === this.selectedUserName
         );
+      });
+    }
+
+    // Apply client filter - show only events for selected client
+    if (this.selectedClientId) {
+      filteredEvents = filteredEvents.filter((event) => {
+        // Check if event is associated with the selected client via WhoId
+        return event.whoId === this.selectedClientId;
       });
     }
 
@@ -3497,7 +3651,15 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     event.stopPropagation();
     const userId = event.currentTarget.dataset.userId;
     if (userId) {
+      // Check if this is a toggle action (same user clicked again)
+      const isToggleAction = this.selectedUserId === userId;
+
       this.selectUserCalendar(userId);
+
+      // Only open toggle if it's NOT a toggle action (deselection)
+      if (!isToggleAction) {
+        this.openMeetingSummaryToggle(userId);
+      }
     }
   }
 
@@ -3525,6 +3687,8 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     // Check if this user is already selected (toggle behavior)
     if (this.selectedUserId === userId) {
       // User is already selected, deselect and return to all calendars view
+      // Close meeting summary toggle first
+      this.closeMeetingSummaryToggle();
       this.handleReturnToDefaultCalendar();
       return;
     }
@@ -3586,6 +3750,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     this.isDefaultCalendarSelected = true;
     this.showUserCalendarIndicator = false;
 
+    // Close meeting summary toggle if open
+    this.closeMeetingSummaryToggle();
+
     // Apply filters to show all events
     this.applyFilters();
 
@@ -3616,6 +3783,9 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
     this.isDefaultCalendarSelected = true;
     this.showUserCalendarIndicator = false;
 
+    // Close meeting summary toggle if open
+    this.closeMeetingSummaryToggle();
+
     // Apply filters to show all events
     this.applyFilters();
 
@@ -3624,6 +3794,42 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
       "Todas as seleções de calendário foram removidas",
       "success"
     );
+  }
+
+  /**
+   * Open meeting summary toggle for selected user
+   */
+  openMeetingSummaryToggle(userId) {
+    const selectedUser = this.availableUsers.find((user) => user.id === userId);
+    if (!selectedUser) return;
+
+    const toggle = this.template.querySelector('c-meeting-summary-modal');
+    if (toggle) {
+      toggle.showToggle(
+        userId,
+        selectedUser.name,
+        this.currentYear,
+        this.currentMonthNumber
+      );
+    }
+  }
+
+  /**
+   * Close meeting summary toggle
+   */
+  closeMeetingSummaryToggle() {
+    const toggle = this.template.querySelector('c-meeting-summary-modal');
+    if (toggle) {
+      toggle.hideToggle();
+    }
+  }
+
+  /**
+   * Handle meeting summary toggle close event
+   */
+  handleMeetingSummaryToggleClose() {
+    // Toggle closed - no additional action needed
+    console.log('Meeting summary toggle closed');
   }
 
   /**
@@ -5157,6 +5363,11 @@ export default class CalendarioReino extends NavigationMixin(LightningElement) {
 
         // Generate meeting suggestions after loading events
         this.generateMeetingSuggestions();
+
+        // Refresh client tracking data after loading events
+        setTimeout(() => {
+          this.refreshClientTrackingData();
+        }, 300);
 
         // Pass all events to FullCalendar
         callback(allEvents);

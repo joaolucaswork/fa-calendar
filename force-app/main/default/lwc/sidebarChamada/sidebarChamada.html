@@ -1,0 +1,864 @@
+<template>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <!-- Botões de abas para Lead/Conta -->
+      <div class="tab-container">
+        <div class="tab-buttons" role="tablist">
+          <div
+            class={leadTabClass}
+            data-value="lead"
+            role="tab"
+            tabindex="0"
+            onclick={handleTabChange}
+          >
+            <span class="tab-icon">
+              <lightning-icon
+                icon-name="standard:lead"
+                size="x-small"
+              ></lightning-icon>
+            </span>
+            <span class="tab-label">Lead</span>
+          </div>
+          <div
+            class={accountTabClass}
+            data-value="account"
+            role="tab"
+            tabindex="0"
+            onclick={handleTabChange}
+          >
+            <span class="tab-icon">
+              <lightning-icon
+                icon-name="standard:account"
+                size="x-small"
+              ></lightning-icon>
+            </span>
+            <span class="tab-label">Cliente</span>
+          </div>
+        </div>
+       
+      </div>
+    </div>
+
+    <!-- Mini seção de histórico de chamadas com scroll horizontal -->
+    <div class="call-history-section">
+      <div class="call-history-section-header">
+        <div class="call-history-header-content">
+          <h3 class="call-history-section-title">
+            <lightning-icon
+              icon-name="standard:call"
+              size="x-small"
+              class="slds-m-right_x-small"
+            ></lightning-icon>
+            Histórico de Chamadas Recentes
+          </h3>
+          <!-- Botões de navegação simples para o carrossel -->
+          <div class="carousel-nav-buttons">
+            <button class="carousel-simple-nav carousel-nav-left" onclick={scrollCarouselLeft} title="Ver chamadas anteriores">
+              <lightning-icon icon-name="utility:chevronleft" size="xx-small"></lightning-icon>
+            </button>
+            <button class="carousel-simple-nav carousel-nav-right" onclick={scrollCarouselRight} title="Ver próximas chamadas">
+              <lightning-icon icon-name="utility:chevronright" size="xx-small"></lightning-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="call-history-carousel-container">
+        
+        <!-- Carrossel com scroll horizontal para histórico de chamadas -->
+        <div class="call-history-carousel" data-id="call-history-carousel">
+          <!-- Itens do histórico de chamadas se existirem -->
+          <template if:true={hasRecentCallHistory}>
+            <template for:each={recentCallHistory} for:item="call">
+              <div key={call.Id} class="call-history-card">
+                <div class="call-header">
+                  <div class="call-lead-name" title={call.leadName}>
+                    {call.leadName}
+                    <span class="record-type-icon">
+                      <lightning-icon 
+                        icon-name={call.recordTypeIcon} 
+                        size="xx-small" 
+                        title={call.recordTypeLabel}>
+                      </lightning-icon>
+                    </span>
+                  </div>
+                </div>
+                <div class="call-time">{call.timeFormatted}</div>
+                <a href="javascript:void(0);" 
+                   onclick={navigateToTask} 
+                   data-id={call.Id}
+                   class="task-link" 
+                   title="Ver registro da tarefa">
+                  <lightning-icon 
+                    icon-name="utility:link" 
+                    size="xx-small" 
+                    class="task-icon">
+                  </lightning-icon>
+                </a>
+              </div>
+            </template>
+          </template>
+          
+          <!-- Mensagem quando não há histórico de chamadas -->
+          <template if:false={hasRecentCallHistory}>
+            <div class="no-history-message">
+              Nenhuma chamada registrada recentemente
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-content">
+      <!-- Conteúdo do Modal -->
+      <div if:true={isLoading} class="slds-is-relative slds-p-around_medium">
+        <lightning-spinner
+          alternative-text="Carregando..."
+          variant="brand"
+          size="medium"
+        ></lightning-spinner>
+      </div>
+      <div if:false={isLoading}>
+        <!-- Mini card que aparece quando o card original sai da visão -->
+        <div
+          if:true={selectedLead}
+          class={miniCardClass}
+          data-id="mini-lead-card"
+        >
+          <div class="mini-lead-info">
+            <div class="mini-lead-name" title={selectedLead.Name}>
+              <a href="#" onclick={navigateToLead} title="Visualizar Lead"
+                >{selectedLead.Name}</a
+              >
+            </div>
+            <div class="mini-lead-phone" if:true={selectedLead.Phone}>
+              <lightning-icon
+                icon-name="utility:call"
+                size="x-small"
+                alternative-text="Telefone"
+              ></lightning-icon>
+              <a
+                href="javascript:void(0);"
+                onclick={handleOpenWhatsApp}
+                data-phone={selectedLead.Phone}
+                data-lead-name={selectedLead.Name}
+                title="Clique para abrir no WhatsApp"
+                class="whatsapp-link"
+              >
+                {selectedLead.Phone}
+              </a>
+              <!-- Adicionando o botão de contagem de chamadas dentro do mini card -->
+              <button
+                if:true={leadCallsCount}
+                class="call-badge mini-call-badge"
+                onclick={handleCallBadgeClick}
+                title="Clique para filtrar o histórico de atividades por chamadas deste lead"
+              >
+                <span class="call-badge-count">{leadCallsCount}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conteúdo da aba Lead -->
+        <div class={leadContentClass}>
+          <!-- Pesquisar Lead -->
+          <div class="slds-form-element slds-m-bottom_medium">
+            <label class="slds-form-element__label" for="leadSearchInput">
+              <abbr class="slds-required" title="required">*</abbr>Lead
+            </label>
+            <div class="slds-form-element__control">
+              <div class="slds-combobox_container">
+                <div
+                  class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open"
+                  aria-expanded="true"
+                  aria-haspopup="listbox"
+                  role="combobox"
+                >
+                  <div
+                    class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right"
+                    role="none"
+                  >
+                    <input
+                      type="text"
+                      class="slds-input slds-combobox__input"
+                      id="leadSearchInput"
+                      aria-controls="leadSearchListbox"
+                      aria-autocomplete="list"
+                      role="textbox"
+                      placeholder="Digite nome, empresa, email ou telefone..."
+                      onkeyup={handleLeadSearch}
+                      value={searchTerm}
+                      autocomplete="off"
+                      required
+                      aria-required="true"
+                    />
+                    <span
+                      class="slds-icon_container slds-input__icon slds-input__icon_right"
+                    >
+                      <template if:true={showClearButton}>
+                        <lightning-button-icon
+                          icon-name="utility:close"
+                          size="x-small"
+                          alternative-text="Limpar pesquisa"
+                          title="Limpar pesquisa"
+                          onclick={handleClearSearch}
+                          class="slds-button_icon slds-input__icon_right clear-button"
+                          variant="bare"
+                        ></lightning-button-icon>
+                      </template>
+                      <template if:false={showClearButton}>
+                        <lightning-icon
+                          icon-name="utility:search"
+                          size="x-small"
+                          alternative-text="Pesquisar"
+                          class="slds-icon slds-icon_x-small slds-icon-text-default"
+                        ></lightning-icon>
+                      </template>
+                    </span>
+                  </div>
+                  <div
+                    id="leadSearchListbox"
+                    class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid"
+                    role="listbox"
+                    if:true={showSearchResults}
+                  >
+                    <ul
+                      class="slds-listbox slds-listbox_vertical"
+                      role="presentation"
+                    >
+                      <template if:true={hasSearchResults}>
+                        <template for:each={searchResults} for:item="lead">
+                          <li
+                            key={lead.Id}
+                            role="presentation"
+                            class="slds-listbox__item"
+                          >
+                            <div
+                              class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta"
+                              role="option"
+                              data-id={lead.Id}
+                              onclick={handleLeadSelection}
+                            >
+                              <span class="slds-media__figure">
+                                <span
+                                  class="slds-icon_container slds-icon-standard-lead"
+                                >
+                                  <lightning-icon
+                                    icon-name="standard:lead"
+                                    size="small"
+                                    alternative-text="Lead"
+                                  ></lightning-icon>
+                                </span>
+                              </span>
+                              <span class="slds-media__body">
+                                <span
+                                  class="slds-listbox__option-text slds-listbox__option-text_entity"
+                                  >{lead.Name}</span
+                                >
+                                <span
+                                  class="slds-listbox__option-meta slds-listbox__option-meta_entity"
+                                >
+                                  <template if:true={lead.Company}
+                                    >{lead.Company} •
+                                  </template>
+                                  <template if:true={lead.Email}
+                                    ><span title={lead.FullEmail}>{lead.Email}</span> •
+                                  </template>
+                                  <template if:true={lead.Phone}>
+                                    <a
+                                      href="javascript:void(0);"
+                                      onclick={handleOpenWhatsApp}
+                                      data-phone={lead.Phone}
+                                      data-lead-name={lead.Name}
+                                      title="Clique para abrir no WhatsApp"
+                                      class="whatsapp-link"
+                                    >
+                                      {lead.Phone}
+                                    </a>
+                                  </template>
+                                </span>
+                              </span>
+                            </div>
+                          </li>
+                        </template>
+                      </template>
+                      <template if:false={hasSearchResults}>
+                        <li class="slds-listbox__item">
+                          <div
+                            class="slds-media slds-listbox__option"
+                            role="option"
+                          >
+                            <span class="slds-media__body">
+                              <span class="slds-listbox__option-text"
+                                >Nenhum lead encontrado</span
+                              >
+                            </span>
+                          </div>
+                        </li>
+                      </template>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <template if:true={selectedLead}>
+              <div class="lead-card">
+                <div class="lead-name" title={selectedLead.Name}>
+                  <a href="#" onclick={navigateToLead} title="Visualizar Lead"
+                    >{selectedLead.Name}</a
+                  >
+                </div>
+                <div
+                  class="lead-company"
+                  if:true={selectedLead.Company}
+                  title={selectedLead.Company}
+                >
+                  {selectedLead.Company}
+                </div>
+                <div class="lead-info">
+                  <div
+                    class="lead-info-item"
+                    if:true={selectedLead.Email}
+                    title={selectedLead.FullEmail}
+                    data-field="Email"
+                  >
+                    <lightning-icon
+                      icon-name="utility:email"
+                      size="x-small"
+                      alternative-text="Email"
+                    ></lightning-icon>
+                    <span class="email-text-clamp">{selectedLead.Email}</span>
+                  </div>
+                  <div
+                    class="lead-info-item"
+                    if:true={selectedLead.Phone}
+                    title="Clique para abrir no WhatsApp"
+                  >
+                    <lightning-icon
+                      icon-name="utility:call"
+                      size="x-small"
+                      alternative-text="Telefone"
+                    ></lightning-icon>
+                    <a
+                      href="javascript:void(0);"
+                      onclick={handleOpenWhatsApp}
+                      data-phone={selectedLead.Phone}
+                      data-lead-name={selectedLead.Name}
+                      title="Clique para abrir no WhatsApp"
+                      class="whatsapp-link lead-info-text"
+                    >
+                      {selectedLead.Phone}
+                    </a>
+                  </div>
+
+                  <!-- Acordeão de histórico de chamadas sempre visível quando um lead estiver selecionado -->
+                  <div class="call-history-container" if:true={selectedLead}>
+                    <div
+                      class="call-history-header"
+                      onclick={toggleCallHistory}
+                    >
+                      <div class="call-history-title">
+                        <lightning-icon
+                          icon-name="utility:phone_landscape"
+                          size="x-small"
+                          alternative-text="Histórico de Chamadas"
+                          class="slds-m-right_x-small"
+                        ></lightning-icon>
+                        Histórico de Chamadas ({leadCallsCount})
+                      </div>
+                      <lightning-icon
+                        icon-name={accordionIcon}
+                        size="x-small"
+                        alternative-text={accordionAltText}
+                        class="toggle-icon"
+                      ></lightning-icon>
+                    </div>
+                    <div class={callHistoryContentClass}>
+                      <template if:true={callHistory}>
+                        <template if:true={callHistory.length}>
+                          <template for:each={callHistory} for:item="call">
+                            <div key={call.Id} class="call-history-item">
+                              <div class="call-history-item-header">
+                                <div class="call-date-time">
+                                  <lightning-icon
+                                    icon-name="utility:event"
+                                    size="xx-small"
+                                    alternative-text="Data"
+                                    class="slds-m-right_xx-small"
+                                  ></lightning-icon>
+                                  {call.formattedDate} - {call.formattedTime}
+                                </div>
+                                <div class="call-channel">
+                                  <lightning-icon
+                                    icon-name="utility:share"
+                                    size="xx-small"
+                                    alternative-text="Canal"
+                                    class="slds-m-right_xx-small"
+                                  ></lightning-icon>
+                                  {call.CanaldeComunicacao__c}
+                                </div>
+                              </div>
+                              <div class="call-classification">
+                                <lightning-icon
+                                  icon-name="utility:metrics"
+                                  size="xx-small"
+                                  alternative-text="Classificação"
+                                  class="slds-m-right_xx-small"
+                                ></lightning-icon>
+                                Classificação:
+                                {call.classificacaoLeadAtividade__c}
+                              </div>
+                              <template if:true={call.Description}>
+                                <div class="call-comments">
+                                  <lightning-icon
+                                    icon-name="utility:comments"
+                                    size="xx-small"
+                                    alternative-text="Comentários"
+                                    class="slds-m-right_xx-small"
+                                  ></lightning-icon>
+                                  {call.Description}
+                                </div>
+                              </template>
+                            </div>
+                          </template>
+                        </template>
+                        <template if:false={callHistory.length}>
+                          <div class="no-calls-message">
+                            <lightning-icon
+                              icon-name="utility:info_alt"
+                              size="small"
+                              alternative-text="Informação"
+                              class="slds-m-right_x-small"
+                            ></lightning-icon>
+                            Nenhuma chamada registrada para este lead ainda.
+                          </div>
+                        </template>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Conteúdo da aba Conta -->
+        <div class={accountContentClass}>
+          <!-- Pesquisar Conta -->
+          <div class="slds-form-element slds-m-bottom_medium">
+            <label class="slds-form-element__label" for="accountSearchInput">
+              <abbr class="slds-required" title="required">*</abbr>Cliente
+            </label>
+            <div class="slds-form-element__control">
+              <div class="slds-combobox_container">
+                <div
+                  class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open"
+                  aria-expanded="true"
+                  aria-haspopup="listbox"
+                  role="combobox"
+                >
+                  <div
+                    class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right"
+                    role="none"
+                  >
+                    <input
+                      type="text"
+                      class="slds-input slds-combobox__input"
+                      id="accountSearchInput"
+                      aria-controls="accountSearchListbox"
+                      aria-autocomplete="list"
+                      role="textbox"
+                      placeholder="Digite nome, email ou telefone..."
+                      onkeyup={handleAccountSearch}
+                      value={accountSearchTerm}
+                      autocomplete="off"
+                      required
+                      aria-required="true"
+                    />
+                    <span
+                      class="slds-icon_container slds-input__icon slds-input__icon_right"
+                    >
+                      <template if:true={showAccountClearButton}>
+                        <lightning-button-icon
+                          icon-name="utility:close"
+                          size="x-small"
+                          alternative-text="Limpar pesquisa"
+                          title="Limpar pesquisa"
+                          onclick={handleClearAccountSearch}
+                          class="slds-button_icon slds-input__icon_right clear-button"
+                          variant="bare"
+                        ></lightning-button-icon>
+                      </template>
+                      <template if:false={showAccountClearButton}>
+                        <lightning-icon
+                          icon-name="utility:search"
+                          size="x-small"
+                          alternative-text="Pesquisar"
+                          class="slds-icon slds-icon_x-small slds-icon-text-default"
+                        ></lightning-icon>
+                      </template>
+                    </span>
+                  </div>
+                  <div
+                    id="accountSearchListbox"
+                    class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid"
+                    role="listbox"
+                    if:true={showAccountSearchResults}
+                  >
+                    <ul
+                      class="slds-listbox slds-listbox_vertical"
+                      role="presentation"
+                    >
+                      <template if:true={hasAccountSearchResults}>
+                        <template
+                          for:each={accountSearchResults}
+                          for:item="account"
+                        >
+                          <li
+                            key={account.Id}
+                            role="presentation"
+                            class="slds-listbox__item"
+                          >
+                            <button
+                              class="slds-button slds-button_reset slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta slds-has-focus account-selection-button"
+                              role="option"
+                              data-id={account.Id}
+                              onclick={handleAccountSelection}
+                              style="width: 100%; text-align: left;"
+                            >
+                              <span class="slds-media__figure">
+                                <span
+                                  class="slds-icon_container slds-icon-standard-account"
+                                >
+                                  <lightning-icon
+                                    icon-name="standard:account"
+                                    size="small"
+                                    alternative-text="Conta"
+                                  ></lightning-icon>
+                                </span>
+                              </span>
+                              <span class="slds-media__body">
+                                <span
+                                  class="slds-listbox__option-text slds-listbox__option-text_entity"
+                                  >{account.Name}</span
+                                >
+                                <span
+                                  class="slds-listbox__option-meta slds-listbox__option-meta_entity"
+                                >
+                                  <template if:true={account.Type}
+                                    >{account.Type} •
+                                  </template>
+                                  <template if:true={account.Email}
+                                    >{account.Email} •
+                                  </template>
+                                  <template if:true={account.Phone}>
+                                    <a
+                                      href="javascript:void(0);"
+                                      onclick={handleOpenWhatsApp}
+                                      data-phone={account.Phone}
+                                      data-account-id={account.Id}
+                                      title="Clique para abrir no WhatsApp"
+                                      class="whatsapp-link account-info-text"
+                                    >
+                                      {account.Phone}
+                                    </a>
+                                  </template>
+                                </span>
+                              </span>
+                            </button>
+                          </li>
+                        </template>
+                      </template>
+                      <template if:false={hasAccountSearchResults}>
+                        <li class="slds-listbox__item">
+                          <div
+                            class="slds-media slds-listbox__option"
+                            role="option"
+                          >
+                            <span class="slds-media__body">
+                              <span class="slds-listbox__option-text"
+                                >Nenhum cliente encontrado</span
+                              >
+                            </span>
+                          </div>
+                        </li>
+                      </template>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <template if:true={selectedAccount}>
+              <div class="lead-card">
+                <div class="lead-name" title={selectedAccount.Name}>
+                  <a
+                    href="#"
+                    onclick={navigateToAccount}
+                    title="Visualizar Cliente"
+                    >{selectedAccount.Name}</a
+                  >
+                </div>
+                <div
+                  class="lead-company"
+                  if:true={selectedAccount.Type}
+                  title={selectedAccount.Type}
+                >
+                  {selectedAccount.Type}
+                </div>
+                <div class="lead-info">
+                  <div
+                    class="lead-info-item"
+                    if:true={selectedAccount.Email}
+                    title={selectedAccount.Email}
+                  >
+                    <lightning-icon
+                      icon-name="utility:email"
+                      size="x-small"
+                      alternative-text="Email"
+                    ></lightning-icon>
+                    <span class="email-text-clamp"
+                      >{selectedAccount.Email}</span
+                    >
+                  </div>
+                  <div
+                    class="lead-info-item"
+                    if:true={selectedAccount.Phone}
+                    title="Clique para abrir no WhatsApp"
+                  >
+                    <lightning-icon
+                      icon-name="utility:call"
+                      size="x-small"
+                      alternative-text="Telefone"
+                    ></lightning-icon>
+                    <a
+                      href="javascript:void(0);"
+                      onclick={handleOpenWhatsApp}
+                      data-phone={selectedAccount.Phone}
+                      class="whatsapp-link lead-info-text"
+                    >
+                      {selectedAccount.Phone}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Três colunas para campos somente leitura -->
+        <div class={formFieldsClass}>
+          <div class="slds-grid compact-grid slds-m-bottom_medium">
+            <div class="slds-col">
+              <div class="slds-form-element">
+                <lightning-input
+                  label="Assunto"
+                  value="Chamada"
+                  disabled="true"
+                  aria-readonly="true"
+                ></lightning-input>
+              </div>
+            </div>
+            <div class="slds-col">
+              <div class="slds-form-element">
+                <lightning-input
+                  label="Status"
+                  value="Concluída"
+                  disabled="true"
+                  aria-readonly="true"
+                ></lightning-input>
+              </div>
+            </div>
+            <div class="slds-col">
+              <div class="slds-form-element date-field">
+                <lightning-input
+                  type="date"
+                  label="Data"
+                  value={dataVencimento}
+                  disabled="true"
+                  aria-readonly="true"
+                ></lightning-input>
+              </div>
+            </div>
+          </div>
+
+          <!-- Campo Canal de Comunicação -->
+          <div class="slds-form-element slds-m-bottom_medium">
+            <lightning-combobox
+              label="Canal de comunicação"
+              placeholder="Selecione um canal"
+              options={canaisComunicacao}
+              onchange={handleCanalChange}
+              required
+              aria-required="true"
+              title="Canal de comunicação utilizado para contatar o lead"
+              disabled={isFormDisabled}
+            ></lightning-combobox>
+          </div>
+
+          <!-- Checkbox Ligação Foi Atendida -->
+          <div class="slds-form-element slds-m-bottom_medium">
+            <lightning-input
+              type="checkbox"
+              label="Ligação foi atendida?"
+              checked={ligacaoFoiAtendida}
+              onchange={handleLigacaoAtendidaChange}
+              disabled={isFormDisabled}
+            ></lightning-input>
+          </div>
+
+          <!-- Campo Classificação do Lead - Somente aparece se a ligação foi atendida -->
+          <div
+            class="slds-form-element slds-m-bottom_medium"
+            if:true={ligacaoFoiAtendida}
+          >
+            <lightning-combobox
+              label="Classificação do Lead"
+              placeholder="Selecione uma classificação"
+              options={classificacoesLead}
+              onchange={handleClassificacaoChange}
+              required={ligacaoFoiAtendida}
+              aria-required={ligacaoFoiAtendida}
+              title="Como o lead está sendo classificado após esta chamada"
+              disabled={isFormDisabled}
+            ></lightning-combobox>
+            
+            <!-- Banner de aviso sobre criação de oportunidade (Card Estilizado) -->
+          <div if:true={showOportunidadeBanner} class="section-container opportunity-alert-section slds-m-top_small slds-m-bottom_small">
+            <div class="section-header">
+              <h3 class="section-title">
+                <lightning-icon
+                  icon-name="standard:opportunity"
+                  size="x-small"
+                  class="slds-m-right_x-small"
+                ></lightning-icon>
+                Oportunidade
+              </h3>
+            </div>
+            <div class="opportunity-alert-content">
+              <div class="opportunity-alert-card">
+                <div class="alert-icon">
+                  <lightning-icon
+                    icon-name="utility:new"
+                    size="small"
+                    alternative-text="Nova oportunidade"
+                  ></lightning-icon>
+                </div>
+                <div class="alert-message">
+                  <h4 class="alert-title">Nova oportunidade será criada</h4>
+                  <p class="alert-text">Ao salvar este lead como <strong>Interessado</strong>, uma nova oportunidade será criada automaticamente. Você poderá editar seus detalhes em seguida.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+
+          <!-- Data de vencimento movida para a linha de campos somente leitura acima -->
+
+          <!-- Comentários - Seção integrada com cards -->
+          <div class="comments-section slds-m-bottom_medium">
+            <!-- Componente de templates (agora exibido como cards) -->
+            <c-comment-templates
+              ontemplateselected={handleTemplateSelected}
+              onshowtoast={handleShowToast}
+              disabled={isFormDisabled}
+            ></c-comment-templates>
+
+            <!-- Campo de comentários (integrado visualmente) -->
+            <div class="comments-text-container">
+              <lightning-textarea
+                label="Comentários"
+                placeholder="Adicione comentários sobre a chamada..."
+                value={comentarios}
+                onchange={handleComentariosChange}
+                title="Detalhes adicionais sobre a conversa com o lead"
+                disabled={isFormDisabled}
+              ></lightning-textarea>
+            </div>
+          </div>
+
+          <!-- Seção de Mensagem WhatsApp (Acordeão) -->
+          <div class="whatsapp-accordion-container slds-m-bottom_medium slds-m-top_medium">
+            <div class="whatsapp-accordion-header" onclick={toggleWhatsAppSection}>
+              <div class="whatsapp-accordion-title">
+                <lightning-icon
+                  icon-name="utility:chat"
+                  size="x-small"
+                  alternative-text="Mensagem WhatsApp"
+                  class="slds-m-right_x-small"
+                ></lightning-icon>
+                Mensagem WhatsApp
+              </div>
+              <lightning-icon
+                icon-name={whatsappAccordionIcon}
+                size="x-small"
+                alternative-text={whatsappAccordionAltText}
+                class="toggle-icon"
+              ></lightning-icon>
+            </div>
+            <div class={whatsappContentClass}>
+              <div class="whatsapp-content-inner">
+                <!-- Template de Mensagem WhatsApp -->
+                <div class="whatsapp-template-container">
+                  <c-whatsapp-message-template
+                    ontemplateupated={handleTemplateUpdated}
+                    disabled={isFormDisabled}
+                  ></c-whatsapp-message-template>
+                </div>
+                
+                <!-- Botão Enviar Mensagem -->
+                <div class="slds-m-top_medium">
+                  <button
+                    class="slds-button whatsapp-send-button"
+                    onclick={handleSendWhatsApp}
+                    disabled={isWhatsAppButtonDisabled}>
+                    Enviar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Botão Salvar - Stick Footer (agora só exibido quando um lead estiver selecionado) -->
+    <div class={footerClass} if:true={showSaveButton}>
+      <button
+        class="slds-button slds-button_brand slds-button_stretch"
+        onclick={handleSave}
+        disabled={isSaveDisabled}
+      >
+        <lightning-icon
+          icon-name="utility:check"
+          size="x-small"
+          variant="inverse"
+          class="slds-m-right_x-small"
+        ></lightning-icon>
+        Salvar
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading overlay elegante para preparação da oportunidade -->
+  <div if:true={isPreparingOpportunity} class="opportunity-loading-overlay">
+    <div class="opportunity-loading-content">
+      <div class="loading-icon-container">
+        <lightning-icon icon-name="standard:opportunity" size="medium"></lightning-icon>
+        <div class="loading-spinner-ring"></div>
+      </div>
+      <div class="loading-text">
+        <h2>Preparando oportunidade</h2>
+        <p>Estamos criando uma nova oportunidade para o lead interessado...</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Combined Lead Event & Opportunity Editor -->
+  <c-lead-event-opportunity-editor
+    lead-id={selectedLeadId}
+    opportunity-id={opportunityId}
+    show-modal={showOpportunityModal}
+    onclose={handleOpportunityModalClose}
+    onsave={handleLeadEventOpportunitySave}
+  >
+  </c-lead-event-opportunity-editor>
+</template>
