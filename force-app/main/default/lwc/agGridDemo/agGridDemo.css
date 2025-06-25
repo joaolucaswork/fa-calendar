@@ -1,0 +1,213 @@
+/* Grid wrapper styling */
+.grid-wrapper {
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+/* Container styling */
+.container {
+  background: #fafaf9;
+}
+
+/* Debug info styling */
+.debug-info {
+  background: #f3f2f2;
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  margin-top: 1rem;
+}
+
+/* AG Grid theme customizations */
+.ag-theme-alpine {
+  --ag-font-family: "Salesforce Sans", Arial, sans-serif;
+  --ag-font-size: 13px;
+  --ag-header-height: 40px;
+  --ag-row-height: 42px;
+  --ag-border-color: #d8dde6;
+  --ag-header-background-color: #f3f2f2;
+  --ag-odd-row-background-color: #fafaf9;
+}
+
+/* Filter icon repositioning to the right */
+.ag-theme-alpine .ag-header-cell-menu-button {
+  order: 2;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+.ag-theme-alpine .ag-header-cell-label {
+  order: 1;
+  flex-grow: 1;
+}
+
+.ag-theme-alpine .ag-header-cell-comp-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Custom cell styling */
+.amount-cell {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.amount-value {
+  font-weight: 600;
+  color: #080707;
+  text-align: left;
+}
+
+/* Stage cell styling removed for standardization */
+
+.probability-cell {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+}
+
+/* Actions dropdown styling */
+.actions-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.actions-menu-button {
+  background: white !important;
+  border: 1px solid #d8dde6 !important;
+  border-radius: 0.25rem !important;
+  padding: 0.375rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 2rem !important;
+  min-height: 2rem !important;
+}
+
+.actions-menu-button:hover {
+  background: #f3f2f2 !important;
+  border-color: #1589ee !important;
+}
+
+.actions-dropdown {
+  position: absolute !important;
+  top: 100% !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+  background: white !important;
+  border: 1px solid #d8dde6 !important;
+  border-radius: 0.25rem !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  min-width: 150px !important;
+  margin-top: 2px !important;
+}
+
+.actions-dropdown ul {
+  margin: 0 !important;
+  padding: 0.25rem 0 !important;
+  list-style: none !important;
+}
+
+.actions-dropdown li {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.actions-dropdown a {
+  display: flex !important;
+  align-items: center !important;
+  padding: 0.5rem 0.75rem !important;
+  text-decoration: none !important;
+  color: #181818 !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.actions-dropdown a:hover {
+  background-color: #f3f2f2 !important;
+}
+
+.actions-dropdown a[data-action="delete"] {
+  color: #c23934 !important;
+}
+
+.actions-dropdown .action-icon {
+  margin-right: 0.5rem !important;
+  width: 1rem !important;
+  height: 1rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Event cell styling */
+.event-cell {
+  padding: 0.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.event-cell:hover {
+  background-color: #f3f2f2;
+  cursor: pointer;
+}
+
+/* Legacy action button styling (kept for compatibility) */
+.action-button {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  background: white;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background: #f3f2f2;
+  border-color: #1589ee;
+}
+
+.action-button.edit-button {
+  color: #1589ee;
+}
+
+.action-button.view-button {
+  color: #706e6b;
+}
+
+/* Fixed Actions Dropdown Styling */
+[data-dropdown-container] {
+  position: fixed !important;
+  z-index: 99999 !important;
+  pointer-events: none !important;
+}
+
+[data-dropdown-menu] {
+  position: absolute !important;
+  background: white !important;
+  border: 1px solid rgb(216, 221, 230) !important;
+  border-radius: 0.25rem !important;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px !important;
+  min-width: 150px !important;
+  pointer-events: auto !important;
+}
+
+[data-dropdown-menu].show {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}

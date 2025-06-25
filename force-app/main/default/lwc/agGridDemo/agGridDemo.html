@@ -1,0 +1,111 @@
+<template>
+  <div class="slds-card slds-card_boundary container">
+    <!-- Header with title and actions -->
+    <div
+      class="slds-card__header slds-grid slds-grid_align-spread slds-p-around_medium"
+    >
+      <div class="slds-col">
+        <div class="slds-media slds-media_center">
+          <div class="slds-media__figure">
+            <lightning-icon
+              icon-name="standard:opportunity"
+              size="medium"
+              alternative-text="Oportunidades"
+              title="Oportunidades"
+            ></lightning-icon>
+          </div>
+          <div class="slds-media__body">
+            <h1 class="slds-text-heading_medium">{title}</h1>
+            <p class="slds-text-body_small slds-line-height_reset">
+              Visualização detalhada de oportunidades
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="slds-col">
+        <div class="slds-grid slds-grid_align-end">
+          <lightning-button-icon
+            icon-name="utility:refresh"
+            variant="border-filled"
+            alternative-text="Atualizar"
+            title="Atualizar"
+            onclick={refreshData}
+          ></lightning-button-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading spinner -->
+    <template if:true={isLoading}>
+      <div class="slds-p-around_medium slds-is-relative" style="height: 100px">
+        <lightning-spinner
+          alternative-text="Carregando"
+          size="medium"
+        ></lightning-spinner>
+      </div>
+    </template>
+
+    <!-- Stage Cards Section -->
+    <div class="slds-card__body slds-p-bottom_none">
+      <c-opportunity-stage-cards
+        opportunities={opportunities}
+        stage-options={stageOptions}
+        is-loading={isLoading}
+        selected-stage={selectedStage}
+        onstagefilter={handleStageFilter}
+        onclearfilter={handleClearStageFilter}
+      ></c-opportunity-stage-cards>
+    </div>
+
+    <!-- AG Grid container -->
+    <div class="slds-card__body">
+      <div class="grid-wrapper">
+        <div
+          data-id="agGrid"
+          lwc:dom="manual"
+          class="ag-theme-alpine"
+          style="height: 600px; width: 100%"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Debug information (hidden in production) -->
+    <div class="debug-info slds-p-around_medium" if:true={debugInfo}>
+      <h3 class="slds-text-heading_small">Informações de Debug</h3>
+      <p>Recursos Carregados: {resourcesLoaded}</p>
+      <p>Grid Inicializado: {gridInitialized}</p>
+    </div>
+
+    <!-- Actions Dropdown (positioned absolutely) -->
+    <div class="slds-dropdown-trigger slds-dropdown-trigger_click" data-dropdown-container>
+      <div class="slds-dropdown slds-dropdown_right actions-dropdown" data-dropdown-menu style="display: none;">
+        <ul class="slds-dropdown__list" role="menu">
+          <li class="slds-dropdown__item" role="presentation">
+            <a href="#" role="menuitem" data-action="edit">
+              <span class="slds-truncate" title="Editar">
+                <lightning-icon icon-name="utility:edit" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                Editar
+              </span>
+            </a>
+          </li>
+          <li class="slds-dropdown__item" role="presentation">
+            <a href="#" role="menuitem" data-action="delete">
+              <span class="slds-truncate" title="Excluir">
+                <lightning-icon icon-name="utility:delete" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                Excluir
+              </span>
+            </a>
+          </li>
+          <li class="slds-dropdown__item" role="presentation">
+            <a href="#" role="menuitem" data-action="view">
+              <span class="slds-truncate" title="Visualizar">
+                <lightning-icon icon-name="utility:preview" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                Visualizar
+              </span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</template>
